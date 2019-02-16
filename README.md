@@ -160,7 +160,7 @@ If a device with the given identifier already exists, the existing device will b
 },
 ```
 
-### adding new data to the device
+### adding new data from the device
 
 **Definition**
 

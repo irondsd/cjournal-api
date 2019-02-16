@@ -3,7 +3,7 @@ const express = require('express')
 const app = express()
 const MarkdownIt = require('markdown-it'),
     md = new MarkdownIt();
-const port = 3004
+const port = 3000
 const fs = require('fs')
 
 app.get('/', (req, res) => {
