@@ -51,7 +51,7 @@ Subsequent response definitions will only detail the expected value of the `data
 **Arguments**
 
 - `"id":int` a globally unique identifier for this device
-- `"name":string` a friendly name of a person using the device
+- `"name":string` a name of a patient using the device
 - `"device_type":string` the type of the device used by the patient
 - `"is_online":boolean` shows if the device is currently online
 - `"last_seen":string` the last time the device went online with unix time stamp
@@ -65,7 +65,7 @@ If a device with the given identifier already exists, the existing device will b
 ```json
 {
         "id": "3",
-        "name": "Jane Doe",
+        "name": "John Doe",
         "device_type": "cardio tracker",
         "is_online": true,
         "last_seen": "1550272682",
@@ -73,7 +73,17 @@ If a device with the given identifier already exists, the existing device will b
 ```
 ## Lookup device details
 
-`GET /api/device/<id>`
+**Definition**
+
+`GET /api/devices`
+
+**Arguments**
+
+- `"id":int` a globally unique identifier for this device
+- `"name":string` a name of a patient using the device
+- `"device_type":string` the type of the device used by the patient
+- `"is_online":boolean` shows if the device is currently online
+- `"last_seen":string` the last time the device went online with unix time stamp
 
 **Response**
 
@@ -83,7 +93,7 @@ If a device with the given identifier already exists, the existing device will b
 ```json
 {
         "id": "3",
-        "name": "Jane Doe",
+        "name": "John Doe",
         "device_type": "cardio tracker",
         "is_online": true,
         "last_seen": "1550272682",
@@ -100,3 +110,84 @@ If a device with the given identifier already exists, the existing device will b
 
 - `404 Not Found` if the device does not exist
 - `204 No Content` on success
+
+## Lookup device data
+
+`GET /api/devices/<id>/data`
+
+**Arguments**
+
+- `"id":int` a locally unique identifier if this record
+- `"exercise_type":string` a name of an exercise patient completed
+- `"time_started":string` unix timestamp of the time exercise started
+- `"duration":int` duration of the exercise in seconds
+- `"successful":boolean` if the exercise was terminated
+- `"distance":float` total distance covered in meters
+- `"steps":int` total steps taken during the exercise
+
+**Response**
+
+- `404 Not Found` if the device does not exist
+- `200 OK` on success
+
+```json
+{
+        "id": "1",
+        "exercise_type": "Walking",
+        "time_started": "1550272682",
+        "duration": 300,
+        "successful": true,
+        "distance": 97.3,
+        "steps": 128,
+},
+{
+        "id": "2",
+        "exercise_type": "Stairs",
+        "time_started": "1550274641",
+        "duration": 300,
+        "successful": true,
+        "distance": 97.3,
+        "steps": 128,
+},
+{
+        "id": "3",
+        "exercise_type": "Walking",
+        "time_started": "1550234120",
+        "duration": 40,
+        "successful": false,
+        "distance": 0,
+        "steps": 0,
+},
+```
+
+### adding new data to the device
+
+**Definition**
+
+`POST /api/devices/<id>/data/add`
+
+**Arguments**
+
+- `"id":int` a locally unique identifier if this record
+- `"exercise_type":string` a name of an exercise patient completed
+- `"time_started":string` unix timestamp of the time exercise started
+- `"duration":int` duration of the exercise in seconds
+- `"successful":boolean` if the exercise was terminated
+- `"distance":float` total distance covered in meters
+- `"steps":int` total steps taken during the exercise
+
+**Response**
+
+- `201 Created` on success
+
+```json
+{
+        "id": "3",
+        "exercise_type": "Walking",
+        "time_started": "1550234120",
+        "duration": 40,
+        "successful": false,
+        "distance": 0,
+        "steps": 0,
+}
+```

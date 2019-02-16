@@ -1,19 +1,20 @@
 const log = require('./logger')
-const port = 3000
+const express = require('express')
+const app = express()
+const MarkdownIt = require('markdown-it'),
+    md = new MarkdownIt();
+const port = 3004
+const fs = require('fs')
 
-const http = require('http')
-const server = http.createServer((req, res) => {
-    if (req.url === '/api/') {
-        res.write('You should not be here')
-        res.end()
-    }
-
-    if (req.url === '/api/list') {
-        res.write(JSON.stringify([1, 2, 3]))
-        res.end()
-    }
+app.get('/', (req, res) => {
+    fs.readFile('README.md', 'utf8', function (err, contents) {
+        if (err) {
+            res.send('Error reading README file')
+        }
+        else {
+            res.send(md.render(contents))
+        }
+    });
 })
 
-server.listen(port)
-
-log('Listening on port ' + port + '...')
+app.listen(port, () => { log('Listening on port ' + port + '...') })
