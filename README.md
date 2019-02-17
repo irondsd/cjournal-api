@@ -2,22 +2,17 @@
 
 ## Usage
 
-All responses will have the form
-
-```json
-{
-    "data": "Mixed type holding the content of the response",
-    "message": "Description of what happened"
-}
-```
-
-Subsequent response definitions will only detail the expected value of the `data field`
-
 ### List all devices
 
 **Definition**
 
 `GET /api/devices`
+
+**Parameters**
+
+- `is_online` (Optional) Select only online devices
+- `device_type` (Optional) Select devices with specific type
+- `api_key` (Required) An API key
 
 **Response**
 
@@ -53,8 +48,6 @@ Subsequent response definitions will only detail the expected value of the `data
 - `"id":int` a globally unique identifier for this device
 - `"name":string` a name of a patient using the device
 - `"device_type":string` the type of the device used by the patient
-- `"is_online":boolean` shows if the device is currently online
-- `"last_seen":string` the last time the device went online with unix time stamp
 
 If a device with the given identifier already exists, the existing device will be overwritten.
 
@@ -75,7 +68,7 @@ If a device with the given identifier already exists, the existing device will b
 
 **Definition**
 
-`GET /api/devices`
+`GET /api/devices/<id>`
 
 **Arguments**
 
@@ -83,7 +76,7 @@ If a device with the given identifier already exists, the existing device will b
 - `"name":string` a name of a patient using the device
 - `"device_type":string` the type of the device used by the patient
 - `"is_online":boolean` shows if the device is currently online
-- `"last_seen":string` the last time the device went online with unix time stamp
+- `"last_seen":string` the last time the device went online with unix timestamp
 
 **Response**
 
@@ -113,17 +106,15 @@ If a device with the given identifier already exists, the existing device will b
 
 ## Lookup device data
 
-`GET /api/devices/<id>/data`
+`GET /api/devices/<id>/data/?api_key=sample_key&from=1345432423`
 
-**Arguments**
+**Parameters**
 
-- `"id":int` a locally unique identifier if this record
-- `"exercise_type":string` a name of an exercise patient completed
-- `"time_started":string` unix timestamp of the time exercise started
-- `"duration":int` duration of the exercise in seconds
-- `"successful":boolean` if the exercise was terminated
-- `"distance":float` total distance covered in meters
-- `"steps":int` total steps taken during the exercise
+- `from` (Optional) Beginning timestamp of a range - only display records after this time
+- `to` (Optional) End timestamp of a range - only display records before this time
+- `exercise_type` (Optional) Select only one specific exercise type
+- `successfil` (Optional) Select only successful or unsuccessful samples
+- `api_key` (Required) An API key
 
 **Response**
 
@@ -160,7 +151,7 @@ If a device with the given identifier already exists, the existing device will b
 },
 ```
 
-### adding new data from the device
+### adding new data from the device to database
 
 **Definition**
 
