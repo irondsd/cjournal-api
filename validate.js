@@ -7,8 +7,6 @@ function validate_api_key(req) {
     }
 }
 
-module.exports.api_key = validate_api_key
-
 function validate_new_device(req) {
     if (!req.body.name || req.body.name.length < 3) {
         return false
@@ -22,3 +20,4 @@ function validate_new_device(req) {
 }
 
 module.exports.new_device = validate_new_device
+module.exports.api_key = validate_api_key

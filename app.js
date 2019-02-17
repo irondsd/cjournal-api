@@ -49,23 +49,33 @@ app.get('/api/devices', (req, res) => {
 app.get('/api/devices/:id', (req, res) => {
     found = devices.find(d => d.id === parseInt(req.params.id))
     if (!found) {
-        res.status(404).send()
-        return
+        return res.status(404).send()
     }
     res.send(found)
 })
 
-app.post('/api/devices', (req, res) => {
+app.delete('/api/devices/:id', (req, res) => {
+    found = devices.find(d => d.id === parseInt(req.params.id))
+    if (!found) {
+        return res.status(404).send()
+    }
+
+    index = devices.indexOf(found)
+
+    devices.splice(index, 1)
+    res.status(204).send()
+})
+
+app.post('/api/devices/', (req, res) => {
     if (!validate.new_device(req)) {
-        res.status(400).send()
-        return
+        return res.status(400).send()
     }
 
     const device = {
         "id": devices.length + 1,
         "name": req.body.name,
         "device_type": req.body.device_type,
-        "last_seen": 'now' // replace with an actual function
+        "last_seen": (Date.now() / 1000 | 0)
     }
 
     devices.push(device)
@@ -74,11 +84,9 @@ app.post('/api/devices', (req, res) => {
 
 app.get('/api/check/', function (req, res) {
     if (validate.api_key(req)) {
-        res.send('key validated')
-        return
+        return res.send('key validated')
     }
     res.status(403).send()
-
 })
 
 app.listen(port, () => { log(`Listening on port ${port}...`) })
