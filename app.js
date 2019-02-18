@@ -5,31 +5,9 @@ const MarkdownIt = require('markdown-it'), md = new MarkdownIt();
 const validate = require('./validate')
 const port = process.env.PORT || 3000
 const fs = require('fs')
+const sqlite = require('sqlite3')
+const db = new sqlite.Database('./db/trackers.db')
 app.use(express.json())
-
-devices = [
-    {
-        "id": 1,
-        "name": "Alexander Feldman",
-        "device_type": "cardio tracker",
-        "is_online": false,
-        "last_seen": "1550272682",
-    },
-    {
-        "id": 2,
-        "name": "John Doe",
-        "device_type": "cardio tracker",
-        "is_online": false,
-        "last_seen": "1550272682",
-    },
-    {
-        "id": 3,
-        "name": "Bro Notbro",
-        "device_type": "cardio tracker",
-        "is_online": false,
-        "last_seen": "1550272682",
-    }
-]
 
 app.get('/api/', (req, res) => {
     fs.readFile('README.md', 'utf8', function (err, contents) {
@@ -43,27 +21,40 @@ app.get('/api/', (req, res) => {
 })
 
 app.get('/api/devices', (req, res) => {
-    res.send(devices)
+    db.all('select * from devices', (err, rows) => {
+        if (err) {
+            log(err)
+            res.status(500).send(err)
+        }
+        res.send(rows)
+    })
 })
 
 app.get('/api/devices/:id', (req, res) => {
-    found = devices.find(d => d.id === parseInt(req.params.id))
-    if (!found) {
-        return res.status(404).send()
-    }
-    res.send(found)
+    db.all('select * from devices where id = ' + req.params.id, (err, rows) => {
+        if (err) {
+            return res.status(500).send(err)
+        }
+        if (rows.length > 0) {
+            return res.send(rows)
+        }
+        else {
+            return res.status(404).send()
+        }
+    })
 })
 
+// make sure to add delete confirmation
 app.delete('/api/devices/:id', (req, res) => {
-    found = devices.find(d => d.id === parseInt(req.params.id))
-    if (!found) {
-        return res.status(404).send()
-    }
-
-    index = devices.indexOf(found)
-
-    devices.splice(index, 1)
-    res.status(204).send()
+    db.all('delete from devices where id = ' + req.params.id, function (err) {
+        console.log(this.changes)
+        if (err) {
+            return res.status(500).send(err)
+        }
+        else {
+            return res.status(204).send()
+        }
+    })
 })
 
 app.post('/api/devices/', (req, res) => {
@@ -71,15 +62,16 @@ app.post('/api/devices/', (req, res) => {
         return res.status(400).send()
     }
 
-    const device = {
-        "id": devices.length + 1,
-        "name": req.body.name,
-        "device_type": req.body.device_type,
-        "last_seen": (Date.now() / 1000 | 0)
-    }
+    const current_type = Date.now() / 1000 | 0
 
-    devices.push(device)
-    res.status(201).send(device)
+    db.all(`INSERT INTO devices(name, device_type, last_seen) VALUES ('${req.body.name}', '${req.body.device_type}', '${current_type}')`, (err, rows) => {
+        if (err) {
+            return log(err)
+        }
+        else {
+            res.status(201).send(rows)
+        }
+    })
 })
 
 app.get('/api/check/', function (req, res) {
@@ -87,6 +79,33 @@ app.get('/api/check/', function (req, res) {
         return res.send('key validated')
     }
     res.status(403).send()
+})
+
+// add time frames to choose from
+app.get('/api/devices/:id/data/', (req, res) => {
+    db.all('select * from exercises where device_id = ' + req.params.id, (err, rows) => {
+        if (err) {
+            log(err)
+            res.status(500).send(err)
+        }
+        res.send(rows)
+    })
+})
+
+app.post('/api/devices/:id/data/', (req, res) => {
+    if (!validate.exercise_record(req)) {
+        return res.status(400).send()
+    }
+
+    db.run(`insert into exercises(device_id, exercise_type, time_started, duration, successful, distance, steps) values 
+            ('${req.body.device_id}', '${req.body.exercise_type}', '${req.body.time_started}', '${req.body.duration}', '${req.body.successful}', '${req.body.distance}', '${req.body.steps}')`, (err, rows) => {
+            if (err) {
+                log(err)
+            }
+            else {
+                res.status(201).send(rows)
+            }
+        })
 })
 
 app.listen(port, () => { log(`Listening on port ${port}...`) })
