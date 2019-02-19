@@ -47,8 +47,6 @@
 - `"name":string` a name of a patient using the device
 - `"device_type":string` the type of the device used by the patient
 
-If a device with the given identifier already exists, the existing device will be overwritten.
-
 **Response**
 
 - `201 Created` on success
@@ -61,6 +59,7 @@ If a device with the given identifier already exists, the existing device will b
         "last_seen": "1550272682",
 }
 ```
+
 ## Lookup device details
 
 **Definition**
@@ -101,6 +100,34 @@ If a device with the given identifier already exists, the existing device will b
 - `204 No Content` on success
 
 Deleting the device will also remove all the data stored for this device
+
+### Updating device information
+
+**Definition**
+
+`PUT /api/devices/<id>`
+
+**Arguments**
+
+- `"name":string` (Optional) a name of a patient using the device
+- `"device_type":string` (Optional) the type of the device used by the patient
+
+both arguments are optional, but either one must be present for a successful request.
+
+**Response**
+
+- `204 No Content` on success
+- `404 Not Found` if the device does not exist
+- `400 Bad Request` if either name or device_type was not specified
+
+```json
+{
+        "id": "3",
+        "name": "John Doe",
+        "device_type": "cardio tracker",
+        "last_seen": "1550272682",
+}
+```
 
 ## Lookup device data
 
@@ -149,7 +176,7 @@ Deleting the device will also remove all the data stored for this device
 },
 ```
 
-### adding new data from the device to database
+### adding new data from device to database
 
 **Definition**
 
@@ -157,17 +184,17 @@ Deleting the device will also remove all the data stored for this device
 
 **Arguments**
 
-- `"id":int` a locally unique identifier if this record
-- `"exercise_type":string` a name of an exercise patient completed
-- `"time_started":string` unix timestamp of the time exercise started
-- `"duration":int` duration of the exercise in seconds
-- `"successful":boolean` if the exercise was terminated
-- `"distance":float` total distance covered in meters
-- `"steps":int` total steps taken during the exercise
+- `"exercise_type":string` (Required) a name of an exercise patient completed
+- `"time_started":string` (Required) unix timestamp of the time exercise started
+- `"duration":int` (Required) duration of the exercise in seconds
+- `"successful":boolean` (Required) if the exercise was terminated
+- `"distance":float` (Optional) total distance covered in meters
+- `"steps":int` (Optional) total steps taken during the exercise
 
 **Response**
 
 - `201 Created` on success
+- `400 Bad Request` if some of the values were wrong
 
 ```json
 {
@@ -180,3 +207,6 @@ Deleting the device will also remove all the data stored for this device
         "steps": 0,
 }
 ```
+
+### updating device data
+With current realization is not possible to modify stored data. If the device was deleted, assiciated data will be removed as well.
