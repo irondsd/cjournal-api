@@ -107,12 +107,15 @@ app.put('/api/devices/:id', (req, res) => {
     sql += `where id = ${req.params.id}`
 
     const current_type = Date.now() / 1000 | 0
-    db.all(sql, (err, rows) => {
+    db.run(sql, function (err, rows) {
         if (err) {
             return log(err)
         }
+        if (this.changes) {
+            res.status(204).send(rows)
+        }
         else {
-            res.status(201).send(rows)
+            res.status(404).send()
         }
     })
 })
