@@ -1,0 +1,31 @@
+{
+  "name": "incart",
+  "version": "0.9.3",
+  "description": "backend for exercise journal app",
+  "main": "app.js",
+  "dependencies": {
+    "express": "^4.16.4",
+    "markdown-it": "^8.4.2",
+    "sqlite3": "^4.0.6"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/irondsd/incart.git"
+  },
+  "keywords": [
+    "backend",
+    "node",
+    "express",
+    "sqlite"
+  ],
+  "author": "Konstantin Mednikov",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/irondsd/incart/issues"
+  },
+  "homepage": "https://github.com/irondsd/incart#readme"
+}
