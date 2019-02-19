@@ -19,6 +19,15 @@ function validate_new_device(req) {
     return true
 }
 
+function validate_put_device(req) {
+    if (req.body.name || req.body.device_type) {
+        return true
+    }
+    else {
+        return false
+    }
+}
+
 function validate_exercise_record(req) {
     if (req.body.exercise_type && req.body.time_started && req.body.duration && req.body.successful) {
         return true
@@ -29,5 +38,6 @@ function validate_exercise_record(req) {
 }
 
 module.exports.new_device = validate_new_device
+module.exports.put_device = validate_put_device
 module.exports.exercise_record = validate_exercise_record
 module.exports.api_key = validate_api_key

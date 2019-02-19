@@ -44,7 +44,6 @@ app.get('/api/devices/:id', (req, res) => {
     })
 })
 
-// make sure to add delete confirmation
 app.delete('/api/devices/:id', (req, res) => {
     db.run('delete from devices where id = ' + req.params.id, function (err) {
         if (err) {
@@ -75,6 +74,40 @@ app.post('/api/devices/', (req, res) => {
     const current_type = Date.now() / 1000 | 0
 
     db.all(`INSERT INTO devices(name, device_type, last_seen) VALUES ('${req.body.name}', '${req.body.device_type}', '${current_type}')`, (err, rows) => {
+        if (err) {
+            return log(err)
+        }
+        else {
+            res.status(201).send(rows)
+        }
+    })
+})
+
+app.put('/api/devices/:id', (req, res) => {
+    if (!validate.put_device(req)) {
+        return res.status(400).send()
+    }
+
+    sql = `update devices set `
+
+    if (req.body.name) {
+        sql += `name = '${req.body.name}' `
+    }
+
+    if (req.body.device_type) {
+        if (req.body.name) {
+            // in case there's something in front of device time, need a comma
+            sql += `, device_type = '${req.body.device_type}' `
+        }
+        else {
+            sql += `device_type = '${req.body.device_type}' `
+        }
+    }
+
+    sql += `where id = ${req.params.id}`
+
+    const current_type = Date.now() / 1000 | 0
+    db.all(sql, (err, rows) => {
         if (err) {
             return log(err)
         }

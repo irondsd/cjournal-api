@@ -24,14 +24,12 @@
         "id": "1",
         "name": "Alexander Feldman",
         "device_type": "cardio tracker",
-        "is_online": false,
         "last_seen": "1550272682",
     },
     {
         "id": "2",
         "name": "Jane Doe",
         "device_type": "cardio tracker",
-        "is_online": true,
         "last_seen": "1550272682",
     }
 ]
@@ -60,7 +58,6 @@ If a device with the given identifier already exists, the existing device will b
         "id": "3",
         "name": "John Doe",
         "device_type": "cardio tracker",
-        "is_online": true,
         "last_seen": "1550272682",
 }
 ```
@@ -88,7 +85,6 @@ If a device with the given identifier already exists, the existing device will b
         "id": "3",
         "name": "John Doe",
         "device_type": "cardio tracker",
-        "is_online": true,
         "last_seen": "1550272682",
 }
 ```
