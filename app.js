@@ -46,13 +46,23 @@ app.get('/api/devices/:id', (req, res) => {
 
 // make sure to add delete confirmation
 app.delete('/api/devices/:id', (req, res) => {
-    db.all('delete from devices where id = ' + req.params.id, function (err) {
-        console.log(this.changes)
+    db.run('delete from devices where id = ' + req.params.id, function (err) {
         if (err) {
             return res.status(500).send(err)
         }
-        else {
+        if (this.changes) {
+            // so if the device was actualy deleted, we need to clear exercise data from exercise table as well
+            db.run('delete from exercises where device_id = ' + req.params.id, function (err) {
+                if (err) {
+                    console.log(err)
+                }
+            })
+
+            // and finally return 204
             return res.status(204).send()
+        }
+        else {
+            return res.status(404).send()
         }
     })
 })
@@ -81,9 +91,16 @@ app.get('/api/check/', function (req, res) {
     res.status(403).send()
 })
 
-// add time frames to choose from
 app.get('/api/devices/:id/data/', (req, res) => {
-    db.all('select * from exercises where device_id = ' + req.params.id, (err, rows) => {
+    let timeframe = ``
+    if (req.query.from) {
+        timeframe += ` and time_started > ${req.query.from} `
+    }
+    if (req.query.to) {
+        timeframe += ` and time_started < ${req.query.to} `
+    }
+
+    db.all('select * from exercises where device_id = ' + req.params.id + timeframe, (err, rows) => {
         if (err) {
             log(err)
             res.status(500).send(err)
@@ -98,7 +115,7 @@ app.post('/api/devices/:id/data/', (req, res) => {
     }
 
     db.run(`insert into exercises(device_id, exercise_type, time_started, duration, successful, distance, steps) values 
-            ('${req.body.device_id}', '${req.body.exercise_type}', '${req.body.time_started}', '${req.body.duration}', '${req.body.successful}', '${req.body.distance}', '${req.body.steps}')`, (err, rows) => {
+            ('${req.params.id}', '${req.body.exercise_type}', '${req.body.time_started}', '${req.body.duration}', '${req.body.successful}', '${req.body.distance}', '${req.body.steps}')`, (err, rows) => {
             if (err) {
                 log(err)
             }

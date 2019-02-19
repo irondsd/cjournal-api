@@ -20,7 +20,7 @@ function validate_new_device(req) {
 }
 
 function validate_exercise_record(req) {
-    if (req.body.device_id && req.body.exercise_type && req.body.time_started && req.body.duration && req.body.successful) {
+    if (req.body.exercise_type && req.body.time_started && req.body.duration && req.body.successful) {
         return true
     }
     else {

@@ -104,6 +104,8 @@ If a device with the given identifier already exists, the existing device will b
 - `404 Not Found` if the device does not exist
 - `204 No Content` on success
 
+Deleting the device will also remove all the data stored for this device
+
 ## Lookup device data
 
 `GET /api/devices/<id>/data/?api_key=sample_key&from=1345432423`
@@ -155,7 +157,7 @@ If a device with the given identifier already exists, the existing device will b
 
 **Definition**
 
-`POST /api/devices/<id>/data/add`
+`POST /api/devices/<id>/data/`
 
 **Arguments**
 
