@@ -11,6 +11,7 @@ const validate = require('../validate')
 // TODO: check password on put request
 // TODO: better error managing i.e. send explataion with 404
 
+// Get all users
 router.get('/', (req, res) => {
     db.all('select id, name, email, device_type, last_seen from users', (err, rows) => {
         if (err) {
@@ -21,6 +22,7 @@ router.get('/', (req, res) => {
     })
 })
 
+// Get information about the user with specific
 router.get('/:id', (req, res) => {
     db.all('select id, name, email, device_type, last_seen from users where id = ' + req.params.id, (err, rows) => {
         if (err) {
@@ -57,6 +59,7 @@ router.delete('/:id', (req, res) => {
     })
 })
 
+// Add user
 router.post('/', (req, res) => {
     if (!validate.new_device(req)) {
         return res.status(400).send()
@@ -74,6 +77,8 @@ router.post('/', (req, res) => {
     })
 })
 
+
+// Update user
 router.put('/', (req, res) => {
     if (!validate.put_device(req)) {
         return res.status(400).send()
