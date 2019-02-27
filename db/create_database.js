@@ -1,13 +1,15 @@
 const log = require('../logger')
 const sqlite = require('sqlite3')
 const db = new sqlite.Database('trackers.db')
-let populate = true // add sample values to the db
+let populate = false // add sample values to the db
 let errors = false
 
 db.serialize(() => {
-    db.run(`create table if not exists devices (
+    db.run(`create table if not exists users (
                 id integer primary key, name text, 
                 device_type text, 
+                email text,
+                password text,
                 last_seen datetime)`, (err) => {
             if (err) {
                 log(err)
@@ -17,14 +19,14 @@ db.serialize(() => {
 
     db.run(`create table if not exists exercises (
         id integer primary key,
-        device_id integer,
+        users_id integer,
         exercise_type text,
         time_started datetime,
         duration text,
         successful bool,
         distance real,
         steps integer,
-        foreign key (device_id) references devices(id)
+        foreign key (users_id) references users(id)
     )`), (err) => {
             if (err) {
                 log(err)
@@ -34,40 +36,40 @@ db.serialize(() => {
 })
 
 if (populate) {
-    db.run(`INSERT INTO devices(name, device_type, last_seen) VALUES ('Alexander Feldman', 'simple tracker', '1550507313')`, (err) => {
+    db.run(`INSERT INTO users(name, device_type, last_seen, email, password) VALUES ('Alexander Feldman', 'Shovel', '1550507313', 'ggn00b@mail.ru', 'gggggg123')`, (err) => {
         if (err) {
             log(err)
             errors = true
         }
     })
-    db.run(`INSERT INTO devices(name, device_type, last_seen) VALUES ('John Doe', 'simple tracker', '1550507313')`, (err) => {
+    db.run(`INSERT INTO users(name, device_type, last_seen, email, password) VALUES ('Carl Sagan', 'Telescope', '1550507313', 'ggn00b@mail.ua', 'gggggg123')`, (err) => {
         if (err) {
             log(err)
             errors = true
         }
     })
-    db.run(`INSERT INTO devices(name, device_type, last_seen) VALUES ('Jane Doe', 'simple tracker', '1550507313')`, (err) => {
-        if (err) {
-            log(err)
-            errors = true
-        }
-    })
-
-    db.run(`insert into exercises(device_id, exercise_type, time_started, duration, successful, distance, steps) values ('1', 'Walking', '2019-02-18T12:30:44.624Z', '300', '1', '94.4', '122')`, (err) => {
+    db.run(`INSERT INTO users(name, device_type, last_seen, email, password) VALUES ('Max Plank', 'Microscope', '1550507313', 'ggn000b@gmail.com', 'gggggg123')`, (err) => {
         if (err) {
             log(err)
             errors = true
         }
     })
 
-    db.run(`insert into exercises(device_id, exercise_type, time_started, duration, successful, distance, steps) values ('1', 'Walking', '2019-02-18T12:30:44.624Z', '300', '1', '94.4', '122')`, (err) => {
+    db.run(`insert into exercises(users_id, exercise_type, time_started, duration, successful, distance, steps) values ('1', 'Walking', '2019-02-18T12:30:44.624Z', '300', '1', '94.4', '122')`, (err) => {
         if (err) {
             log(err)
             errors = true
         }
     })
 
-    db.run(`insert into exercises(device_id, exercise_type, time_started, duration, successful, distance, steps) values ('5', 'Walking', '2019-02-18T12:30:44.624Z', '300', '1', '94.4', '122')`, (err) => {
+    db.run(`insert into exercises(users_id, exercise_type, time_started, duration, successful, distance, steps) values ('1', 'Walking', '2019-02-18T12:30:44.624Z', '300', '1', '94.4', '122')`, (err) => {
+        if (err) {
+            log(err)
+            errors = true
+        }
+    })
+
+    db.run(`insert into exercises(users_id, exercise_type, time_started, duration, successful, distance, steps) values ('3', 'Walking', '2019-02-18T12:30:44.624Z', '300', '1', '94.4', '122')`, (err) => {
         if (err) {
             log(err)
             errors = true
@@ -76,7 +78,7 @@ if (populate) {
 
     if (errors === false) {
         //let's now make sure the records are there
-        db.each(`SELECT * FROM devices`, (err, records) => {
+        db.each(`SELECT * FROM users`, (err, records) => {
             console.log(records)
         })
 
