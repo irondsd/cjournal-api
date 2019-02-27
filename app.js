@@ -7,12 +7,15 @@ const port = process.env.PORT || 3000
 const fs = require('fs')
 const sqlite = require('sqlite3')
 const db = new sqlite.Database('./db/trackers.db')
-app.use(express.json())
 const index = require('./routes/index')
 const users = require('./routes/users')
-app.use('/', index)
-app.use('/', users)
+const activity = require('./routes/activity')
 
+app.use('/api/', index)
+app.use('/api/users/', users)
+app.use('/api/users/', activity)
+
+// just for testing, will be removed later
 app.get('/api/check/', function (req, res) {
     if (validate.api_key(req)) {
         return res.send('key validated')

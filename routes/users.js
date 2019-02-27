@@ -9,9 +9,9 @@ const validate = require('../validate')
 // TODO: make get and delete methods for loggin in and out
 // TODO: check password on delete (or api key?) request
 // TODO: check password on put request
-// TODO: possibly distinguish if there's no data or there is no user on get data request
+// TODO: better error managing i.e. send explataion with 404
 
-router.get('/api/users/', (req, res) => {
+router.get('/', (req, res) => {
     db.all('select id, name, email, device_type, last_seen from users', (err, rows) => {
         if (err) {
             log(err)
@@ -21,7 +21,7 @@ router.get('/api/users/', (req, res) => {
     })
 })
 
-router.get('/api/users/:id', (req, res) => {
+router.get('/:id', (req, res) => {
     db.all('select id, name, email, device_type, last_seen from users where id = ' + req.params.id, (err, rows) => {
         if (err) {
             return res.status(500).send(err)
@@ -35,7 +35,7 @@ router.get('/api/users/:id', (req, res) => {
     })
 })
 
-router.delete('/api/users/:id', (req, res) => {
+router.delete('/:id', (req, res) => {
     db.run('delete from users where id = ' + req.params.id, function (err) {
         if (err) {
             return res.status(500).send(err)
@@ -57,7 +57,7 @@ router.delete('/api/users/:id', (req, res) => {
     })
 })
 
-router.post('/api/users/', (req, res) => {
+router.post('/', (req, res) => {
     if (!validate.new_device(req)) {
         return res.status(400).send()
     }
@@ -74,7 +74,7 @@ router.post('/api/users/', (req, res) => {
     })
 })
 
-router.put('/api/users/:id', (req, res) => {
+router.put('/', (req, res) => {
     if (!validate.put_device(req)) {
         return res.status(400).send()
     }
@@ -109,40 +109,6 @@ router.put('/api/users/:id', (req, res) => {
             res.status(404).send()
         }
     })
-})
-
-router.get('/api/users/:id/data/', (req, res) => {
-    let timeframe = ``
-    if (req.query.from) {
-        timeframe += ` and time_started > ${req.query.from} `
-    }
-    if (req.query.to) {
-        timeframe += ` and time_started < ${req.query.to} `
-    }
-
-    db.all('select * from exercises where users_id = ' + req.params.id + timeframe, (err, rows) => {
-        if (err) {
-            log(err)
-            res.status(500).send(err)
-        }
-        res.send(rows)
-    })
-})
-
-router.post('/api/users/:id/data/', (req, res) => {
-    if (!validate.exercise_record(req)) {
-        return res.status(400).send()
-    }
-
-    db.run(`insert into exercises(users_id, exercise_type, time_started, duration, successful, distance, steps) values 
-            ('${req.params.id}', '${req.body.exercise_type}', '${req.body.time_started}', '${req.body.duration}', '${req.body.successful}', '${req.body.distance}', '${req.body.steps}')`, (err, rows) => {
-            if (err) {
-                log(err)
-            }
-            else {
-                res.status(201).send(rows)
-            }
-        })
 })
 
 module.exports = router;

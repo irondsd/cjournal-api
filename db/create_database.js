@@ -1,7 +1,7 @@
 const log = require('../logger')
 const sqlite = require('sqlite3')
 const db = new sqlite.Database('trackers.db')
-let populate = false // add sample values to the db
+let populate = true // add sample values to the db
 let errors = false
 
 db.serialize(() => {
@@ -17,10 +17,10 @@ db.serialize(() => {
             }
         })
 
-    db.run(`create table if not exists exercises (
+    db.run(`create table if not exists activity (
         id integer primary key,
         users_id integer,
-        exercise_type text,
+        activity_type text,
         time_started datetime,
         duration text,
         successful bool,
@@ -55,21 +55,21 @@ if (populate) {
         }
     })
 
-    db.run(`insert into exercises(users_id, exercise_type, time_started, duration, successful, distance, steps) values ('1', 'Walking', '2019-02-18T12:30:44.624Z', '300', '1', '94.4', '122')`, (err) => {
+    db.run(`insert into activity(users_id, activity_type, time_started, duration, successful, distance, steps) values ('1', 'Walking', '2019-02-18T12:30:44.624Z', '300', '1', '94.4', '122')`, (err) => {
         if (err) {
             log(err)
             errors = true
         }
     })
 
-    db.run(`insert into exercises(users_id, exercise_type, time_started, duration, successful, distance, steps) values ('1', 'Walking', '2019-02-18T12:30:44.624Z', '300', '1', '94.4', '122')`, (err) => {
+    db.run(`insert into activity(users_id, activity_type, time_started, duration, successful, distance, steps) values ('1', 'Walking', '2019-02-18T12:30:44.624Z', '300', '1', '94.4', '122')`, (err) => {
         if (err) {
             log(err)
             errors = true
         }
     })
 
-    db.run(`insert into exercises(users_id, exercise_type, time_started, duration, successful, distance, steps) values ('3', 'Walking', '2019-02-18T12:30:44.624Z', '300', '1', '94.4', '122')`, (err) => {
+    db.run(`insert into activity(users_id, activity_type, time_started, duration, successful, distance, steps) values ('3', 'Walking', '2019-02-18T12:30:44.624Z', '300', '1', '94.4', '122')`, (err) => {
         if (err) {
             log(err)
             errors = true
@@ -82,7 +82,7 @@ if (populate) {
             console.log(records)
         })
 
-        db.each(`select * from exercises`, (err, records) => {
+        db.each(`select * from activities`, (err, records) => {
             console.log(records)
         })
 

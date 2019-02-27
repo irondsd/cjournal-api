@@ -9,7 +9,7 @@ const MarkdownIt = require('markdown-it'), md = new MarkdownIt();
 //     next()
 // })
 
-router.get('/api/', (req, res) => {
+router.get('/', (req, res) => {
     fs.readFile('README.md', 'utf8', function (err, contents) {
         if (err) {
             res.send(md.render("Error reading README.md"))
