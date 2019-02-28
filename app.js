@@ -10,7 +10,9 @@ const db = new sqlite.Database('./db/trackers.db')
 const index = require('./routes/index')
 const users = require('./routes/users')
 const activity = require('./routes/activity')
+const bodyParser = require('body-parser')
 
+app.use(bodyParser.json())
 app.use('/api/', index)
 app.use('/api/users/', users)
 app.use('/api/users/', activity)
@@ -23,4 +25,4 @@ app.get('/api/check/', function (req, res) {
     res.status(403).send()
 })
 
-app.listen(port, () => { log(`Listening on port ${port}...`) })
+app.listen(port, () => { log(`Server started on port ${port}`) })

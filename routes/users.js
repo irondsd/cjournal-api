@@ -64,10 +64,9 @@ router.post('/', (req, res) => {
     if (!validate.new_device(req)) {
         return res.status(400).send()
     }
-
     const current_type = Date.now() / 1000 | 0
 
-    db.all(`INSERT INTO users(name, device_type, last_seen) VALUES ('${req.body.name}', '${req.body.device_type}', '${current_type}')`, (err, rows) => {
+    db.all(`INSERT INTO users(name, email, password, device_type, last_seen) VALUES ('${req.body.name}', '${req.body.email}', '${req.body.password}', '${req.body.device_type}', '${current_type}')`, (err, rows) => {
         if (err) {
             return log(err)
         }
