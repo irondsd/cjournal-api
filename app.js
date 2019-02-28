@@ -26,3 +26,5 @@ app.get('/api/check/', function (req, res) {
 })
 
 app.listen(port, () => { log(`Server started on port ${port}`) })
+
+// TODO: update readme

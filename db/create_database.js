@@ -8,7 +8,7 @@ db.serialize(() => {
     db.run(`create table if not exists users (
                 id integer primary key, name text, 
                 device_type text, 
-                email text,
+                email text unique,
                 password text,
                 last_seen datetime)`, (err) => {
             if (err) {

@@ -27,12 +27,12 @@ router.get('/:id/activity', (req, res) => {
 })
 
 router.post('/:id/activity', (req, res) => {
-    if (!validate.exercise_record(req)) {
+    if (!validate.activity_record(req)) {
         return res.status(400).send()
     }
 
-    db.run(`insert into activity(users_id, exercise_type, time_started, duration, successful, distance, steps) values 
-            ('${req.params.id}', '${req.body.exercise_type}', '${req.body.time_started}', '${req.body.duration}', '${req.body.successful}', '${req.body.distance}', '${req.body.steps}')`, (err, rows) => {
+    db.run(`insert into activity(users_id, activity_type, time_started, duration, successful, distance, steps) values 
+            ('${req.params.id}', '${req.body.activity_type}', '${req.body.time_started}', '${req.body.duration}', '${req.body.successful}', '${req.body.distance}', '${req.body.steps}')`, (err, rows) => {
             if (err) {
                 log(err)
             }
