@@ -37,7 +37,7 @@ function validate_new_user(req) {
 }
 
 function validate_update_user(req) {
-    if (req.body.name || req.body.device_type) {
+    if (req.body.name && req.body.device_type && req.body.email && req.body.password) {
         return true
     }
     else {
@@ -46,7 +46,7 @@ function validate_update_user(req) {
 }
 
 function validate_activity_record(req) {
-    if (req.body.activity_type && req.body.time_started && req.body.duration && req.body.successful) {
+    if (req.body.activity_type && req.body.time_started && req.body.duration) {
         return true
     }
     else {

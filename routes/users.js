@@ -6,6 +6,7 @@ const validate = require('../validate')
 const log = require('../logger')
 
 // TODO: make get and delete methods for loggin in and out
+// TODO: require password when updatung the information
 // TODO: better error managing i.e. send explataion with 404
 
 // Get all users
@@ -62,7 +63,7 @@ router.post('/', (req, res) => {
     if (errors.length > 0) {
         return res.status(400).send(errors)
     }
-    const current_type = Date.now() / 1000 | 0
+    const current_time = Date.now() / 1000 | 0
     db.all(`select exists (select 1 from users where email = '${req.body.email}' limit 1)`, function (err, rows) {
         if (err) {
             log(err)
@@ -72,7 +73,7 @@ router.post('/', (req, res) => {
         }
 
         else {
-            db.all(`INSERT INTO users(name, email, password, device_type, last_seen) VALUES ('${req.body.name}', '${req.body.email}', '${req.body.password}', '${req.body.device_type}', '${current_type}')`, (err, rows) => {
+            db.all(`INSERT INTO users(name, email, password, device_type, last_seen) VALUES ('${req.body.name}', '${req.body.email}', '${req.body.password}', '${req.body.device_type}', '${current_time}')`, (err, rows) => {
                 if (err) {
                     log(err)
                     return res.status(400).send(err.keys)
@@ -87,40 +88,39 @@ router.post('/', (req, res) => {
 
 
 // Update user
-router.put('/', (req, res) => {
-    if (!validate.put_device(req)) {
+router.put('/:id', (req, res) => {
+    if (!validate.update_user(req)) {
         return res.status(400).send()
     }
-
-    sql = `update users set `
-
-    if (req.body.name) {
-        sql += `name = '${req.body.name}' `
-    }
-
-    if (req.body.device_type) {
-        if (req.body.name) {
-            // in case there's something in front of device time, need a comma
-            sql += `, device_type = '${req.body.device_type}' `
-        }
-        else {
-            sql += `device_type = '${req.body.device_type}' `
-        }
-    }
-
-    sql += `where id = ${req.params.id}`
-
-    const current_type = Date.now() / 1000 | 0
-    db.run(sql, function (err, rows) {
-        if (err) {
-            return log(err)
-        }
-        if (this.changes) {
-            res.status(204).send(rows)
-        }
-        else {
-            res.status(404).send()
-        }
+    const current_time = Date.now() / 1000 | 0
+    db.serialize(() => {
+        db.all(`select email, password from users where id = '${req.params.id}' limit 1`, (err, rows) => {
+            if (err) {
+                log(err)
+                return res.status(400).send(err.keys)
+            }
+            else {
+                if (rows[0].password === req.body.password) {
+                    let password_insert = ``
+                    if (req.body.new_password) {
+                        password_insert = ` password = '${req.body.new_password}',`
+                    }
+                    let sql = `update users set name = '${req.body.name}', email = '${req.body.email}',${password_insert} device_type = '${req.body.device_type}', last_seen = '${current_time}' where id = ${req.params.id}`
+                    db.all(sql, (err, rows) => {
+                        if (err) {
+                            log(err)
+                            return res.status(400).send(err.keys)
+                        }
+                        else {
+                            return res.status(200).send(rows)
+                        }
+                    })
+                }
+                else {
+                    res.status(400).send('password incorrect')
+                }
+            }
+        })
     })
 })
 
