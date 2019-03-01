@@ -42,7 +42,23 @@ router.post('/:id/activity', (req, res) => {
         })
 })
 
-// No put or delete requests here. Original data will always remain. 
-// All the changes can be made in virtual activity
+router.put('/:uid/activity/:aid', (req, res) => {
+    if (!validate.activity_record(req)) {
+        return res.status(400).send()
+    }
+
+    let sql = `update activity set activity_type = '${req.body.activity_type}', time_started = '${req.body.time_started}', duration = '${req.body.duration}', data = '${req.body.data}' where id = ${req.params.aid}`
+    db.run(sql, (err, rows) => {
+        if (err) {
+            console.log(err)
+        }
+        else {
+            res.status(201).send(rows)
+        }
+    })
+})
+
+// Put request is to add the data and can be done only by the user. No doctor or admin can change the original information
+// All the changes should be made in virtual activity
 
 module.exports = router;
