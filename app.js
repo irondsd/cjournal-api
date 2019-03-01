@@ -10,12 +10,14 @@ const db = new sqlite.Database('./db/trackers.db')
 const index = require('./routes/index')
 const users = require('./routes/users')
 const activity = require('./routes/activity')
+const virtual_activity = require('./routes/virtual_activity')
 const bodyParser = require('body-parser')
 
 app.use(bodyParser.json())
 app.use('/api/', index)
 app.use('/api/users/', users)
 app.use('/api/users/', activity)
+app.use('/api/users/', virtual_activity)
 
 // just for testing, will be removed later
 app.get('/api/check/', function (req, res) {

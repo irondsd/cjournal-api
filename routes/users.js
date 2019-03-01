@@ -11,7 +11,7 @@ const log = require('../logger')
 
 // Get all users
 router.get('/', (req, res) => {
-    db.all('select id, name, email, device_type, last_seen from users', (err, rows) => {
+    db.all('select id, name, age, gender, email, device_type, last_seen from users', (err, rows) => {
         if (err) {
             log(err)
             res.status(500).send(err.keys)
@@ -73,7 +73,7 @@ router.post('/', (req, res) => {
         }
 
         else {
-            db.all(`INSERT INTO users(name, email, password, device_type, last_seen) VALUES ('${req.body.name}', '${req.body.email}', '${req.body.password}', '${req.body.device_type}', '${current_time}')`, (err, rows) => {
+            db.all(`INSERT INTO users(name, age, gender, email, password, device_type, last_seen) VALUES ('${req.body.name}', '${req.body.age}', '${req.body.gender}', '${req.body.email}', '${req.body.password}', '${req.body.device_type}', '${current_time}')`, (err, rows) => {
                 if (err) {
                     log(err)
                     return res.status(400).send(err.keys)
@@ -105,7 +105,7 @@ router.put('/:id', (req, res) => {
                     if (req.body.new_password) {
                         password_insert = ` password = '${req.body.new_password}',`
                     }
-                    let sql = `update users set name = '${req.body.name}', email = '${req.body.email}',${password_insert} device_type = '${req.body.device_type}', last_seen = '${current_time}' where id = ${req.params.id}`
+                    let sql = `update users set name = '${req.body.name}', age = '${req.body.age}', gender = '${req.body.gender}', email = '${req.body.email}',${password_insert} device_type = '${req.body.device_type}', last_seen = '${current_time}' where id = ${req.params.id}`
                     db.all(sql, (err, rows) => {
                         if (err) {
                             log(err)
