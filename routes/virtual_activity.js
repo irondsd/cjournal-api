@@ -6,6 +6,7 @@ const validate = require('../validate')
 
 // TODO: possibly distinguish if there's no data or there is no user on get data request
 // TODO: properly link to activity table
+// TODO: possible add user id
 
 router.get('/:uid/virtual_activity', (req, res) => {
     let timeframe = ``

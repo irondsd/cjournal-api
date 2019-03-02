@@ -1,6 +1,3 @@
-const sqlite = require('sqlite3')
-const db = new sqlite.Database('./db/trackers.db')
-
 function validate_api_key(req) {
     if (req.query.api_key === 'f932-ed91-534e-4c64') {
         return true
