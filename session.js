@@ -34,7 +34,6 @@ function create_session(res, req, user_id) {
 }
 // TODO: 
 function renew_session(req, res) {
-    console.log(req.query)
     api_key = gen_api_key()
     exp_date = gen_exp_date()
     sql = `update sessions set api_key = '${api_key}', exp_date = '${exp_date}' where api_key = '${req.query.api_key}'`
