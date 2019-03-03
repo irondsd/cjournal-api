@@ -1,12 +1,3 @@
-function validate_api_key(req) {
-    if (req.query.api_key === 'f932-ed91-534e-4c64') {
-        return true
-    }
-    else {
-        return false
-    }
-}
-
 function validate_new_user(req) {
     let errors = []
     if (!req.body.name) {
@@ -54,4 +45,3 @@ function validate_activity_record(req) {
 module.exports.new_user = validate_new_user
 module.exports.update_user = validate_update_user
 module.exports.activity_record = validate_activity_record
-module.exports.api_key = validate_api_key

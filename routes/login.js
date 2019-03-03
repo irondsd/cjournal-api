@@ -4,6 +4,8 @@ const sqlite = require('sqlite3')
 const db = new sqlite.Database('./db/trackers.db')
 const validate = require('../validate')
 const session = require('../session')
+const log = require('../logger')
+const bcrypt = require('bcryptjs')
 
 router.post('/login', (req, res) => {
     if (req.body.email && req.body.password) {
@@ -11,22 +13,11 @@ router.post('/login', (req, res) => {
             if (err) {
                 res.status(500).send(err.keys)
             }
-            if (rows[0].password === req.body.password) {
+            hash = rows[0].password
+            if (bcrypt.compareSync(req.body.password, hash)) {
+                // password correct
                 user_id = rows[0].id
-                let { api_key, exp_date } = session.create_session(user_id)
-                let sql = `insert into sessions(user_id, api_key, renewable, exp_date) values ('${user_id}', '${api_key}', 'true', '${exp_date}')`
-                db.all(sql, (err, rows) => {
-                    if (err) {
-                        log(err)
-                        res.send('error creating session', err)
-                    }
-                    else {
-                        res.send({
-                            'api_key': api_key,
-                            'exp_date': exp_date
-                        })
-                    }
-                })
+                session.create_session(res, req, user_id)
             }
             else {
                 res.status(403).send('wrong password')
@@ -35,6 +26,19 @@ router.post('/login', (req, res) => {
     }
     else {
         res.status(400).send()
+    }
+
+    // TODO: delete all the sessions that are a week old each time a user logs in again
+})
+
+router.delete('/logout', (req, res) => {
+    if (req.query.api_key) {
+        db.run('', (err, rows) => {
+            session.destroy_session(res, req, req.query.api_key)
+        })
+    }
+    else {
+        res.status(403).send()
     }
 })
 

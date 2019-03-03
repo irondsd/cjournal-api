@@ -4,6 +4,7 @@ const sqlite = require('sqlite3')
 const db = new sqlite.Database('./db/trackers.db')
 const validate = require('../validate')
 const log = require('../logger')
+const bcrypt = require('bcryptjs')
 
 // TODO: make get and delete methods for loggin in and out
 // TODO: require password when updatung the information
@@ -36,6 +37,7 @@ router.get('/:id', (req, res) => {
 })
 
 router.delete('/:id', (req, res) => {
+    // TODO: verify password before
     db.run('delete from users where id = ' + req.params.id, function (err) {
         if (err) {
             return res.status(500).send(err)
@@ -73,7 +75,9 @@ router.post('/', (req, res) => {
         }
 
         else {
-            db.all(`INSERT INTO users(name, age, gender, email, password, device_type, last_seen) VALUES ('${req.body.name}', '${req.body.age}', '${req.body.gender}', '${req.body.email}', '${req.body.password}', '${req.body.device_type}', '${current_time}')`, (err, rows) => {
+            let salt = bcrypt.genSaltSync(10);
+            let hash = bcrypt.hashSync(req.body.password, salt);
+            db.all(`INSERT INTO users(name, age, gender, email, password, device_type, last_seen) VALUES ('${req.body.name}', '${req.body.age}', '${req.body.gender}', '${req.body.email}', '${hash}', '${req.body.device_type}', '${current_time}')`, (err, rows) => {
                 if (err) {
                     log(err)
                     return res.status(400).send(err.keys)
@@ -100,7 +104,8 @@ router.put('/:id', (req, res) => {
                 return res.status(400).send(err.keys)
             }
             else {
-                if (rows[0].password === req.body.password) {
+                hash = rows[0].password
+                if (bcrypt.compareSyn(req.body.password, hash)) {
                     let password_insert = ``
                     if (req.body.new_password) {
                         password_insert = ` password = '${req.body.new_password}',`
