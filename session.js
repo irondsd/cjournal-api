@@ -8,9 +8,17 @@ function check_password(password, hash) {
     });
 }
 
+function gen_api_key() {
+    return Math.random().toString(36).substr(2) + Math.random().toString(36).substr(2)
+}
+
+function gen_exp_date() {
+    return Date.now() / 1000 | 10 + 3600 // adds an hour
+}
+
 function create_session(res, req, user_id) {
-    api_key = user_id + Math.random().toString(36).substr(2) + Math.random().toString(36).substr(2)
-    exp_date = Date.now() / 1000 | 10 + 3600 // adds an hour
+    api_key = gen_api_key()
+    exp_date = gen_exp_date()
 
     let sql = `insert into sessions(user_id, api_key, renewable, exp_date) values ('${user_id}', '${api_key}', 'true', '${exp_date}')`
     db.all(sql, (err, rows) => {
@@ -25,8 +33,24 @@ function create_session(res, req, user_id) {
     })
 }
 // TODO: 
-function renew_session() {
-
+function renew_session(req, res) {
+    console.log(req.query)
+    api_key = gen_api_key()
+    exp_date = gen_exp_date()
+    sql = `update sessions set api_key = '${api_key}', exp_date = '${exp_date}' where api_key = '${req.query.api_key}'`
+    db.run(sql, function (err, rows) {
+        if (err) {
+            console.log(err)
+        }
+        if (this.changes) {
+            res.send({
+                api_key: api_key
+            })
+        }
+        else {
+            res.status(400).send()
+        }
+    })
 }
 
 function destroy_session(res, req, api_key) {
@@ -63,3 +87,4 @@ module.exports.check_password = check_password
 module.exports.create_session = create_session
 module.exports.validate_api_key = validate_api_key
 module.exports.destroy_session = destroy_session
+module.exports.renew_session = renew_session

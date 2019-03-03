@@ -31,8 +31,20 @@ router.post('/login', (req, res) => {
     // TODO: delete all the sessions that are a week old each time a user logs in again
 })
 
+router.put('/login', (req, res) => {
+    if (req.query.api_key) {
+        session.renew_session(req, res)
+    }
+    else {
+        res.status(400).send()
+    }
+
+    // TODO: delete all the sessions that are a week old each time a user logs in again
+})
+
 router.delete('/logout', (req, res) => {
     if (req.query.api_key) {
+        console.log(req.query.api_key)
         db.run('', (err, rows) => {
             session.destroy_session(res, req, req.query.api_key)
         })
