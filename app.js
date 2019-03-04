@@ -27,6 +27,19 @@ app.get('/api/check/', function (req, res) {
     session.validate_api_key(req, res)
 })
 
+app.get('/profile/:id', function (req, res) {
+    path = `/Users/irondsd/dev/incart/imgs/${req.params.id}.jpg`
+    fs.exists(path, (exists) => {
+        if (exists) {
+            res.sendFile(`/Users/irondsd/dev/incart/imgs/${req.params.id}.jpg`)
+        }
+        else {
+            res.sendFile(`/Users/irondsd/dev/incart/imgs/0.png`)
+        }
+    })
+
+})
+
 app.listen(port, () => { log(`Server started on port ${port}`) })
 
 // TODO: update readme
