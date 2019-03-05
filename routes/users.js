@@ -68,20 +68,23 @@ router.post('/', (req, res) => {
     const current_time = Date.now() / 1000 | 0
     db.all(`select exists (select 1 from users where email = '${req.body.email}' limit 1)`, function (err, rows) {
         if (err) {
-            log(err)
+            res.status(500).send({
+                error: err
+            })
         }
         if (rows[0][Object.keys(rows[0])[0]] === 1) {
-            return res.status(409).send('user with this email is already registered')
+            return res.status(409).send({
+                error: 'user with email is already registered'
+            })
         }
 
         else {
             let salt = bcrypt.genSaltSync(10);
             let hash = bcrypt.hashSync(req.body.password, salt);
             db.all(`INSERT INTO users(name, age, gender, email, password, device_type, last_seen) VALUES ('${req.body.name}', '${req.body.age}', '${req.body.gender}', '${req.body.email}', '${hash}', '${req.body.device_type}', '${current_time}')`, (err, rows) => {
-                if (err) {
-                    log(err)
-                    return res.status(400).send(err.keys)
-                }
+                res.status(400).send({
+                    error: err
+                })
                 else {
                     res.status(201).send(rows)
                 }
@@ -94,14 +97,18 @@ router.post('/', (req, res) => {
 // Update user
 router.put('/:id', (req, res) => {
     if (!validate.update_user(req)) {
-        return res.status(400).send()
+        return res.status(400).send({
+            error: 'request is not validated. Check readme at /api/ for usage information'
+        })
     }
     const current_time = Date.now() / 1000 | 0
     db.serialize(() => {
         db.all(`select email, password from users where id = '${req.params.id}' limit 1`, (err, rows) => {
             if (err) {
                 log(err)
-                return res.status(400).send(err.keys)
+                return res.status(400).send({
+                    error: err
+                })
             }
             else {
                 hash = rows[0].password
@@ -113,8 +120,9 @@ router.put('/:id', (req, res) => {
                     let sql = `update users set name = '${req.body.name}', age = '${req.body.age}', gender = '${req.body.gender}', email = '${req.body.email}',${password_insert} device_type = '${req.body.device_type}', last_seen = '${current_time}' where id = ${req.params.id}`
                     db.all(sql, (err, rows) => {
                         if (err) {
-                            log(err)
-                            return res.status(400).send(err.keys)
+                            return res.status(400).send({
+                                error: err
+                            })
                         }
                         else {
                             return res.status(200).send(rows)
@@ -122,7 +130,9 @@ router.put('/:id', (req, res) => {
                     })
                 }
                 else {
-                    res.status(400).send('password incorrect')
+                    res.status(400).send({
+                        error: 'wrong password'
+                    })
                 }
             }
         })

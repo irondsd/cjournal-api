@@ -12,7 +12,9 @@ const MarkdownIt = require('markdown-it'), md = new MarkdownIt();
 router.get('/', (req, res) => {
     fs.readFile('README.md', 'utf8', function (err, contents) {
         if (err) {
-            res.send(md.render("Error reading README.md"))
+            res.status(500).send({
+                error: "can't read README.md"
+            })
         }
         else {
             res.send(md.render(contents))

@@ -40,7 +40,9 @@ function renew_session(req, res) {
     sql = `update sessions set api_key = '${api_key}', exp_date = '${exp_date}' where api_key = '${req.query.api_key}'`
     db.run(sql, function (err, rows) {
         if (err) {
-            console.log(err)
+            res.status(400).send({
+                error: err
+            })
         }
         if (this.changes) {
             res.send({
@@ -57,7 +59,9 @@ function destroy_session(res, req, api_key) {
     sql = `delete from sessions where api_key = '${api_key}'`
     db.run(sql, function (err) {
         if (err) {
-            console.log(sql)
+            res.status(400).send({
+                error: err
+            })
         }
         if (this.changes) {
             res.send()
@@ -72,13 +76,17 @@ function validate_api_key(req, res) {
     sql = `select * from sessions where api_key = '${req.query.api_key}'`
     db.all(sql, (err, rows) => {
         if (err) {
-            console.log(err)
+            res.status(400).send({
+                error: err
+            })
         }
         if (rows.length > 0) {
             res.send(rows[0])
         }
         else {
-            res.status(403).end('Unauthorized')
+            res.status(400).send({
+                error: 'unauthorized'
+            })
         }
     })
 }

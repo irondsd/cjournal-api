@@ -20,12 +20,16 @@ router.post('/login', (req, res) => {
                 session.create_session(res, req, user_id)
             }
             else {
-                res.status(403).send('wrong password')
+                res.status(403).send({
+                    error: 'wrong password'
+                })
             }
         })
     }
     else {
-        res.status(400).send()
+        res.status(400).send({
+            error: 'no email and password received'
+        })
     }
 
     // TODO: delete all the sessions that are a week old each time a user logs in again
@@ -36,7 +40,9 @@ router.put('/login', (req, res) => {
         session.renew_session(req, res)
     }
     else {
-        res.status(400).send()
+        res.status(403).send({
+            error: 'no api_key received'
+        })
     }
 
     // TODO: delete all the sessions that are a week old each time a user logs in again
@@ -50,7 +56,9 @@ router.delete('/logout', (req, res) => {
         })
     }
     else {
-        res.status(403).send()
+        res.status(400).send({
+            error: 'no api_key received'
+        })
     }
 })
 
