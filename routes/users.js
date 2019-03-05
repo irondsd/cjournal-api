@@ -82,9 +82,11 @@ router.post('/', (req, res) => {
             let salt = bcrypt.genSaltSync(10);
             let hash = bcrypt.hashSync(req.body.password, salt);
             db.all(`INSERT INTO users(name, age, gender, email, password, device_type, last_seen) VALUES ('${req.body.name}', '${req.body.age}', '${req.body.gender}', '${req.body.email}', '${hash}', '${req.body.device_type}', '${current_time}')`, (err, rows) => {
-                res.status(400).send({
-                    error: err
-                })
+                if (err) {
+                    res.status(400).send({
+                        error: err
+                    })
+                }
                 else {
                     res.status(201).send(rows)
                 }
