@@ -13,15 +13,21 @@ router.post('/login', (req, res) => {
             if (err) {
                 res.status(500).send(err.keys)
             }
-            hash = rows[0].password
-            if (bcrypt.compareSync(req.body.password, hash)) {
-                // password correct
-                user_id = rows[0].id
-                session.create_session(res, req, rows[0])
+            if (rows[0]) {
+                hash = rows[0].password
+                if (bcrypt.compareSync(req.body.password, hash)) {
+                    user_id = rows[0].id
+                    session.create_session(res, req, rows[0])
+                }
+                else {
+                    res.status(403).send({
+                        error: 'wrong password'
+                    })
+                }
             }
             else {
-                res.status(403).send({
-                    error: 'wrong password'
+                res.status(404).send({
+                    err: 'No such user'
                 })
             }
         })
