@@ -6,7 +6,8 @@ let errors = false
 
 db.serialize(() => {
     db.run(`create table if not exists users (
-                id integer primary key, name text, 
+                id integer primary key, 
+                name text, 
                 device_type text, 
                 gender text,
                 age int,
