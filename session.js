@@ -16,7 +16,7 @@ function gen_exp_date() {
     return Date.now() / 1000 | 10 + 3600 // adds an hour
 }
 
-function create_session(res, req) {
+function create_session(res, req, user) {
     api_key = gen_api_key()
     exp_date = gen_exp_date()
 
@@ -28,12 +28,16 @@ function create_session(res, req) {
         else {
             res.send({
                 'id': user_id,
+                'name': user.name,
+                'email': user.email,
+                'gender': user.gender,
+                'age': user.age,
                 'api_key': api_key
             })
         }
     })
 }
-// TODO: 
+
 function renew_session(req, res) {
     api_key = gen_api_key()
     exp_date = gen_exp_date()

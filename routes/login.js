@@ -9,7 +9,7 @@ const bcrypt = require('bcryptjs')
 
 router.post('/login', (req, res) => {
     if (req.body.email && req.body.password) {
-        db.all(`select id, email, password from users where email = '${req.body.email}' limit 1`, (err, rows) => {
+        db.all(`select id, email, name, gender, age, password from users where email = '${req.body.email}' limit 1`, (err, rows) => {
             if (err) {
                 res.status(500).send(err.keys)
             }
@@ -17,7 +17,7 @@ router.post('/login', (req, res) => {
             if (bcrypt.compareSync(req.body.password, hash)) {
                 // password correct
                 user_id = rows[0].id
-                session.create_session(res, req, user_id)
+                session.create_session(res, req, rows[0])
             }
             else {
                 res.status(403).send({
