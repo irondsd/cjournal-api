@@ -28,7 +28,7 @@ router.get('/:id', (req, res) => {
             return res.status(500).send(err)
         }
         if (rows.length > 0) {
-            return res.send(rows)
+            return res.send(rows[0])
         }
         else {
             return res.status(404).send()
