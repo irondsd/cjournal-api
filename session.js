@@ -54,7 +54,9 @@ function renew_session(req, res) {
             })
         }
         else {
-            res.status(400).send()
+            res.status(404).send({
+                error: 'no such session'
+            })
         }
     })
 }
