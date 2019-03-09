@@ -114,7 +114,7 @@ router.put('/:id', (req, res) => {
             }
             else {
                 hash = rows[0].password
-                if (bcrypt.compareSyn(req.body.password, hash)) {
+                if (bcrypt.compareSync(req.body.password, hash)) {
                     let password_insert = ``
                     if (req.body.new_password) {
                         password_insert = ` password = '${req.body.new_password}',`
