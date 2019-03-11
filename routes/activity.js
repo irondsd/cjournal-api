@@ -34,12 +34,14 @@ router.post('/:id/activity', (req, res) => {
     }
 
     db.run(`insert into activity(users_id, activity_type, time_started, duration, data) values 
-            ('${req.params.id}', '${req.body.activity_type}', '${req.body.time_started}', '${req.body.duration}', '${req.body.data}')`, (err, rows) => {
+            ('${req.params.id}', '${req.body.activity_type}', '${req.body.time_started}', '${req.body.duration}', '${req.body.data}')`, function (err, rows) {
             if (err) {
                 log(err)
             }
             else {
-                res.status(201).send(rows)
+                res.status(201).send({
+                    id: this.lastID
+                })
             }
         })
 })
