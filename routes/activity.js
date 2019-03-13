@@ -32,24 +32,25 @@ router.post('/:id/activity', (req, res) => {
     if (!validate.activity_record(req)) {
         return res.status(400).send()
     }
-
-    db.run(`insert into activity(users_id, activity_type, time_started, duration, data) values 
-            ('${req.params.id}', '${req.body.activity_type}', '${req.body.time_started}', '${req.body.duration}', '${req.body.data}')`, function (err, rows) {
-            if (err) {
-                log(err)
-            }
-            else {
-                res.status(201).send({
-                    id: this.lastID
-                })
-            }
-        })
+    sql = `insert into activity(users_id, activity_type, time_started, duration, data) values 
+            ('${req.params.id}', '${req.body.activity_type}', '${req.body.time_started}', '${req.body.duration}', "${req.body.data}")`
+    console.log(sql)
+    db.run(sql, function (err, rows) {
+        if (err) {
+            console.log(err)
+        }
+        else {
+            res.status(201).send({
+                id: this.lastID
+            })
+        }
+    })
 })
 
 router.put('/:uid/activity/:aid', (req, res) => {
     if (!validate.activity_record(req)) {
         return res.status(400).send({
-            error: 'Did not receive enough information'
+            error: 'Did not receive enough information',
             example: {
                 "activity_type": "Walking",
                 "duration": 360,
