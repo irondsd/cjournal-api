@@ -26,7 +26,24 @@ db.serialize(() => {
         activity_type text not null,
         time_started datetime not null,
         duration text not null,
+        tasks_id integer,
         data text,
+        foreign key (users_id) references users(id)
+        foreign key (tasks_id) references tasks(id)
+    )`, (err) => {
+            if (err) {
+                log(err)
+                errors = true
+            }
+        })
+
+    db.run(`create table if not exists tasks (
+        id integer primary key,
+        users_id integer not null,
+        activity_type text not null,
+        time datetime not null,
+        duration text not null,
+        completed bool not null default false,
         foreign key (users_id) references users(id)
     )`, (err) => {
             if (err) {
@@ -41,9 +58,11 @@ db.serialize(() => {
         activity_type text not null,
         time_started datetime not null,
         duration text not null,
+        tasks_id integer,
         data text,
         foreign key (id) references activity(id)
         foreign key (users_id) references users(id)
+        foreign key (tasks_id) references tasks(id)
     )`, (err) => {
             if (err) {
                 log(err)

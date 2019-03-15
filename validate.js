@@ -42,6 +42,16 @@ function validate_activity_record(req) {
     }
 }
 
+function validate_task_record(req) {
+    if (req.body.activity_type && req.body.time && req.body.duration) {
+        return true
+    }
+    else {
+        return false
+    }
+}
+
 module.exports.new_user = validate_new_user
 module.exports.update_user = validate_update_user
 module.exports.activity_record = validate_activity_record
+module.exports.task_record = validate_task_record

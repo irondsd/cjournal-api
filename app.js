@@ -14,11 +14,13 @@ const virtual_activity = require('./routes/virtual_activity')
 const bodyParser = require('body-parser')
 const login = require('./routes/login')
 const session = require('./session')
+const tasks = require('./routes/tasks')
 
 app.use(bodyParser.json())
 app.use('/api/', index)
 app.use('/api/users/', users)
 app.use('/api/users/', activity)
+app.use('/api/users/', tasks)
 app.use('/api/users/', virtual_activity)
 app.use('/api/', login)
 

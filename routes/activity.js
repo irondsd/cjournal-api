@@ -3,6 +3,7 @@ const router = express.Router()
 const sqlite = require('sqlite3')
 const db = new sqlite.Database('./db/trackers.db')
 const validate = require('../validate')
+const markComleted = require('./tasks')
 
 // TODO: possibly distinguish if there's no data or there is no user on get data request
 // TODO: better error managing i.e. send explataion with 404
@@ -32,9 +33,17 @@ router.post('/:id/activity', (req, res) => {
     if (!validate.activity_record(req)) {
         return res.status(400).send()
     }
-    sql = `insert into activity(users_id, activity_type, time_started, duration, data) values 
+
+    let sql
+    if (req.params.task_id) {
+        sql = `insert into activity(users_id, activity_type, time_started, duration, data, task_id) values 
+            ('${req.params.id}', '${req.body.activity_type}', '${req.body.time_started}', '${req.body.duration}', '${req.body.data}', '${req.body.task_id}')`
+    }
+    else {
+        sql = `insert into activity(users_id, activity_type, time_started, duration, data) values 
             ('${req.params.id}', '${req.body.activity_type}', '${req.body.time_started}', '${req.body.duration}', "${req.body.data}")`
-    console.log(sql)
+    }
+
     db.run(sql, function (err, rows) {
         if (err) {
             console.log(err)
@@ -43,9 +52,26 @@ router.post('/:id/activity', (req, res) => {
             res.status(201).send({
                 id: this.lastID
             })
+
+            taskMarkCompleted(req.body.task_id)
         }
     })
 })
+
+function taskMarkCompleted(task_id) {
+    let sql = `update tasks set completed = '1' where id = ${task_id}`
+    db.run(sql, function (err) {
+        if (err) {
+            console.log(err)
+        }
+        if (this.changes) {
+            console.log('changes')
+        }
+        else {
+            console.log('whatever')
+        }
+    })
+}
 
 router.put('/:uid/activity/:aid', (req, res) => {
     if (!validate.activity_record(req)) {
