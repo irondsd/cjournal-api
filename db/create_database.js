@@ -1,7 +1,7 @@
 const log = require('../logger')
 const sqlite = require('sqlite3')
 const db = new sqlite.Database('trackers.db')
-let populate = false // add sample values to the db
+let populate = true // add sample values to the db
 let errors = false
 
 db.serialize(() => {
@@ -85,19 +85,19 @@ db.serialize(() => {
 })
 
 if (populate) {
-    db.run(`INSERT INTO users(name, device_type, age, gender, last_seen, email, password) VALUES ('Alexander Feldman', 'Shovel','54', 'male', '1550507313', 'ggn00b@mail.ru', 'gggggg123')`, (err) => {
+    db.run(`INSERT INTO users(name, device_type, age, gender, last_seen, email, password) VALUES ('Alexander Feldman', 'Shovel','54', 'male', '1550507313', 'ggn00b@mail.ru', '$2a$10$teACha.MBCW68XIqYHAZielRJa5qSbSx6DKf4ihAqTVqOgJtg3aoe')`, (err) => {
         if (err) {
             log(err)
             errors = true
         }
     })
-    db.run(`INSERT INTO users(name, device_type, age, gender, last_seen, email, password) VALUES ('Carl Sagan', 'Telescope', '54', 'male','1550507313', 'ggn00b@mail.ua', 'gggggg123')`, (err) => {
+    db.run(`INSERT INTO users(name, device_type, age, gender, last_seen, email, password) VALUES ('Carl Sagan', 'Telescope', '54', 'male','1550507313', 'ggn00b@mail.ua', '$2a$10$teACha.MBCW68XIqYHAZielRJa5qSbSx6DKf4ihAqTVqOgJtg3aoe')`, (err) => {
         if (err) {
             log(err)
             errors = true
         }
     })
-    db.run(`INSERT INTO users(name, device_type, age, gender, last_seen, email, password) VALUES ('Max Plank', 'Microscope', '54', 'male','1550507313', 'ggn000b@gmail.com', 'gggggg123')`, (err) => {
+    db.run(`INSERT INTO users(name, device_type, age, gender, last_seen, email, password) VALUES ('Max Plank', 'Microscope', '54', 'male','1550507313', 'ggn000b@gmail.com', '$2a$10$teACha.MBCW68XIqYHAZielRJa5qSbSx6DKf4ihAqTVqOgJtg3aoe')`, (err) => {
         if (err) {
             log(err)
             errors = true
