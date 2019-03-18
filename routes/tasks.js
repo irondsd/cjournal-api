@@ -9,7 +9,7 @@ const validate = require('../validate')
 
 router.get('/:uid/tasks', (req, res) => {
     let timeframe = ``
-    let completed
+    let completed = ``
     if (req.query.from) {
         timeframe += ` and time_started > ${req.query.from} `
     }
