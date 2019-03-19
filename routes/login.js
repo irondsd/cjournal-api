@@ -27,7 +27,7 @@ router.post('/login', (req, res) => {
             }
             else {
                 res.status(404).send({
-                    err: 'No such user'
+                    error: 'No such user'
                 })
             }
         })
