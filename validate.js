@@ -34,7 +34,7 @@ function validate_update_user(req) {
 }
 
 function validate_activity_record(req) {
-    if (req.body.activity_type && req.body.time_started && req.body.duration) {
+    if (req.body.activity_type && req.body.time_started) {
         return true
     }
     else {
@@ -43,7 +43,7 @@ function validate_activity_record(req) {
 }
 
 function validate_task_record(req) {
-    if (req.body.activity_type && req.body.time && req.body.duration) {
+    if (req.body.activity_type && req.body.time) {
         return true
     }
     else {

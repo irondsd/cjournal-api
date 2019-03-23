@@ -45,7 +45,7 @@ db.serialize(() => {
         activity_type text not null,
         time datetime not null,
         duration integer,
-        completed bool not null default false,
+        completed bool default false,
         foreign key (users_id) references users(id)
     )`, (err) => {
             if (err) {
@@ -134,21 +134,21 @@ if (populate) {
         }
     })
 
-    db.run(`insert into tasks(users_id, activity_type, duration) values ('1', 'Walking', '1555166888', '300'`, (err) => {
+    db.run(`insert into tasks(users_id, activity_type, time, duration) values ('1', 'Walking', 1555166888, '300')`, (err) => {
         if (err) {
             log(err)
             errors = true
         }
     })
 
-    db.run(`insert into tasks(users_id, activity_type, duration) values ('1', 'Walking', '1555166888', '300'`, (err) => {
+    db.run(`insert into tasks(users_id, activity_type, time, duration) values ('1', 'Walking', 1555166888, '300')`, (err) => {
         if (err) {
             log(err)
             errors = true
         }
     })
 
-    db.run(`insert into tasks(users_id, activity_type, duration) values ('3', 'Walking', '1555166888', '300'`, (err) => {
+    db.run(`insert into tasks(users_id, activity_type, time, duration) values ('3', 'Walking', 1555166888, '300')`, (err) => {
         if (err) {
             log(err)
             errors = true
@@ -162,6 +162,10 @@ if (populate) {
         })
 
         db.each(`select * from activity`, (err, records) => {
+            console.log(records)
+        })
+
+        db.each(`select * from tasks`, (err, records) => {
             console.log(records)
         })
 
