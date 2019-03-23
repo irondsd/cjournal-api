@@ -26,7 +26,8 @@ db.serialize(() => {
         users_id integer not null,
         activity_type text not null,
         time_started datetime not null,
-        duration text not null,
+        time_ended datetime,
+        duration integer,
         tasks_id integer,
         data text,
         foreign key (users_id) references users(id)
@@ -43,7 +44,7 @@ db.serialize(() => {
         users_id integer not null,
         activity_type text not null,
         time datetime not null,
-        duration text not null,
+        duration integer,
         completed bool not null default false,
         foreign key (users_id) references users(id)
     )`, (err) => {
@@ -54,11 +55,12 @@ db.serialize(() => {
         })
 
     db.run(`create table if not exists virtual_activity (
-        id integer not null,
+        id integer primary key,
         users_id integer not null,
         activity_type text not null,
         time_started datetime not null,
-        duration text not null,
+        time_ended datetime,
+        duration integer,
         tasks_id integer,
         data text,
         foreign key (id) references activity(id)
@@ -126,6 +128,27 @@ if (populate) {
     })
 
     db.run(`insert into activity(users_id, activity_type, time_started, duration, data) values ('3', 'Walking', '2019-02-18T12:30:44.624Z', '300', json('${JSON.stringify(data)}'))`, (err) => {
+        if (err) {
+            log(err)
+            errors = true
+        }
+    })
+
+    db.run(`insert into tasks(users_id, activity_type, duration) values ('1', 'Walking', '1555166888', '300'`, (err) => {
+        if (err) {
+            log(err)
+            errors = true
+        }
+    })
+
+    db.run(`insert into tasks(users_id, activity_type, duration) values ('1', 'Walking', '1555166888', '300'`, (err) => {
+        if (err) {
+            log(err)
+            errors = true
+        }
+    })
+
+    db.run(`insert into tasks(users_id, activity_type, duration) values ('3', 'Walking', '1555166888', '300'`, (err) => {
         if (err) {
             log(err)
             errors = true
