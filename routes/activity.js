@@ -53,7 +53,9 @@ router.post('/:id/activity', (req, res) => {
                 id: this.lastID
             })
 
-            taskMarkCompleted(req.body.task_id)
+            if (req.body.task_id) {
+                taskMarkCompleted(req.body.task_id)
+            }
         }
     })
 })
@@ -95,6 +97,29 @@ router.put('/:uid/activity/:aid', (req, res) => {
         }
         else {
             res.status(201).send(rows)
+        }
+    })
+})
+
+router.delete('/:uid/activity/:aid', (req, res) => {
+    if (false) { //validate api_key
+        return res.status(400).send({
+            error: 'ff',
+        })
+    }
+
+    let sql = `delete from activity where id = '${req.params.aid}'`
+    db.run(sql, function (err, rows) {
+        if (err) {
+            res.status(400).send({
+                error: err
+            })
+        }
+        if (this.changes) {
+            res.status(200).send()
+        }
+        else {
+            res.status(404).send(rows)
         }
     })
 })
