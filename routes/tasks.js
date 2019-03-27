@@ -34,7 +34,7 @@ router.get('/:uid/tasks', (req, res) => {
 
 router.post('/:id/tasks', (req, res) => {
     if (!validate.task_record(req)) {
-        return res.status(400).send()
+        return res.status(400).send({ error: 'Not enough data' })
     }
     sql = `insert into tasks(users_id, activity_type, time, duration, completed) values 
             ('${req.params.id}', '${req.body.activity_type}', '${req.body.time}', '${req.body.duration}', '0')`
