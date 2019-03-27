@@ -97,7 +97,7 @@ router.put('/:uid/activity/:aid', (req, res) => {
         })
     }
 
-    let sql = `update activity set activity_type = '${req.body.activity_type}', time_started = '${req.body.time_started}', duration = '${req.body.duration}', data = '${req.body.data}' where id = ${req.params.aid}`
+    let sql = `update activity set activity_type = '${req.body.activity_type}', time_started = '${req.body.time_started}', duration = '${req.body.duration}', data = '${JSON.stringify(req.body.data)}' where id = ${req.params.aid}`
     db.run(sql, (err, rows) => {
         if (err) {
             res.status(400).send({
