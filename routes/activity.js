@@ -35,23 +35,12 @@ router.post('/:id/activity', (req, res) => {
     }
 
     let sql
-    if (req.params.task_id && !req.params.time_ended) {
-        sql = `insert into activity(users_id, activity_type, time_started, duration, data, task_id) values 
-            ('${req.params.id}', '${req.body.activity_type}', '${req.body.time_started}', '${req.body.duration}', '${JSON.stringify(req.body.data)}', '${req.body.task_id}')`
-    }
-    else if (req.params.time_ended && !req.params.task_id) {
-        sql = `insert into activity(users_id, activity_type, time_started, duration, data, time_ended) values 
-            ('${req.params.id}', '${req.body.activity_type}', '${req.body.time_started}', '${req.body.duration}', '${JSON.stringify(req.body.data)}', '${req.body.time_ended}')`
-    }
 
-    else if (req.params.task_id && req.params.time_ended) {
-        sql = `insert into activity(users_id, activity_type, time_started, duration, data, task_id, time_ended) values 
-            ('${req.params.id}', '${req.body.activity_type}', '${req.body.time_started}', '${req.body.duration}', '${JSON.stringify(req.body.data)}', '${req.body.task_id}', '${req.body.time_ended}')`
-    }
-    else {
-        sql = `insert into activity(users_id, activity_type, time_started, duration, data) values 
-            ('${req.params.id}', '${req.body.activity_type}', '${req.body.time_started}', '${req.body.duration}', '${JSON.stringify(req.body.data)}')`
-    }
+
+    sql = `insert into activity(users_id, activity_type, time_started, duration, data, tasks_id, time_ended) values 
+            ('${req.params.id}', '${req.body.activity_type}', '${req.body.time_started}', '${req.body.duration}', '${JSON.stringify(req.body.data)}', '${req.body.tasks_id}', '${req.body.time_ended}')`
+
+
     console.log(sql)
     db.run(sql, function (err, rows) {
         if (err) {
