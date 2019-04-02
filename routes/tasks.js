@@ -36,8 +36,8 @@ router.post('/:id/tasks', (req, res) => {
     if (!validate.task_record(req)) {
         return res.status(400).send({ error: 'Not enough data' })
     }
-    sql = `insert into tasks(users_id, activity_type, time, duration, completed) values 
-            ('${req.params.id}', '${req.body.activity_type}', '${req.body.time}', '${req.body.duration}', '0')`
+    sql = `insert into tasks(users_id, activity_type, time, completed) values 
+            ('${req.params.id}', '${req.body.activity_type}', '${req.body.time}', '0')`
     console.log(sql)
     db.run(sql, function (err, rows) {
         if (err) {
@@ -56,17 +56,16 @@ router.put('/:uid/tasks/:aid', (req, res) => {
             example: {
                 "activity_type": "Walking",
                 "time": 1552401333,
-                "duration": 360,
                 "completed": false
             }
         })
     }
     let sql
     if (req.body.completed) {
-        sql = `update tasks set activity_type = '${req.body.activity_type}', time = '${req.body.time}', duration = '${req.body.duration}', completed = '${req.body.completed}' where id = ${req.params.aid}`
+        sql = `update tasks set activity_type = '${req.body.activity_type}', time = '${req.body.time}', completed = '${req.body.completed}' where id = ${req.params.aid}`
     }
     else {
-        sql = `update tasks set activity_type = '${req.body.activity_type}', time = '${req.body.time}', duration = '${req.body.duration}', where id = ${req.params.aid}`
+        sql = `update tasks set activity_type = '${req.body.activity_type}', time = '${req.body.time}', where id = ${req.params.aid}`
     }
 
     db.run(sql, (err, rows) => {
