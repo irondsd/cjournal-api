@@ -27,8 +27,8 @@ db.serialize(() => {
         activity_type text not null,
         time_started datetime not null,
         time_ended datetime,
-        duration integer,
         tasks_id integer,
+        last_updated integer,
         data text,
         foreign key (users_id) references users(id)
         foreign key (tasks_id) references tasks(id)
@@ -44,7 +44,6 @@ db.serialize(() => {
         users_id integer not null,
         activity_type text not null,
         time datetime not null,
-        duration integer,
         completed bool default false,
         foreign key (users_id) references users(id)
     )`, (err) => {
@@ -60,7 +59,6 @@ db.serialize(() => {
         activity_type text not null,
         time_started datetime not null,
         time_ended datetime,
-        duration integer,
         tasks_id integer,
         data text,
         foreign key (id) references activity(id)
@@ -113,42 +111,42 @@ if (populate) {
         "sucessfull": true
     }
 
-    db.run(`insert into activity(users_id, activity_type, time_started, duration, data) values ('1', 'Walking', '2019-02-18T12:30:44.624Z', '300', json('${JSON.stringify(data)}'))`, (err) => {
+    db.run(`insert into activity(users_id, activity_type, time_started, last_updated, data) values ('1', 'Walking', '2019-02-18T12:30:44.624Z', '1554195281', json('${JSON.stringify(data)}'))`, (err) => {
         if (err) {
             log(err)
             errors = true
         }
     })
 
-    db.run(`insert into activity(users_id, activity_type, time_started, duration, data) values ('1', 'Walking', '2019-02-18T12:30:44.624Z', '300', json('${JSON.stringify(data)}'))`, (err) => {
+    db.run(`insert into activity(users_id, activity_type, time_started, last_updated, data) values ('1', 'Walking', '2019-02-18T12:30:44.624Z', '1554195281', json('${JSON.stringify(data)}'))`, (err) => {
         if (err) {
             log(err)
             errors = true
         }
     })
 
-    db.run(`insert into activity(users_id, activity_type, time_started, duration, data) values ('3', 'Walking', '2019-02-18T12:30:44.624Z', '300', json('${JSON.stringify(data)}'))`, (err) => {
+    db.run(`insert into activity(users_id, activity_type, time_started, last_updated, data) values ('3', 'Walking', '2019-02-18T12:30:44.624Z', '1554195281', json('${JSON.stringify(data)}'))`, (err) => {
         if (err) {
             log(err)
             errors = true
         }
     })
 
-    db.run(`insert into tasks(users_id, activity_type, time, duration) values ('1', 'Walking', 1555166888, '300')`, (err) => {
+    db.run(`insert into tasks(users_id, activity_type, time) values ('1', 'Walking', 1555166888)`, (err) => {
         if (err) {
             log(err)
             errors = true
         }
     })
 
-    db.run(`insert into tasks(users_id, activity_type, time, duration) values ('1', 'Walking', 1555166888, '300')`, (err) => {
+    db.run(`insert into tasks(users_id, activity_type, time) values ('1', 'Walking', 1555166888)`, (err) => {
         if (err) {
             log(err)
             errors = true
         }
     })
 
-    db.run(`insert into tasks(users_id, activity_type, time, duration) values ('3', 'Walking', 1555166888, '300')`, (err) => {
+    db.run(`insert into tasks(users_id, activity_type, time) values ('3', 'Walking', 1555166888)`, (err) => {
         if (err) {
             log(err)
             errors = true

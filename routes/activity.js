@@ -34,11 +34,9 @@ router.post('/:id/activity', (req, res) => {
         return res.status(400).send()
     }
 
-    let sql
-
-
-    sql = `insert into activity(users_id, activity_type, time_started, duration, data, tasks_id, time_ended) values 
-            ('${req.params.id}', '${req.body.activity_type}', '${req.body.time_started}', '${req.body.duration}', '${JSON.stringify(req.body.data)}', '${req.body.tasks_id}', '${req.body.time_ended}')`
+    let updated = Date.now() / 1000 | 10
+    let sql = `insert into activity(users_id, activity_type, time_started, data, tasks_id, time_ended, last_updated) values 
+            ('${req.params.id}', '${req.body.activity_type}', '${req.body.time_started}', '${JSON.stringify(req.body.data)}', '${req.body.tasks_id}', '${req.body.time_ended}', ${updated})`
 
 
     console.log(sql)
@@ -79,14 +77,15 @@ router.put('/:uid/activity/:aid', (req, res) => {
             error: 'Did not receive enough information',
             example: {
                 "activity_type": "Walking",
-                "duration": 360,
                 "data": "{ steps: 44, distance: 55.3, successful: true }",
                 "time_started": 1552401333
             }
         })
     }
 
-    let sql = `update activity set activity_type = '${req.body.activity_type}', time_started = '${req.body.time_started}', duration = '${req.body.duration}', data = '${JSON.stringify(req.body.data)}' where id = ${req.params.aid}`
+    let updated = Date.now() / 1000 | 10
+    let sql = `update activity set activity_type = '${req.body.activity_type}', time_started = '${req.body.time_started}', time_ended = '${req.body.time_ended}', data = '${JSON.stringify(req.body.data)}', last_updated = '${updated}' where id = ${req.params.aid}`
+
     db.run(sql, (err, rows) => {
         if (err) {
             res.status(400).send({
@@ -102,7 +101,7 @@ router.put('/:uid/activity/:aid', (req, res) => {
 router.delete('/:uid/activity/:aid', (req, res) => {
     if (false) { //validate api_key
         return res.status(400).send({
-            error: 'ff',
+            error: 'Internal error',
         })
     }
 
