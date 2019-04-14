@@ -36,14 +36,14 @@ router.post('/:id/tasks', (req, res) => {
     if (!validate.task_record(req)) {
         return res.status(400).send({ error: 'Not enough data' })
     }
-    sql = `insert into tasks(users_id, activity_type, time, completed) values 
-            ('${req.params.id}', '${req.body.activity_type}', '${req.body.time}', '0')`
+    last_updated = (new Date().getTime() / 1000) | 10
+    sql = `insert into tasks(users_id, activity_type, time, completed, last_updated) values 
+            ('${req.params.id}', '${req.body.activity_type}', '${req.body.time}', '0', ${last_updated})`
     console.log(sql)
-    db.run(sql, function (err, rows) {
+    db.run(sql, function(err, rows) {
         if (err) {
             console.log(err)
-        }
-        else {
+        } else {
             res.status(201).send()
         }
     })
@@ -54,18 +54,22 @@ router.put('/:uid/tasks/:aid', (req, res) => {
         return res.status(400).send({
             error: 'Did not receive enough information',
             example: {
-                "activity_type": "Walking",
-                "time": 1552401333,
-                "completed": false
+                activity_type: 'Walking',
+                time: 1552401333,
+                completed: false
             }
         })
     }
     let sql
+    last_updated = (new Date().getTime() / 1000) | 10
     if (req.body.completed) {
-        sql = `update tasks set activity_type = '${req.body.activity_type}', time = '${req.body.time}', completed = '${req.body.completed}' where id = ${req.params.aid}`
-    }
-    else {
-        sql = `update tasks set activity_type = '${req.body.activity_type}', time = '${req.body.time}' where id = ${req.params.aid}`
+        sql = `update tasks set activity_type = '${req.body.activity_type}', time = '${req.body.time}', completed = '${
+            req.body.completed
+        }', last_updated = '${last_updated}' where id = ${req.params.aid}`
+    } else {
+        sql = `update tasks set activity_type = '${req.body.activity_type}', time = '${
+            req.body.time
+        }', last_updated = '${last_updated}' where id = ${req.params.aid}`
     }
 
     db.run(sql, (err, rows) => {
@@ -73,8 +77,7 @@ router.put('/:uid/tasks/:aid', (req, res) => {
             res.status(400).send({
                 error: err
             })
-        }
-        else {
+        } else {
             res.status(201).send(rows)
         }
     })
@@ -83,7 +86,7 @@ router.put('/:uid/tasks/:aid', (req, res) => {
 router.delete('/:uid/tasks/:aid', (req, res) => {
     if (!req.params.aid) {
         return res.status(400).send({
-            error: 'Did not receive enough information',
+            error: 'Did not receive enough information'
         })
     }
 
@@ -93,8 +96,7 @@ router.delete('/:uid/tasks/:aid', (req, res) => {
             res.status(400).send({
                 error: err
             })
-        }
-        else {
+        } else {
             res.status(204).send(rows)
         }
     })

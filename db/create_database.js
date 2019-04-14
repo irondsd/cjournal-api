@@ -5,7 +5,8 @@ let populate = true // add sample values to the db
 let errors = false
 
 db.serialize(() => {
-    db.run(`create table if not exists users (
+    db.run(
+        `create table if not exists users (
                 id integer primary key, 
                 name text, 
                 device_type text, 
@@ -14,14 +15,17 @@ db.serialize(() => {
                 email text unique,
                 password text,
                 information text,
-                last_seen datetime)`, (err) => {
+                last_seen datetime)`,
+        err => {
             if (err) {
                 log(err)
                 errors = true
             }
-        })
+        }
+    )
 
-    db.run(`create table if not exists activity (
+    db.run(
+        `create table if not exists activity (
         id integer primary key,
         users_id integer not null,
         activity_type text not null,
@@ -33,28 +37,35 @@ db.serialize(() => {
         deleted bool default false,
         foreign key (users_id) references users(id)
         foreign key (tasks_id) references tasks(id)
-    )`, (err) => {
+    )`,
+        err => {
             if (err) {
                 log(err)
                 errors = true
             }
-        })
+        }
+    )
 
-    db.run(`create table if not exists tasks (
+    db.run(
+        `create table if not exists tasks (
         id integer primary key,
         users_id integer not null,
         activity_type text not null,
         time datetime not null,
         completed bool default false,
+        last_updated integer,
         foreign key (users_id) references users(id)
-    )`, (err) => {
+    )`,
+        err => {
             if (err) {
                 log(err)
                 errors = true
             }
-        })
+        }
+    )
 
-    db.run(`create table if not exists virtual_activity (
+    db.run(
+        `create table if not exists virtual_activity (
         id integer primary key,
         users_id integer not null,
         activity_type text not null,
@@ -66,94 +77,132 @@ db.serialize(() => {
         foreign key (id) references activity(id)
         foreign key (users_id) references users(id)
         foreign key (tasks_id) references tasks(id)
-    )`, (err) => {
+    )`,
+        err => {
             if (err) {
                 log(err)
                 errors = true
             }
-        })
+        }
+    )
 
-    db.run(`create table if not exists sessions (
+    db.run(
+        `create table if not exists sessions (
                 sid integer primary key, 
                 user_id int not null, 
                 api_key text not null,
                 renewable bool,
                 exp_date datetime not null
-    )`, (err) => {
+    )`,
+        err => {
             if (err) {
                 log(err)
                 errors = true
             }
-        })
+        }
+    )
 })
 
 if (populate) {
-    db.run(`INSERT INTO users(name, device_type, age, gender, last_seen, email, password, information) VALUES ('Alexander Feldman', 'Shovel','54', 'male', '1550507313', 'ggn00b@mail.ru', '$2a$10$teACha.MBCW68XIqYHAZielRJa5qSbSx6DKf4ihAqTVqOgJtg3aoe', 'You are the patint of Whatever hostpital. Your doctor is Donald Trump. Wut? You crazy or what? You can contact him on the phone number +13947576392')`, (err) => {
-        if (err) {
-            log(err)
-            errors = true
+    db.run(
+        `INSERT INTO users(name, device_type, age, gender, last_seen, email, password, information) VALUES ('Alexander Feldman', 'Shovel','54', 'male', '1550507313', 'ggn00b@mail.ru', '$2a$10$teACha.MBCW68XIqYHAZielRJa5qSbSx6DKf4ihAqTVqOgJtg3aoe', 'You are the patint of Whatever hostpital. Your doctor is Donald Trump. Wut? You crazy or what? You can contact him on the phone number +13947576392')`,
+        err => {
+            if (err) {
+                log(err)
+                errors = true
+            }
         }
-    })
-    db.run(`INSERT INTO users(name, device_type, age, gender, last_seen, email, password, information) VALUES ('Carl Sagan', 'Telescope', '54', 'male','1550507313', 'ggn00b@mail.ua', '$2a$10$teACha.MBCW68XIqYHAZielRJa5qSbSx6DKf4ihAqTVqOgJtg3aoe', 'You are the patint of Whatever hostpital. Your doctor is Donald Trump. Wut? You crazy or what? You can contact him on the phone number +13947576392')`, (err) => {
-        if (err) {
-            log(err)
-            errors = true
+    )
+    db.run(
+        `INSERT INTO users(name, device_type, age, gender, last_seen, email, password, information) VALUES ('Carl Sagan', 'Telescope', '54', 'male','1550507313', 'ggn00b@mail.ua', '$2a$10$teACha.MBCW68XIqYHAZielRJa5qSbSx6DKf4ihAqTVqOgJtg3aoe', 'You are the patint of Whatever hostpital. Your doctor is Donald Trump. Wut? You crazy or what? You can contact him on the phone number +13947576392')`,
+        err => {
+            if (err) {
+                log(err)
+                errors = true
+            }
         }
-    })
-    db.run(`INSERT INTO users(name, device_type, age, gender, last_seen, email, password, information) VALUES ('Max Plank', 'Microscope', '54', 'male','1550507313', 'ggn000b@gmail.com', '$2a$10$teACha.MBCW68XIqYHAZielRJa5qSbSx6DKf4ihAqTVqOgJtg3aoe', 'You are the patint of Whatever hostpital. Your doctor is Donald Trump. Wut? You crazy or what? You can contact him on the phone number +13947576392')`, (err) => {
-        if (err) {
-            log(err)
-            errors = true
+    )
+    db.run(
+        `INSERT INTO users(name, device_type, age, gender, last_seen, email, password, information) VALUES ('Max Plank', 'Microscope', '54', 'male','1550507313', 'ggn000b@gmail.com', '$2a$10$teACha.MBCW68XIqYHAZielRJa5qSbSx6DKf4ihAqTVqOgJtg3aoe', 'You are the patint of Whatever hostpital. Your doctor is Donald Trump. Wut? You crazy or what? You can contact him on the phone number +13947576392')`,
+        err => {
+            if (err) {
+                log(err)
+                errors = true
+            }
         }
-    })
+    )
 
     let data = {
-        "steps": 10.3,
-        "distance": 15,
-        "sucessfull": true
+        steps: 10.3,
+        distance: 15,
+        sucessfull: true
     }
 
-    db.run(`insert into activity(users_id, activity_type, time_started, last_updated, data) values ('1', 'Walking', '1554197138', '1554195281', json('${JSON.stringify(data)}'))`, (err) => {
-        if (err) {
-            log(err)
-            errors = true
+    db.run(
+        `insert into activity(users_id, activity_type, time_started, last_updated, data) values ('1', 'Walking', '1554197138', '1554195281', json('${JSON.stringify(
+            data
+        )}'))`,
+        err => {
+            if (err) {
+                log(err)
+                errors = true
+            }
         }
-    })
+    )
 
-    db.run(`insert into activity(users_id, activity_type, time_started, last_updated, data) values ('1', 'Walking', '1554197138', '1554195281', json('${JSON.stringify(data)}'))`, (err) => {
-        if (err) {
-            log(err)
-            errors = true
+    db.run(
+        `insert into activity(users_id, activity_type, time_started, last_updated, data) values ('1', 'Walking', '1554197138', '1554195281', json('${JSON.stringify(
+            data
+        )}'))`,
+        err => {
+            if (err) {
+                log(err)
+                errors = true
+            }
         }
-    })
+    )
 
-    db.run(`insert into activity(users_id, activity_type, time_started, last_updated, data) values ('3', 'Walking', '1554197138', '1554195281', json('${JSON.stringify(data)}'))`, (err) => {
-        if (err) {
-            log(err)
-            errors = true
+    db.run(
+        `insert into activity(users_id, activity_type, time_started, last_updated, data) values ('3', 'Walking', '1554197138', '1554195281', json('${JSON.stringify(
+            data
+        )}'))`,
+        err => {
+            if (err) {
+                log(err)
+                errors = true
+            }
         }
-    })
+    )
 
-    db.run(`insert into tasks(users_id, activity_type, time) values ('1', 'Walking', 1555166888)`, (err) => {
-        if (err) {
-            log(err)
-            errors = true
+    db.run(
+        `insert into tasks(users_id, activity_type, time, last_updated) values ('1', 'Walking', 1555166888, 1555241651)`,
+        err => {
+            if (err) {
+                log(err)
+                errors = true
+            }
         }
-    })
+    )
 
-    db.run(`insert into tasks(users_id, activity_type, time) values ('1', 'Walking', 1555166888)`, (err) => {
-        if (err) {
-            log(err)
-            errors = true
+    db.run(
+        `insert into tasks(users_id, activity_type, time, last_updated) values ('1', 'Walking', 1555166888, 1555241651)`,
+        err => {
+            if (err) {
+                log(err)
+                errors = true
+            }
         }
-    })
+    )
 
-    db.run(`insert into tasks(users_id, activity_type, time) values ('3', 'Walking', 1555166888)`, (err) => {
-        if (err) {
-            log(err)
-            errors = true
+    db.run(
+        `insert into tasks(users_id, activity_type, time, last_updated) values ('3', 'Walking', 1555166888, 1555241651)`,
+        err => {
+            if (err) {
+                log(err)
+                errors = true
+            }
         }
-    })
+    )
 
     if (errors === false) {
         //let's now make sure the records are there
