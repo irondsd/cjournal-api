@@ -41,9 +41,11 @@ router.get('/:uid/activity', (req, res) => {
         }
         res.send(rows)
     })
+
+    // updateLastSeen(req.params.uid)
 })
 
-router.post('/:id/activity', (req, res) => {
+router.post('/:uid/activity', (req, res) => {
     if (!validate.activity_record(req)) {
         return res.status(400).send()
     }
@@ -67,22 +69,9 @@ router.post('/:id/activity', (req, res) => {
             }
         }
     })
-})
 
-function taskMarkCompleted(tasks_id) {
-    let sql = `update tasks set completed = '1', last_updated = '${timestamp()}' where id = ${tasks_id}`
-    console.log(sql)
-    db.run(sql, function(err) {
-        if (err) {
-            console.log(err)
-        }
-        if (this.changes) {
-            console.log('changes')
-        } else {
-            console.log('whatever')
-        }
-    })
-}
+    updateLastSeen(req.params.uid)
+})
 
 router.put('/:uid/activity/:aid', (req, res) => {
     // TODO: redo
@@ -122,6 +111,8 @@ router.put('/:uid/activity/:aid', (req, res) => {
             res.status(201).send(rows)
         }
     })
+
+    updateLastSeen(req.params.uid)
 })
 
 router.delete('/:uid/activity/:aid', (req, res) => {
@@ -145,7 +136,37 @@ router.delete('/:uid/activity/:aid', (req, res) => {
             res.status(404).send(rows)
         }
     })
+
+    updateLastSeen(req.params.uid)
 })
+
+function updateLastSeen(id) {
+    let query = `update users set last_seen = '${timestamp()}' where id = ${id}`
+    db.run(query, function(err) {
+        if (err) {
+            console.log(err)
+        }
+        if (this.changes) {
+            // console.log('changes')
+        } else {
+            // console.log('whatever')
+        }
+    })
+}
+
+function taskMarkCompleted(tasks_id) {
+    let sql = `update tasks set completed = '1', last_updated = '${timestamp()}' where id = ${tasks_id}`
+    db.run(sql, function(err) {
+        if (err) {
+            console.log(err)
+        }
+        if (this.changes) {
+            // console.log('changes')
+        } else {
+            // console.log('whatever')
+        }
+    })
+}
 
 // Put request is to add the data and can be done only by the user. No doctor or admin can change the original information
 // All the changes should be made in virtual activity
