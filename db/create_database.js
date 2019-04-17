@@ -54,6 +54,7 @@ db.serialize(() => {
         time datetime not null,
         completed bool default false,
         last_updated integer,
+        deleted bool default false,
         foreign key (users_id) references users(id)
     )`,
         err => {
