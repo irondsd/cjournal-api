@@ -22,12 +22,16 @@ router.get('/:uid/activity', (req, res) => {
     } else {
         deleted += '0'
     }
-
+    let uploaded = ``
+    if (req.query.uploaded) {
+        uploaded = `, uploaded`
+    }
     sql =
-        'select id, users_id, activity_type, time_started, time_ended, tasks_id, last_updated, data from activity where users_id = ' +
+        `select id, users_id, activity_type, time_started, time_ended, tasks_id, last_updated, data ${uploaded} from activity where users_id = ` +
         req.params.uid +
         timeframe +
         deleted
+
     console.log(sql)
     db.all(sql, (err, rows) => {
         if (err) {
@@ -44,10 +48,10 @@ router.post('/:id/activity', (req, res) => {
         return res.status(400).send()
     }
 
-    let sql = `insert into activity(users_id, activity_type, time_started, data, tasks_id, time_ended, last_updated) values 
+    let sql = `insert into activity(users_id, activity_type, time_started, data, tasks_id, time_ended, last_updated, uploaded) values 
             ('${req.params.id}', '${req.body.activity_type}', '${req.body.time_started}', '${JSON.stringify(
         req.body.data
-    )}', '${req.body.tasks_id}', '${req.body.time_ended}', ${timestamp()})`
+    )}', '${req.body.tasks_id}', '${req.body.time_ended}', '${req.body.last_updated}', '${timestamp()}')`
 
     // console.log(sql)
     db.run(sql, function(err, rows) {

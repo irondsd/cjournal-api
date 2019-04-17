@@ -33,6 +33,7 @@ db.serialize(() => {
         time_ended datetime,
         tasks_id integer,
         last_updated integer,
+        uploaded integer,
         data text,
         deleted bool default false,
         foreign key (users_id) references users(id)
