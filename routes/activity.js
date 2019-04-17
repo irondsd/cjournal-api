@@ -4,6 +4,7 @@ const sqlite = require('sqlite3')
 const db = new sqlite.Database('./db/trackers.db')
 const validate = require('../validate')
 const markComleted = require('./tasks')
+let { timestamp } = require('../timestamp')
 
 router.get('/:uid/activity', (req, res) => {
     let timeframe = ``
@@ -43,11 +44,10 @@ router.post('/:id/activity', (req, res) => {
         return res.status(400).send()
     }
 
-    let updated = (Date.now() / 1000) | 10
     let sql = `insert into activity(users_id, activity_type, time_started, data, tasks_id, time_ended, last_updated) values 
             ('${req.params.id}', '${req.body.activity_type}', '${req.body.time_started}', '${JSON.stringify(
         req.body.data
-    )}', '${req.body.tasks_id}', '${req.body.time_ended}', ${updated})`
+    )}', '${req.body.tasks_id}', '${req.body.time_ended}', ${timestamp()})`
 
     // console.log(sql)
     db.run(sql, function(err, rows) {
@@ -66,7 +66,7 @@ router.post('/:id/activity', (req, res) => {
 })
 
 function taskMarkCompleted(tasks_id) {
-    let sql = `update tasks set completed = '1' where id = ${tasks_id}`
+    let sql = `update tasks set completed = '1', last_updated = '${timestamp()}' where id = ${tasks_id}`
     console.log(sql)
     db.run(sql, function(err) {
         if (err) {
@@ -81,6 +81,7 @@ function taskMarkCompleted(tasks_id) {
 }
 
 router.put('/:uid/activity/:aid', (req, res) => {
+    // TODO: redo
     if (!validate.activity_record(req)) {
         return res.status(400).send({
             error: 'Did not receive enough information',
@@ -92,13 +93,22 @@ router.put('/:uid/activity/:aid', (req, res) => {
         })
     }
 
-    let updated = (Date.now() / 1000) | 10
+    let queryPreserve = `insert into activity (users_id, activity_type, time_started, time_ended, tasks_id, last_updated, data, deleted) SELECT users_id, activity_type, time_started, time_ended, tasks_id, ${timestamp()}, data, 1 FROM activity where id = '${
+        req.params.aid
+    }'`
+    db.run(queryPreserve, (err, rows) => {
+        if (err) {
+            console.log(err)
+        } else {
+            console.log('preserved row')
+        }
+    })
     let sql = `update activity set activity_type = '${req.body.activity_type}', time_started = '${
         req.body.time_started
     }', time_ended = '${req.body.time_ended}', data = '${JSON.stringify(
         req.body.data
-    )}', last_updated = '${updated}' where id = ${req.params.aid}`
-
+    )}', last_updated = '${timestamp()}' where id = ${req.params.aid}`
+    console.log(queryPreserve)
     db.run(sql, (err, rows) => {
         if (err) {
             res.status(400).send({
@@ -118,7 +128,7 @@ router.delete('/:uid/activity/:aid', (req, res) => {
         })
     }
 
-    let sql = `update activity set deleted = '1' where id = '${req.params.aid}'`
+    let sql = `update activity set deleted = '1', last_updated = '${timestamp()}' where id = '${req.params.aid}'`
     db.run(sql, function(err, rows) {
         if (err) {
             res.status(400).send({
