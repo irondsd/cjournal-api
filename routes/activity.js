@@ -51,7 +51,7 @@ router.post('/:uid/activity', (req, res) => {
     }
 
     let sql = `insert into activity(users_id, activity_type, time_started, data, tasks_id, time_ended, last_updated, uploaded) values 
-            ('${req.params.id}', '${req.body.activity_type}', '${req.body.time_started}', '${JSON.stringify(
+            ('${req.params.uid}', '${req.body.activity_type}', '${req.body.time_started}', '${JSON.stringify(
         req.body.data
     )}', '${req.body.tasks_id}', '${req.body.time_ended}', '${req.body.last_updated}', '${timestamp()}')`
 
@@ -74,7 +74,6 @@ router.post('/:uid/activity', (req, res) => {
 })
 
 router.put('/:uid/activity/:aid', (req, res) => {
-    // TODO: redo
     if (!validate.activity_record(req)) {
         return res.status(400).send({
             error: 'Did not receive enough information',
