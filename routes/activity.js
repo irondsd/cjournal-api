@@ -63,7 +63,6 @@ router.post('/:uid/activity', (req, res) => {
             res.status(201).send({
                 id: this.lastID
             })
-            console.log(req.body.data.successful)
             if (req.body.tasks_id && req.body.data.successful) {
                 taskMarkCompleted(req.body.tasks_id)
             }
