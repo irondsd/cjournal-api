@@ -12,39 +12,45 @@ const bcrypt = require('bcryptjs')
 
 // Get all users
 router.get('/', (req, res) => {
-    db.all('select id, name, age, gender, email, device_type, last_seen from users', (err, rows) => {
-        if (err) {
-            log(err)
-            res.status(500).send(err.keys)
+    db.all(
+        'select id, name, age, gender, email, device_type, last_seen, information, prescriptions, hide_elements from users',
+        (err, rows) => {
+            if (err) {
+                log(err)
+                res.status(500).send(err.keys)
+            }
+            res.send(rows)
         }
-        res.send(rows)
-    })
+    )
 })
 
 // Get information about the user with specific
 router.get('/:id', (req, res) => {
-    db.all('select id, name, email, device_type, last_seen from users where id = ' + req.params.id, (err, rows) => {
-        if (err) {
-            return res.status(500).send(err)
+    db.all(
+        'select id, name, age, gender, email, device_type, last_seen, information, prescriptions, hide_elements from users where id = ' +
+            req.params.id,
+        (err, rows) => {
+            if (err) {
+                return res.status(500).send(err)
+            }
+            if (rows.length > 0) {
+                return res.send(rows[0])
+            } else {
+                return res.status(404).send()
+            }
         }
-        if (rows.length > 0) {
-            return res.send(rows[0])
-        }
-        else {
-            return res.status(404).send()
-        }
-    })
+    )
 })
 
 router.delete('/:id', (req, res) => {
     // TODO: verify password before
-    db.run('delete from users where id = ' + req.params.id, function (err) {
+    db.run('delete from users where id = ' + req.params.id, function(err) {
         if (err) {
             return res.status(500).send(err)
         }
         if (this.changes) {
             // so if the device was actualy deleted, we need to clear activity data from activity table as well
-            db.run('delete from activity where users_id = ' + req.params.id, function (err) {
+            db.run('delete from activity where users_id = ' + req.params.id, function(err) {
                 if (err) {
                     console.log(err)
                 }
@@ -52,8 +58,7 @@ router.delete('/:id', (req, res) => {
 
             // and finally return 204
             return res.status(204).send()
-        }
-        else {
+        } else {
             return res.status(404).send()
         }
     })
@@ -65,8 +70,8 @@ router.post('/', (req, res) => {
     if (errors.length > 0) {
         return res.status(400).send(errors)
     }
-    const current_time = Date.now() / 1000 | 0
-    db.all(`select exists (select 1 from users where email = '${req.body.email}' limit 1)`, function (err, rows) {
+    const current_time = (Date.now() / 1000) | 0
+    db.all(`select exists (select 1 from users where email = '${req.body.email}' limit 1)`, function(err, rows) {
         if (err) {
             res.status(500).send({
                 error: err
@@ -76,25 +81,28 @@ router.post('/', (req, res) => {
             return res.status(409).send({
                 error: 'user with email is already registered'
             })
-        }
-
-        else {
-            let salt = bcrypt.genSaltSync(10);
-            let hash = bcrypt.hashSync(req.body.password, salt);
-            db.all(`INSERT INTO users(name, age, gender, email, password, device_type, last_seen) VALUES ('${req.body.name}', '${req.body.age}', '${req.body.gender}', '${req.body.email}', '${hash}', '${req.body.device_type}', '${current_time}')`, (err, rows) => {
-                if (err) {
-                    res.status(400).send({
-                        error: err
-                    })
+        } else {
+            let salt = bcrypt.genSaltSync(10)
+            let hash = bcrypt.hashSync(req.body.password, salt)
+            db.all(
+                `INSERT INTO users(name, age, gender, email, password, device_type, last_seen) VALUES ('${
+                    req.body.name
+                }', '${req.body.age}', '${req.body.gender}', '${req.body.email}', '${hash}', '${
+                    req.body.device_type
+                }', '${current_time}')`,
+                (err, rows) => {
+                    if (err) {
+                        res.status(400).send({
+                            error: err
+                        })
+                    } else {
+                        res.status(201).send(rows)
+                    }
                 }
-                else {
-                    res.status(201).send(rows)
-                }
-            })
+            )
         }
     })
 })
-
 
 // Update user
 router.put('/:id', (req, res) => {
@@ -103,7 +111,7 @@ router.put('/:id', (req, res) => {
             error: 'request is not validated. Check readme at /api/ for usage information'
         })
     }
-    const current_time = Date.now() / 1000 | 0
+    const current_time = (Date.now() / 1000) | 0
     db.serialize(() => {
         db.all(`select email, password from users where id = '${req.params.id}' limit 1`, (err, rows) => {
             if (err) {
@@ -111,27 +119,28 @@ router.put('/:id', (req, res) => {
                 return res.status(400).send({
                     error: err
                 })
-            }
-            else {
+            } else {
                 hash = rows[0].password
                 if (bcrypt.compareSync(req.body.password, hash)) {
                     let password_insert = ``
                     if (req.body.new_password) {
                         password_insert = ` password = '${req.body.new_password}',`
                     }
-                    let sql = `update users set name = '${req.body.name}', age = '${req.body.age}', gender = '${req.body.gender}', email = '${req.body.email}',${password_insert} device_type = '${req.body.device_type}', last_seen = '${current_time}' where id = ${req.params.id}`
+                    let sql = `update users set name = '${req.body.name}', age = '${req.body.age}', gender = '${
+                        req.body.gender
+                    }', email = '${req.body.email}',${password_insert} device_type = '${
+                        req.body.device_type
+                    }', last_seen = '${current_time}' where id = ${req.params.id}`
                     db.all(sql, (err, rows) => {
                         if (err) {
                             return res.status(400).send({
                                 error: err
                             })
-                        }
-                        else {
+                        } else {
                             return res.status(200).send(rows)
                         }
                     })
-                }
-                else {
+                } else {
                     res.status(400).send({
                         error: 'wrong password'
                     })
@@ -141,4 +150,4 @@ router.put('/:id', (req, res) => {
     })
 })
 
-module.exports = router;
+module.exports = router
