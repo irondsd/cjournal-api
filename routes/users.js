@@ -84,22 +84,21 @@ router.post('/', (req, res) => {
         } else {
             let salt = bcrypt.genSaltSync(10)
             let hash = bcrypt.hashSync(req.body.password, salt)
-            db.all(
-                `INSERT INTO users(name, age, gender, email, password, device_type, last_seen) VALUES ('${
-                    req.body.name
-                }', '${req.body.age}', '${req.body.gender}', '${req.body.email}', '${hash}', '${
-                    req.body.device_type
-                }', '${current_time}')`,
-                (err, rows) => {
-                    if (err) {
-                        res.status(400).send({
-                            error: err
-                        })
-                    } else {
-                        res.status(201).send(rows)
-                    }
+            let query = `INSERT INTO users(name, age, gender, email, password, device_type, last_seen, information, prescriptions, hide_elements) VALUES ('${
+                req.body.name
+            }', '${req.body.age}', '${req.body.gender}', '${req.body.email}', '${hash}', '${
+                req.body.device_type
+            }', '${current_time}', '${req.body.information}', '${req.body.prescriptions}', '${req.body.hide_elements}')`
+            console.log(query)
+            db.all(query, (err, rows) => {
+                if (err) {
+                    res.status(400).send({
+                        error: err
+                    })
+                } else {
+                    res.status(201).send(rows)
                 }
-            )
+            })
         }
     })
 })
@@ -130,7 +129,9 @@ router.put('/:id', (req, res) => {
                         req.body.gender
                     }', email = '${req.body.email}',${password_insert} device_type = '${
                         req.body.device_type
-                    }', last_seen = '${current_time}' where id = ${req.params.id}`
+                    }', last_seen = '${current_time}', prescriptions = '${req.body.prescriptions}', information = '${
+                        req.body.information
+                    }', hide_elements = '${req.body.hide_elements}' where id = ${req.params.id}`
                     db.all(sql, (err, rows) => {
                         if (err) {
                             return res.status(400).send({

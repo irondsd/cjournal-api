@@ -109,7 +109,7 @@ db.serialize(() => {
 
 if (populate) {
     db.run(
-        `INSERT INTO users(name, device_type, age, gender, last_seen, email, password, information, prescriptions) VALUES ('Alexander Feldman', 'Shovel','54', 'male', '1550507313', 'ggn00b@mail.ru', '$2a$10$teACha.MBCW68XIqYHAZielRJa5qSbSx6DKf4ihAqTVqOgJtg3aoe', 'You are the patint of Whatever hostpital. Your doctor is Donald Trump. Wut? You crazy or what? You can contact him on the phone number +13947576392', '['Acebutolol', 'Atenolol']')`,
+        `INSERT INTO users(name, device_type, age, gender, last_seen, email, password, information, prescriptions) VALUES ('Alexander Feldman', 'Shovel','54', 'male', '1550507313', 'ggn00b@mail.ru', '$2a$10$teACha.MBCW68XIqYHAZielRJa5qSbSx6DKf4ihAqTVqOgJtg3aoe', 'You are the patint of Whatever hostpital. Your doctor is Donald Trump. Wut? You crazy or what? You can contact him on the phone number +13947576392', '["Acebutolol", "Atenolol"]')`,
         err => {
             if (err) {
                 log(err)
@@ -118,7 +118,7 @@ if (populate) {
         }
     )
     db.run(
-        `INSERT INTO users(name, device_type, age, gender, last_seen, email, password, information, prescriptions) VALUES ('Carl Sagan', 'Telescope', '54', 'male','1550507313', 'ggn00b@mail.ua', '$2a$10$teACha.MBCW68XIqYHAZielRJa5qSbSx6DKf4ihAqTVqOgJtg3aoe', 'You are the patint of Whatever hostpital. Your doctor is Donald Trump. Wut? You crazy or what? You can contact him on the phone number +13947576392', '['Acebutolol', 'Atenolol']')`,
+        `INSERT INTO users(name, device_type, age, gender, last_seen, email, password, information, prescriptions) VALUES ('Carl Sagan', 'Telescope', '54', 'male','1550507313', 'ggn00b@mail.ua', '$2a$10$teACha.MBCW68XIqYHAZielRJa5qSbSx6DKf4ihAqTVqOgJtg3aoe', 'You are the patint of Whatever hostpital. Your doctor is Donald Trump. Wut? You crazy or what? You can contact him on the phone number +13947576392', '["Acebutolol", "Atenolol"]')`,
         err => {
             if (err) {
                 log(err)
