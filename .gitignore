@@ -11,5 +11,8 @@ yarn-error.log
 # ignore all logs
 *.log
 
+# ignore db
+db/trackers.db
+
 # ignore .vscode
 .vscode/
