@@ -159,9 +159,9 @@ function taskMarkCompleted(tasks_id) {
             console.log(err)
         }
         if (this.changes) {
-            // console.log('changes')
+            console.log(`marked task ${tasks_id} as completed`)
         } else {
-            // console.log('whatever')
+            console.log('whatever')
         }
     })
 }
