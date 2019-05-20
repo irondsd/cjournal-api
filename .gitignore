@@ -15,4 +15,4 @@ yarn-error.log
 db/trackers.db
 
 # ignore .vscode
-.vscode/
+.vscode/ 
