@@ -31,19 +31,19 @@ app.get('/api/check/', function(req, res) {
     session.validate_api_key(req, res)
 })
 
-// app.listen(port, () => {
-//     log(`Server started on port ${port}`)
-// })
-https
-    .createServer(
-        {
-            key: fs.readFileSync('server.key'),
-            cert: fs.readFileSync('server.cert')
-        },
-        app
-    )
-    .listen(port, function() {
-        log(`Server started on port ${port}`)
-    })
+app.listen(port, () => {
+    log(`Server started on port ${port}`)
+})
+// https
+//     .createServer(
+//         {
+//             key: fs.readFileSync('server.key'),
+//             cert: fs.readFileSync('server.cert')
+//         },
+//         app
+//     )
+//     .listen(port, function() {
+//         log(`Server started on port ${port}`)
+//     })
 
 // TODO: update readme
