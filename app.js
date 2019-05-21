@@ -1,7 +1,8 @@
 const log = require('./logger')
 const express = require('express')
 const app = express()
-const MarkdownIt = require('markdown-it'), md = new MarkdownIt();
+const MarkdownIt = require('markdown-it'),
+    md = new MarkdownIt()
 const validate = require('./validate')
 const port = process.env.PORT || 3000
 const fs = require('fs')
@@ -15,6 +16,7 @@ const bodyParser = require('body-parser')
 const login = require('./routes/login')
 const session = require('./session')
 const tasks = require('./routes/tasks')
+const https = require('https')
 
 app.use(bodyParser.json())
 app.use('/api/', index)
@@ -25,10 +27,23 @@ app.use('/api/users/', virtual_activity)
 app.use('/api/', login)
 
 // just for testing, will be removed later
-app.get('/api/check/', function (req, res) {
+app.get('/api/check/', function(req, res) {
     session.validate_api_key(req, res)
 })
 
-app.listen(port, () => { log(`Server started on port ${port}`) })
+// app.listen(port, () => {
+//     log(`Server started on port ${port}`)
+// })
+https
+    .createServer(
+        {
+            key: fs.readFileSync('server.key'),
+            cert: fs.readFileSync('server.cert')
+        },
+        app
+    )
+    .listen(port, function() {
+        log(`Server started on port ${port}`)
+    })
 
 // TODO: update readme
