@@ -65,8 +65,8 @@ function create_qr_session(res, req, user) {
                 api_key: api_key
             }
             QRCode.toDataURL(JSON.stringify(response), function(err, url) {
-                response.dataimg = url
-                res.send(response)
+                // response.dataimg = url
+                res.send({ qr: url })
             })
         }
     })
