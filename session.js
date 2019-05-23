@@ -2,6 +2,10 @@ const bcrypt = require('bcryptjs')
 const sqlite = require('sqlite3')
 const db = new sqlite.Database('./db/trackers.db')
 var QRCode = require('qrcode')
+var SimpleCrypto = require('simple-crypto-js').default
+
+var secretKey = 'baba_yaga'
+var simpleCrypto = new SimpleCrypto(secretKey)
 
 function check_password(password, hash) {
     bcrypt.compare(password, hash, function(err, res) {
@@ -64,7 +68,8 @@ function create_qr_session(res, req, user) {
                 age: user.age,
                 api_key: api_key
             }
-            QRCode.toDataURL(JSON.stringify(response), function(err, url) {
+            let cipherText = simpleCrypto.encrypt(response)
+            QRCode.toDataURL(cipherText, function(err, url) {
                 // response.dataimg = url
                 res.send({ qr: url })
             })
