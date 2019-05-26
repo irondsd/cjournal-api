@@ -26,7 +26,7 @@ router.get('/:uid/tasks', (req, res) => {
     }
 
     sql =
-        'select id, users_id, activity_type, time, completed, last_updated from tasks where users_id = ' +
+        'select id, users_id, activity_type, time, completed, data, last_updated from tasks where users_id = ' +
         req.params.uid +
         timeframe +
         deleted
@@ -47,8 +47,10 @@ router.post('/:id/tasks', (req, res) => {
     if (!validate.task_record(req)) {
         return res.status(400).send({ error: 'Not enough data' })
     }
-    sql = `insert into tasks(users_id, activity_type, time, completed, last_updated) values 
-            ('${req.params.id}', '${req.body.activity_type}', '${req.body.time}', '0', '${timestamp()}')`
+    sql = `insert into tasks(users_id, activity_type, time, completed, last_updated, data) values 
+            ('${req.params.id}', '${req.body.activity_type}', '${req.body.time}', '0', '${timestamp()}', '${
+        req.body.data
+    }')`
     console.log(sql)
     db.run(sql, function(err, rows) {
         if (err) {
@@ -70,7 +72,7 @@ router.put('/:uid/tasks/:aid', (req, res) => {
             }
         })
     }
-    let queryPreserve = `insert into tasks (users_id, activity_type, time, completed, last_updated, deleted) SELECT users_id, activity_type, time, completed, ${timestamp()}, 1 FROM tasks where id = '${
+    let queryPreserve = `insert into tasks (users_id, activity_type, time, completed, last_updated, data, deleted) SELECT users_id, activity_type, time, completed, ${timestamp()}, data, 1 FROM tasks where id = '${
         req.params.aid
     }'`
     db.run(queryPreserve, (err, rows) => {
@@ -89,7 +91,7 @@ router.put('/:uid/tasks/:aid', (req, res) => {
     } else {
         sql = `update tasks set activity_type = '${req.body.activity_type}', time = '${
             req.body.time
-        }', last_updated = '${timestamp()}' where id = ${req.params.aid}`
+        }', last_updated = '${timestamp()}', data = '${req.body.data}' where id = ${req.params.aid}`
     }
 
     db.run(sql, (err, rows) => {

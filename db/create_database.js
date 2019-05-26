@@ -55,6 +55,7 @@ db.serialize(() => {
         users_id integer not null,
         activity_type text not null,
         time datetime not null,
+        data text,
         completed bool default false,
         last_updated integer,
         deleted bool default false,
