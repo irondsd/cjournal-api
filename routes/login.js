@@ -9,29 +9,33 @@ const bcrypt = require('bcryptjs')
 
 router.post('/login', (req, res) => {
     if (req.body.email && req.body.password) {
-        db.all(
-            `select id, email, name, gender, age, password from users where email = '${req.body.email}' limit 1`,
-            (err, rows) => {
-                if (err) {
-                    res.status(500).send(err.keys)
-                }
-                if (rows[0]) {
-                    hash = rows[0].password
-                    if (bcrypt.compareSync(req.body.password, hash)) {
-                        user_id = rows[0].id
-                        session.create_session(res, req, rows[0])
-                    } else {
-                        res.status(403).send({
-                            error: 'wrong password'
-                        })
-                    }
+        let query = `select 
+users.id, name, age, gender, email, password, device_type, last_seen, information, hide_elements,
+prescriptions.course_therapy, relief_of_attack, tests
+from users 
+inner join 
+prescriptions on users.id = prescriptions.users_id
+where users.email = '${req.body.email}' limit 1`
+        db.all(query, (err, rows) => {
+            if (err) {
+                res.status(500).send(err.keys)
+            }
+            if (rows[0]) {
+                hash = rows[0].password
+                if (bcrypt.compareSync(req.body.password, hash)) {
+                    user_id = rows[0].id
+                    session.create_session(res, req, rows[0])
                 } else {
-                    res.status(404).send({
-                        error: 'No such user'
+                    res.status(403).send({
+                        error: 'wrong password'
                     })
                 }
+            } else {
+                res.status(404).send({
+                    error: 'No such user'
+                })
             }
-        )
+        })
     } else {
         res.status(400).send({
             error: 'no email and password received'
@@ -43,29 +47,34 @@ router.post('/login', (req, res) => {
 
 router.post('/loginqr', (req, res) => {
     if (req.body.email && req.body.password) {
-        db.all(
-            `select id, email, name, gender, age, password from users where email = '${req.body.email}' limit 1`,
-            (err, rows) => {
-                if (err) {
-                    res.status(500).send(err.keys)
-                }
-                if (rows[0]) {
-                    hash = rows[0].password
-                    if (bcrypt.compareSync(req.body.password, hash)) {
-                        user_id = rows[0].id
-                        session.create_qr_session(res, req, rows[0])
-                    } else {
-                        res.status(403).send({
-                            error: 'wrong password'
-                        })
-                    }
+        let query = `select 
+users.id, name, age, gender, email, password, device_type, last_seen, information, hide_elements,
+prescriptions.course_therapy, relief_of_attack, tests
+from users 
+inner join 
+prescriptions on users.id = prescriptions.users_id
+where users.email = '${req.body.email}' limit 1`
+        db.all(query, (err, rows) => {
+            if (err) {
+                res.status(500).send(err.keys)
+            }
+            if (rows[0]) {
+                hash = rows[0].password
+                console.log(hash)
+                if (bcrypt.compareSync(req.body.password, hash)) {
+                    user_id = rows[0].id
+                    session.create_qr_session(res, req, rows[0])
                 } else {
-                    res.status(404).send({
-                        error: 'No such user'
+                    res.status(403).send({
+                        error: 'wrong password'
                     })
                 }
+            } else {
+                res.status(404).send({
+                    error: 'No such user'
+                })
             }
-        )
+        })
     } else {
         res.status(400).send({
             error: 'no email and password received'

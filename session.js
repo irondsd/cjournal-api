@@ -4,8 +4,8 @@ const db = new sqlite.Database('./db/trackers.db')
 var QRCode = require('qrcode')
 var SimpleCrypto = require('simple-crypto-js').default
 
-var secretKey = 'baba_yaga'
-var simpleCrypto = new SimpleCrypto(secretKey)
+var QRSecretKey = 'baba_yaga'
+var simpleCrypto = new SimpleCrypto(QRSecretKey)
 
 function check_password(password, hash) {
     bcrypt.compare(password, hash, function(err, res) {
@@ -44,7 +44,13 @@ function create_session(res, req, user) {
                 email: user.email,
                 gender: user.gender,
                 age: user.age,
-                api_key: api_key
+                api_key: api_key,
+                device_type: user.device_type,
+                information: user.information,
+                hide_elements: user.hide_elements,
+                course_therapy: user.course_therapy,
+                relief_of_attack: user.relief_of_attack,
+                tests: user.tests
             })
         }
     })
