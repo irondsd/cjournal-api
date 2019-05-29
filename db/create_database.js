@@ -16,7 +16,6 @@ db.serialize(() => {
                 password text,
                 information text,
                 hide_elements text,
-                prescriptions text,
                 last_seen datetime)`,
         err => {
             if (err) {
@@ -40,6 +39,22 @@ db.serialize(() => {
         deleted bool default false,
         foreign key (users_id) references users(id)
         foreign key (tasks_id) references tasks(id)
+    )`,
+        err => {
+            if (err) {
+                log(err)
+                errors = true
+            }
+        }
+    )
+
+    db.run(
+        `create table if not exists prescriptions (
+        users_id integer not null primary key,
+        course_therapy text,
+        relief_of_attack text,
+        tests text,
+        foreign key (users_id) references users(id)
     )`,
         err => {
             if (err) {
@@ -110,7 +125,7 @@ db.serialize(() => {
 
 if (populate) {
     db.run(
-        `INSERT INTO users(name, device_type, age, gender, last_seen, email, password, information, prescriptions) VALUES ('Alexander Feldman', 'Shovel','54', 'male', '1550507313', 'ggn00b@mail.ru', '$2a$10$teACha.MBCW68XIqYHAZielRJa5qSbSx6DKf4ihAqTVqOgJtg3aoe', 'You are the patint of Whatever hostpital. Your doctor is Donald Trump. Wut? You crazy or what? You can contact him on the phone number +13947576392', '["Acebutolol", "Atenolol"]')`,
+        `INSERT INTO users(name, device_type, age, gender, last_seen, email, password, information) VALUES ('Alexander Feldman', 'Shovel','54', 'male', '1550507313', 'ggn00b@mail.ru', '$2a$10$teACha.MBCW68XIqYHAZielRJa5qSbSx6DKf4ihAqTVqOgJtg3aoe', 'You are the patint of Whatever hostpital. Your doctor is Donald Trump. Wut? You crazy or what? You can contact him on the phone number +13947576392')`,
         err => {
             if (err) {
                 log(err)
@@ -119,7 +134,7 @@ if (populate) {
         }
     )
     db.run(
-        `INSERT INTO users(name, device_type, age, gender, last_seen, email, password, information, prescriptions) VALUES ('Carl Sagan', 'Telescope', '54', 'male','1550507313', 'ggn00b@mail.ua', '$2a$10$teACha.MBCW68XIqYHAZielRJa5qSbSx6DKf4ihAqTVqOgJtg3aoe', 'You are the patint of Whatever hostpital. Your doctor is Donald Trump. Wut? You crazy or what? You can contact him on the phone number +13947576392', '["Acebutolol", "Atenolol"]')`,
+        `INSERT INTO users(name, device_type, age, gender, last_seen, email, password, information) VALUES ('Carl Sagan', 'Telescope', '54', 'male','1550507313', 'ggn00b@mail.ua', '$2a$10$teACha.MBCW68XIqYHAZielRJa5qSbSx6DKf4ihAqTVqOgJtg3aoe', 'You are the patint of Whatever hostpital. Your doctor is Donald Trump. Wut? You crazy or what? You can contact him on the phone number +13947576392')`,
         err => {
             if (err) {
                 log(err)
@@ -128,7 +143,7 @@ if (populate) {
         }
     )
     db.run(
-        `INSERT INTO users(name, device_type, age, gender, last_seen, email, password, information, prescriptions) VALUES ('Max Plank', 'Microscope', '54', 'male','1550507313', 'ggn000b@gmail.com', '$2a$10$teACha.MBCW68XIqYHAZielRJa5qSbSx6DKf4ihAqTVqOgJtg3aoe', 'You are the patint of Whatever hostpital. Your doctor is Donald Trump. Wut? You crazy or what? You can contact him on the phone number +13947576392', '["Acebutolol", "Atenolol"]')`,
+        `INSERT INTO users(name, device_type, age, gender, last_seen, email, password, information) VALUES ('Max Plank', 'Microscope', '54', 'male','1550507313', 'ggn000b@gmail.com', '$2a$10$teACha.MBCW68XIqYHAZielRJa5qSbSx6DKf4ihAqTVqOgJtg3aoe', 'You are the patint of Whatever hostpital. Your doctor is Donald Trump. Wut? You crazy or what? You can contact him on the phone number +13947576392')`,
         err => {
             if (err) {
                 log(err)
@@ -201,6 +216,36 @@ if (populate) {
 
     db.run(
         `insert into tasks(users_id, activity_type, time, last_updated) values ('3', 'Walking', 1555166888, 1555241651)`,
+        err => {
+            if (err) {
+                log(err)
+                errors = true
+            }
+        }
+    )
+
+    db.run(
+        `insert into prescriptions(users_id, course_therapy, relief_of_attack, tests) values ('1', '["Acebutolol", "Atenolol"]', '["Bisoprolol", "Betaxolol"]', '["Nadolol", "Propranolol"]')`,
+        err => {
+            if (err) {
+                log(err)
+                errors = true
+            }
+        }
+    )
+
+    db.run(
+        `insert into prescriptions(users_id, course_therapy, relief_of_attack, tests) values ('2', '["Acebutolol", "Atenolol"]', '["Bisoprolol", "Betaxolol"]', '["Nadolol", "Propranolol"]')`,
+        err => {
+            if (err) {
+                log(err)
+                errors = true
+            }
+        }
+    )
+
+    db.run(
+        `insert into prescriptions(users_id, course_therapy, relief_of_attack, tests) values ('3', '["Acebutolol", "Atenolol"]', '["Bisoprolol", "Betaxolol"]', '["Nadolol", "Propranolol"]')`,
         err => {
             if (err) {
                 log(err)

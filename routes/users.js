@@ -12,34 +12,41 @@ const bcrypt = require('bcryptjs')
 
 // Get all users
 router.get('/', (req, res) => {
-    db.all(
-        'select id, name, age, gender, email, device_type, last_seen, information, prescriptions, hide_elements from users',
-        (err, rows) => {
-            if (err) {
-                log(err)
-                res.status(500).send(err.keys)
-            }
-            res.send(rows)
+    let query = `select 
+users.id, name, age, gender, email, device_type, last_seen, information, hide_elements,
+prescriptions.course_therapy, relief_of_attack, tests
+from users 
+inner join 
+prescriptions on users.id = prescriptions.users_id`
+    db.all(query, (err, rows) => {
+        if (err) {
+            log(err)
+            res.status(500).send(err.keys)
         }
-    )
+        res.send(rows)
+    })
 })
 
 // Get information about the user with specific
 router.get('/:id', (req, res) => {
-    db.all(
-        'select id, name, age, gender, email, device_type, last_seen, information, prescriptions, hide_elements from users where id = ' +
-            req.params.id,
-        (err, rows) => {
-            if (err) {
-                return res.status(500).send(err)
-            }
-            if (rows.length > 0) {
-                return res.send(rows[0])
-            } else {
-                return res.status(404).send()
-            }
+    let query =
+        `select 
+users.id, name, age, gender, email, device_type, last_seen, information, hide_elements,
+prescriptions.course_therapy, relief_of_attack, tests
+from users 
+inner join 
+prescriptions on users.id = prescriptions.users_id
+where users.id = ` + req.params.id
+    db.all(query, (err, rows) => {
+        if (err) {
+            return res.status(500).send(err)
         }
-    )
+        if (rows.length > 0) {
+            return res.send(rows[0])
+        } else {
+            return res.status(404).send()
+        }
+    })
 })
 
 router.delete('/:id', (req, res) => {
@@ -84,11 +91,11 @@ router.post('/', (req, res) => {
         } else {
             let salt = bcrypt.genSaltSync(10)
             let hash = bcrypt.hashSync(req.body.password, salt)
-            let query = `INSERT INTO users(name, age, gender, email, password, device_type, last_seen, information, prescriptions, hide_elements) VALUES ('${
+            let query = `INSERT INTO users(name, age, gender, email, password, device_type, last_seen, information, hide_elements) VALUES ('${
                 req.body.name
             }', '${req.body.age}', '${req.body.gender}', '${req.body.email}', '${hash}', '${
                 req.body.device_type
-            }', '${current_time}', '${req.body.information}', '${req.body.prescriptions}', '${req.body.hide_elements}')`
+            }', '${current_time}', '${req.body.information}', '${req.body.hide_elements}')`
             console.log(query)
             db.all(query, (err, rows) => {
                 if (err) {
@@ -129,9 +136,9 @@ router.put('/:id', (req, res) => {
                         req.body.gender
                     }', email = '${req.body.email}',${password_insert} device_type = '${
                         req.body.device_type
-                    }', last_seen = '${current_time}', prescriptions = '${req.body.prescriptions}', information = '${
-                        req.body.information
-                    }', hide_elements = '${req.body.hide_elements}' where id = ${req.params.id}`
+                    }', last_seen = '${current_time}', information = '${req.body.information}', hide_elements = '${
+                        req.body.hide_elements
+                    }' where id = ${req.params.id}`
                     db.all(sql, (err, rows) => {
                         if (err) {
                             return res.status(400).send({
