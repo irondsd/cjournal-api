@@ -97,13 +97,27 @@ router.post('/', (req, res) => {
                 req.body.device_type
             }', '${current_time}', '${req.body.information}', '${req.body.hide_elements}')`
             console.log(query)
-            db.all(query, (err, rows) => {
+            db.run(query, function(err, rows) {
                 if (err) {
                     res.status(400).send({
                         error: err
                     })
                 } else {
-                    res.status(201).send(rows)
+                    let query = `insert into prescriptions(users_id, course_therapy, relief_of_attack, tests) values ('${
+                        this.lastID
+                    }', '${req.body.course_therapy}', '${req.body.relief_of_attack}', '${req.body.tests}')`
+                    let id = this.lastID
+                    db.run(query, function(err, rows) {
+                        if (err) {
+                            // to make sure it'll be deleted in case something goes wrong here
+                            db.run('delete from users where id = ' + id)
+                            res.status(400).send({
+                                error: err
+                            })
+                        } else {
+                            res.status(201).send(rows)
+                        }
+                    })
                 }
             })
         }
