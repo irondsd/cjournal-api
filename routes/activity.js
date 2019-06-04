@@ -27,13 +27,13 @@ router.get('/:uid/activity', (req, res) => {
         uploaded = `, uploaded`
     }
     sql =
-        `select id, users_id, activity_type, time_started, time_ended, tasks_id, last_updated, data ${uploaded} from activity where users_id = ` +
+        `select id, users_id, activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, data ${uploaded} from activity where users_id = ` +
         req.params.uid +
         timeframe +
         deleted
 
     console.log(sql)
-    db.all(sql, (err, rows) => {
+    db.all(sql, function(err, rows) {
         if (err) {
             res.status(500).send({
                 error: err
@@ -98,14 +98,17 @@ router.put('/:uid/activity/:aid', (req, res) => {
         req.body.time_started
     }', time_ended = '${req.body.time_ended}', data = '${JSON.stringify(
         req.body.data
-    )}', last_updated = '${timestamp()}' where id = ${req.params.aid}`
+    )}', last_updated = '${timestamp()}', ref_id = '${req.params.aid}' where id = ${req.params.aid}`
     console.log(queryPreserve)
-    db.run(sql, (err, rows) => {
+    db.run(sql, function(err, rows) {
         if (err) {
             res.status(400).send({
                 error: err
             })
         } else {
+            db.run(`update activity set ref_id = '${this.lastID}' where id = ${req.params.aid}`, (err, rows) => {
+                console.log('added ref id')
+            })
             res.status(201).send(rows)
         }
     })

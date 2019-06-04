@@ -36,6 +36,7 @@ db.serialize(() => {
         last_updated integer,
         uploaded integer,
         data text,
+        ref_id integer default null,
         deleted bool default false,
         foreign key (users_id) references users(id)
         foreign key (tasks_id) references tasks(id)
@@ -92,9 +93,11 @@ db.serialize(() => {
         time_started datetime not null,
         time_ended datetime,
         tasks_id integer,
+        last_updated integer,
+        uploaded integer,
         data text,
+        ref_id integer default null,
         deleted bool default false,
-        foreign key (id) references activity(id)
         foreign key (users_id) references users(id)
         foreign key (tasks_id) references tasks(id)
     )`,
