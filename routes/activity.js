@@ -84,7 +84,7 @@ router.put('/:uid/activity/:aid', (req, res) => {
         })
     }
 
-    let queryPreserve = `insert into activity (users_id, activity_type, time_started, time_ended, tasks_id, last_updated, data, deleted) SELECT users_id, activity_type, ref_id, time_started, time_ended, tasks_id, ${timestamp()}, data, 1 FROM activity where id = '${
+    let queryPreserve = `insert into activity (users_id, activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, data, deleted) SELECT users_id, activity_type, time_started, time_ended, tasks_id, ref_id, ${timestamp()}, data, 1 FROM activity where id = '${
         req.params.aid
     }'`
     db.run(queryPreserve, (err, rows) => {
