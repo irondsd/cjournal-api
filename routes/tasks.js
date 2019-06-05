@@ -11,10 +11,10 @@ let { timestamp } = require('../timestamp')
 router.get('/:uid/tasks', (req, res) => {
     let timeframe = ``
     if (req.query.from) {
-        timeframe += ` and time_started > ${req.query.from} `
+        timeframe += ` and time >= ${req.query.from} `
     }
     if (req.query.to) {
-        timeframe += ` and time_started < ${req.query.to} `
+        timeframe += ` and time <= ${req.query.to} `
     }
     let deleted = ` and deleted = `
     if (req.query.deleted == 1) {
