@@ -1,9 +1,6 @@
 const log = require('./logger')
 const express = require('express')
 const app = express()
-const MarkdownIt = require('markdown-it'),
-    md = new MarkdownIt()
-const validate = require('./validate')
 const port = process.env.PORT || 3000
 const fs = require('fs')
 const sqlite = require('sqlite3')
@@ -16,9 +13,13 @@ const bodyParser = require('body-parser')
 const login = require('./routes/login')
 const session = require('./session')
 const tasks = require('./routes/tasks')
-const https = require('https')
 const prescriptions = require('./routes/prescriptions')
 
+app.use(function(req, res, next) {
+    res.header('Access-Control-Allow-Origin', '*')
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept')
+    next()
+})
 app.use(bodyParser.json())
 app.use('/api/', index)
 app.use('/api/users/', users)
@@ -36,16 +37,5 @@ app.get('/api/check/', function(req, res) {
 app.listen(port, () => {
     log(`Server started on port ${port}`)
 })
-// https
-//     .createServer(
-//         {
-//             key: fs.readFileSync('server.key'),
-//             cert: fs.readFileSync('server.cert')
-//         },
-//         app
-//     )
-//     .listen(port, function() {
-//         log(`Server started on port ${port}`)
-//     })
 
 // TODO: update readme
