@@ -10,7 +10,7 @@ const bcrypt = require('bcryptjs')
 router.post('/login', (req, res) => {
     if (req.body.email && req.body.password) {
         let query = `select 
-users.id, name, age, gender, email, password, device_type, last_seen, information, hide_elements,
+users.id, name, birthday, gender, email, password, device_type, last_seen, information, hide_elements,
 prescriptions.course_therapy, relief_of_attack, tests
 from users 
 inner join 
@@ -31,9 +31,7 @@ where users.email = '${req.body.email}' limit 1`
                     })
                 }
             } else {
-                res.status(404).send({
-                    error: 'No such user'
-                })
+                res.status(404).send()
             }
         })
     } else {
@@ -48,7 +46,7 @@ where users.email = '${req.body.email}' limit 1`
 router.post('/loginqr', (req, res) => {
     if (req.body.email && req.body.password) {
         let query = `select 
-users.id, name, age, gender, email, password, device_type, last_seen, information, hide_elements,
+users.id, name, birthday, gender, email, password, device_type, last_seen, information, hide_elements,
 prescriptions.course_therapy, relief_of_attack, tests
 from users 
 inner join 
@@ -58,7 +56,7 @@ where users.email = '${req.body.email}' limit 1`
             if (err) {
                 res.status(500).send(err.keys)
             }
-            if (rows[0]) {
+            if (rows) {
                 hash = rows[0].password
                 console.log(hash)
                 if (bcrypt.compareSync(req.body.password, hash)) {
