@@ -56,7 +56,7 @@ where users.email = '${req.body.email}' limit 1`
             if (err) {
                 res.status(500).send(err.keys)
             }
-            if (rows) {
+            if (rows[0]) {
                 hash = rows[0].password
                 console.log(hash)
                 if (bcrypt.compareSync(req.body.password, hash)) {
