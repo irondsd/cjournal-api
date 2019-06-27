@@ -43,7 +43,7 @@ function create_session(res, req, user) {
                 name: user.name,
                 email: user.email,
                 gender: user.gender,
-                age: user.age,
+                birthday: user.birthday,
                 api_key: api_key,
                 device_type: user.device_type,
                 information: user.information,
@@ -71,7 +71,7 @@ function create_qr_session(res, req, user) {
                 name: user.name,
                 email: user.email,
                 gender: user.gender,
-                age: user.age,
+                birthday: user.birthday,
                 api_key: api_key
             }
             let cipherText = simpleCrypto.encrypt(response)
