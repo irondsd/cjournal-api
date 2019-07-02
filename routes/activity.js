@@ -42,7 +42,31 @@ router.get('/:uid/activity', (req, res) => {
         res.send(rows)
     })
 
-    // updateLastSeen(req.params.uid)
+    updateLastSeen(req.params.uid)
+})
+
+router.get('/:uid/activity/:aid', (req, res) => {
+    let uploaded = ``
+    if (req.query.uploaded) {
+        uploaded = `, uploaded`
+    }
+
+    query = `select id, users_id, activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, data ${uploaded} from activity where id = ${
+        req.params.aid
+    } and users_id = ${req.params.uid}`
+
+    db.all(query, (err, rows) => {
+        if (err) {
+            return res.status(500).send(err)
+        }
+        if (rows.length > 0) {
+            return res.send(rows[0])
+        } else {
+            return res.status(404).send()
+        }
+    })
+
+    updateLastSeen(req.params.uid)
 })
 
 router.post('/:uid/activity', (req, res) => {
@@ -148,7 +172,7 @@ function updateLastSeen(id) {
             console.log(err)
         }
         if (this.changes) {
-            // console.log('changes')
+            console.log('updated last seen')
         } else {
             // console.log('whatever')
         }
