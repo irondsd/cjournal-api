@@ -13,11 +13,12 @@ const bcrypt = require('bcryptjs')
 // Get all users
 router.get('/', (req, res) => {
     let query = `select 
-users.id, name, age, gender, email, device_type, last_seen, information, hide_elements,
+users.id, name, birthday, gender, email, device_type, last_seen, information, hide_elements,
 prescriptions.course_therapy, relief_of_attack, tests
 from users 
 inner join 
 prescriptions on users.id = prescriptions.users_id`
+    console.log(query)
     db.all(query, (err, rows) => {
         if (err) {
             log(err)
@@ -28,20 +29,22 @@ prescriptions on users.id = prescriptions.users_id`
 })
 
 // Get information about the user with specific
-router.get('/:id', (req, res) => {
+router.all('/:id', (req, res) => {
     let query =
         `select 
-users.id, name, age, gender, email, device_type, last_seen, information, hide_elements,
+users.id, name, birthday, gender, email, device_type, last_seen, information, hide_elements,
 prescriptions.course_therapy, relief_of_attack, tests
 from users 
 inner join 
 prescriptions on users.id = prescriptions.users_id
 where users.id = ` + req.params.id
+    console.log(query)
     db.all(query, (err, rows) => {
         if (err) {
             return res.status(500).send(err)
         }
-        if (rows.length > 0) {
+        console.log(rows)
+        if (rows) {
             return res.send(rows[0])
         } else {
             return res.status(404).send()
@@ -91,9 +94,9 @@ router.post('/', (req, res) => {
         } else {
             let salt = bcrypt.genSaltSync(10)
             let hash = bcrypt.hashSync(req.body.password, salt)
-            let query = `INSERT INTO users(name, age, gender, email, password, device_type, last_seen, information, hide_elements) VALUES ('${
+            let query = `INSERT INTO users(name, birthday, gender, email, password, device_type, last_seen, information, hide_elements) VALUES ('${
                 req.body.name
-            }', '${req.body.age}', '${req.body.gender}', '${req.body.email}', '${hash}', '${
+            }', '${req.body.birthday}', '${req.body.gender}', '${req.body.email}', '${hash}', '${
                 req.body.device_type
             }', '${current_time}', '${req.body.information}', '${req.body.hide_elements}')`
             console.log(query)
@@ -128,7 +131,7 @@ router.post('/', (req, res) => {
 router.put('/:id', (req, res) => {
     if (!validate.update_user(req)) {
         return res.status(400).send({
-            error: 'request is not validated. Check readme at /api/ for usage information'
+            error: 'request is not validated. Check readme at /api/ for usbirthday information'
         })
     }
     const current_time = (Date.now() / 1000) | 0
@@ -146,9 +149,9 @@ router.put('/:id', (req, res) => {
                     if (req.body.new_password) {
                         password_insert = ` password = '${req.body.new_password}',`
                     }
-                    let sql = `update users set name = '${req.body.name}', age = '${req.body.age}', gender = '${
-                        req.body.gender
-                    }', email = '${req.body.email}',${password_insert} device_type = '${
+                    let sql = `update users set name = '${req.body.name}', birthday = '${
+                        req.body.birthday
+                    }', gender = '${req.body.gender}', email = '${req.body.email}',${password_insert} device_type = '${
                         req.body.device_type
                     }', last_seen = '${current_time}', information = '${req.body.information}', hide_elements = '${
                         req.body.hide_elements
