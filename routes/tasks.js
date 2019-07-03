@@ -43,19 +43,21 @@ router.get('/:uid/tasks', (req, res) => {
     })
 })
 
-router.get('/:uid/tasks', (req, res) => {
-    query =
-        'select id, users_id, activity_type, time, last_updated, ref_id, completed, deleted, data from tasks where users_id = ' +
-        req.params.uid
+router.get('/:uid/tasks/:tid', (req, res) => {
+    query = `select id, users_id, activity_type, time, last_updated, ref_id, completed, deleted, data from tasks where id = ${
+        req.params.tid
+    } and users_id = ${req.params.uid}`
 
     console.log(query)
     db.all(query, (err, rows) => {
         if (err) {
-            res.status(500).send({
-                error: err
-            })
+            return res.status(500).send(err)
         }
-        res.send(rows)
+        if (rows.length > 0) {
+            return res.send(rows[0])
+        } else {
+            return res.status(404).send()
+        }
     })
 })
 
