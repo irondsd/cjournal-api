@@ -2,9 +2,9 @@ const express = require('express')
 const router = express.Router()
 const sqlite = require('sqlite3')
 const db = new sqlite.Database('./db/trackers.db')
-const validate = require('../validate')
-const session = require('../session')
-const log = require('../logger')
+const validate = require('../helpers/validate')
+const session = require('../helpers/session')
+const log = require('../helpers/logger')
 const bcrypt = require('bcryptjs')
 
 router.post('/login', (req, res) => {

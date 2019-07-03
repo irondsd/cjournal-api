@@ -2,9 +2,10 @@ const express = require('express')
 const router = express.Router()
 const sqlite = require('sqlite3')
 const db = new sqlite.Database('./db/trackers.db')
-const validate = require('../validate')
-const markComleted = require('./tasks')
-let { timestamp } = require('../timestamp')
+const validate = require('../helpers/validate')
+let { timestamp } = require('../helpers/timestamp')
+let { updateLastSeen } = require('../helpers/updateLastSeen')
+let { taskMarkCompleted } = require('../helpers/taskMarkCompleted')
 
 router.get('/:uid/activity', (req, res) => {
     let timeframe = ``
@@ -164,34 +165,6 @@ router.delete('/:uid/activity/:aid', (req, res) => {
 
     updateLastSeen(req.params.uid)
 })
-
-function updateLastSeen(id) {
-    let query = `update users set last_seen = '${timestamp()}' where id = ${id}`
-    db.run(query, function(err) {
-        if (err) {
-            console.log(err)
-        }
-        if (this.changes) {
-            console.log('updated last seen')
-        } else {
-            // console.log('whatever')
-        }
-    })
-}
-
-function taskMarkCompleted(tasks_id) {
-    let sql = `update tasks set completed = '1', last_updated = '${timestamp()}' where id = ${tasks_id}`
-    db.run(sql, function(err) {
-        if (err) {
-            console.log(err)
-        }
-        if (this.changes) {
-            console.log(`marked task ${tasks_id} as completed`)
-        } else {
-            console.log('whatever')
-        }
-    })
-}
 
 // Put request is to add the data and can be done only by the user. No doctor or admin can change the original information
 // All the changes should be made in virtual activity

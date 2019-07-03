@@ -73,6 +73,7 @@ db.serialize(() => {
         time datetime not null,
         data text,
         completed bool default false,
+        ref_id integer default null,
         last_updated integer,
         deleted bool default false,
         foreign key (users_id) references users(id)

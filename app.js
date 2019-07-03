@@ -1,4 +1,4 @@
-const log = require('./logger')
+const log = require('./helpers/logger')
 const express = require('express')
 const app = express()
 const port = process.env.PORT || 3000
@@ -11,7 +11,7 @@ const activity = require('./routes/activity')
 const virtual_activity = require('./routes/virtual_activity')
 const bodyParser = require('body-parser')
 const login = require('./routes/login')
-const session = require('./session')
+const session = require('./helpers/session')
 const tasks = require('./routes/tasks')
 const prescriptions = require('./routes/prescriptions')
 

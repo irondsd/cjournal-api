@@ -2,8 +2,8 @@ const express = require('express')
 const router = express.Router()
 const sqlite = require('sqlite3')
 const db = new sqlite.Database('./db/trackers.db')
-const validate = require('../validate')
-const log = require('../logger')
+const validate = require('../helpers/validate')
+const log = require('../helpers/logger')
 const bcrypt = require('bcryptjs')
 
 // TODO: make get and delete methods for loggin in and out
