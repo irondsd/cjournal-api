@@ -11,7 +11,7 @@ router.post('/login', (req, res) => {
     if (req.body.email && req.body.password) {
         let query = `select 
 users.id, name, birthday, gender, email, password, device_type, last_seen, information, hide_elements,
-prescriptions.course_therapy, relief_of_attack, tests
+prescriptions.course_therapy, relief_of_attack, tests, language
 from users 
 inner join 
 prescriptions on users.id = prescriptions.users_id
@@ -47,7 +47,7 @@ router.post('/loginqr', (req, res) => {
     if (req.body.email && req.body.password) {
         let query = `select 
 users.id, name, birthday, gender, email, password, device_type, last_seen, information, hide_elements,
-prescriptions.course_therapy, relief_of_attack, tests
+prescriptions.course_therapy, relief_of_attack, tests, language
 from users 
 inner join 
 prescriptions on users.id = prescriptions.users_id
