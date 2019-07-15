@@ -10,8 +10,8 @@ const bcrypt = require('bcryptjs')
 router.post('/login', (req, res) => {
     if (req.body.email && req.body.password) {
         let query = `select 
-users.id, name, birthday, gender, email, password, device_type, last_seen, information, hide_elements,
-prescriptions.course_therapy, relief_of_attack, tests, language
+users.id, name, birthday, gender, email, password, device_type, last_seen, information, hide_elements, language,
+prescriptions.course_therapy, relief_of_attack, tests
 from users 
 inner join 
 prescriptions on users.id = prescriptions.users_id
@@ -46,8 +46,8 @@ where users.email = '${req.body.email}' limit 1`
 router.post('/loginqr', (req, res) => {
     if (req.body.email && req.body.password) {
         let query = `select 
-users.id, name, birthday, gender, email, password, device_type, last_seen, information, hide_elements,
-prescriptions.course_therapy, relief_of_attack, tests, language
+users.id, name, birthday, gender, email, password, device_type, last_seen, information, hide_elements, language,
+prescriptions.course_therapy, relief_of_attack, tests
 from users 
 inner join 
 prescriptions on users.id = prescriptions.users_id
