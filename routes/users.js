@@ -6,15 +6,11 @@ const validate = require('../helpers/validate')
 const log = require('../helpers/logger')
 const bcrypt = require('bcryptjs')
 
-// TODO: make get and delete methods for loggin in and out
-// TODO: require password when updatung the information
-// TODO: better error managing i.e. send explataion with 404
-
 // Get all users
 router.get('/', (req, res) => {
     let query = `select 
 users.id, name, birthday, gender, email, device_type, last_seen, information, hide_elements,
-prescriptions.course_therapy, relief_of_attack, tests
+prescriptions.course_therapy, relief_of_attack, tests, language
 from users 
 inner join 
 prescriptions on users.id = prescriptions.users_id`
@@ -33,7 +29,7 @@ router.all('/:id', (req, res) => {
     let query =
         `select 
 users.id, name, birthday, gender, email, device_type, last_seen, information, hide_elements,
-prescriptions.course_therapy, relief_of_attack, tests
+prescriptions.course_therapy, relief_of_attack, tests, language
 from users 
 inner join 
 prescriptions on users.id = prescriptions.users_id
@@ -94,11 +90,11 @@ router.post('/', (req, res) => {
         } else {
             let salt = bcrypt.genSaltSync(10)
             let hash = bcrypt.hashSync(req.body.password, salt)
-            let query = `INSERT INTO users(name, birthday, gender, email, password, device_type, last_seen, information, hide_elements) VALUES ('${
+            let query = `INSERT INTO users(name, birthday, gender, email, password, device_type, last_seen, information, hide_elements, language) VALUES ('${
                 req.body.name
             }', '${req.body.birthday}', '${req.body.gender}', '${req.body.email}', '${hash}', '${
                 req.body.device_type
-            }', '${current_time}', '${req.body.information}', '${req.body.hide_elements}')`
+            }', '${current_time}', '${req.body.information}', '${req.body.hide_elements}', '${req.body.language}')`
             console.log(query)
             db.run(query, function(err, rows) {
                 if (err) {
@@ -155,7 +151,7 @@ router.put('/:id', (req, res) => {
                         req.body.device_type
                     }', last_seen = '${current_time}', information = '${req.body.information}', hide_elements = '${
                         req.body.hide_elements
-                    }' where id = ${req.params.id}`
+                    }', language = ${req.body.language} where id = ${req.params.id}`
                     db.all(sql, (err, rows) => {
                         if (err) {
                             return res.status(400).send({
