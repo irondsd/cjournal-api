@@ -27,8 +27,12 @@ router.get('/:uid/activity', (req, res) => {
     if (req.query.uploaded) {
         uploaded = `, uploaded`
     }
+    let version = ``
+    if (req.query.version) {
+        version = `, version`
+    }
     sql =
-        `select id, users_id, activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, data ${uploaded} from activity where users_id = ` +
+        `select id, users_id, activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, data${uploaded}${version} from activity where users_id = ` +
         req.params.uid +
         timeframe +
         deleted
@@ -43,7 +47,7 @@ router.get('/:uid/activity', (req, res) => {
         res.send(rows)
     })
 
-    updateLastSeen(req.params.uid)
+    // updateLastSeen(req.params.uid)
 })
 
 router.get('/:uid/activity/:aid', (req, res) => {
@@ -51,8 +55,11 @@ router.get('/:uid/activity/:aid', (req, res) => {
     if (req.query.uploaded) {
         uploaded = `, uploaded`
     }
-
-    query = `select id, users_id, activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, data ${uploaded} from activity where id = ${
+    let version = ``
+    if (req.query.version) {
+        version = `, version`
+    }
+    query = `select id, users_id, activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, data${uploaded}${version} from activity where id = ${
         req.params.aid
     } and users_id = ${req.params.uid}`
 
@@ -67,7 +74,7 @@ router.get('/:uid/activity/:aid', (req, res) => {
         }
     })
 
-    updateLastSeen(req.params.uid)
+    // updateLastSeen(req.params.uid)
 })
 
 router.post('/:uid/activity', (req, res) => {
@@ -75,10 +82,12 @@ router.post('/:uid/activity', (req, res) => {
         return res.status(400).send()
     }
 
-    let sql = `insert into activity(users_id, activity_type, time_started, data, tasks_id, time_ended, last_updated, uploaded) values 
+    let sql = `insert into activity(users_id, activity_type, time_started, data, tasks_id, time_ended, version, last_updated, uploaded) values 
             ('${req.params.uid}', '${req.body.activity_type}', '${req.body.time_started}', '${JSON.stringify(
         req.body.data
-    )}', '${req.body.tasks_id}', '${req.body.time_ended}', '${req.body.last_updated}', '${timestamp()}')`
+    )}', '${req.body.tasks_id ? req.body.tasks_id : null}', '${req.body.time_ended ? req.body.time_ended : null}', '${
+        req.body.version ? req.body.version : null
+    }', '${req.body.last_updated}', '${timestamp()}')`
 
     // console.log(sql)
     db.run(sql, function(err, rows) {
@@ -109,7 +118,7 @@ router.put('/:uid/activity/:aid', (req, res) => {
         })
     }
 
-    let queryPreserve = `insert into activity (users_id, activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, data, deleted) SELECT users_id, activity_type, time_started, time_ended, tasks_id, ref_id, ${timestamp()}, data, 1 FROM activity where id = '${
+    let queryPreserve = `insert into activity (users_id, activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, data, deleted, version, uploaded) SELECT users_id, activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, data, 1, version, uploaded FROM activity where id = '${
         req.params.aid
     }'`
     db.run(queryPreserve, (err, rows) => {
@@ -121,9 +130,9 @@ router.put('/:uid/activity/:aid', (req, res) => {
     })
     let sql = `update activity set activity_type = '${req.body.activity_type}', time_started = '${
         req.body.time_started
-    }', time_ended = '${req.body.time_ended}', data = '${JSON.stringify(
-        req.body.data
-    )}', last_updated = '${timestamp()}', ref_id = '${req.params.aid}' where id = ${req.params.aid}`
+    }', time_ended = '${req.body.time_ended}', data = '${JSON.stringify(req.body.data)}', last_updated = '${
+        req.params.last_updated
+    }', ref_id = '${req.params.aid}', uploaded = '${timestamp()}' where id = ${req.params.aid}`
     console.log(queryPreserve)
     db.run(sql, function(err, rows) {
         if (err) {
@@ -149,7 +158,7 @@ router.delete('/:uid/activity/:aid', (req, res) => {
         })
     }
 
-    let sql = `update activity set deleted = '1', last_updated = '${timestamp()}' where id = '${req.params.aid}'`
+    let sql = `update activity set deleted = '1', uploaded = '${timestamp()}' where id = '${req.params.aid}'`
     db.run(sql, function(err, rows) {
         if (err) {
             res.status(400).send({
