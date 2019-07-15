@@ -25,7 +25,7 @@ prescriptions on users.id = prescriptions.users_id`
 })
 
 // Get information about the user with specific
-router.all('/:id', (req, res) => {
+router.get('/:id', (req, res) => {
     let query =
         `select 
 users.id, name, birthday, gender, email, device_type, last_seen, information, hide_elements,
@@ -39,7 +39,6 @@ where users.id = ` + req.params.id
         if (err) {
             return res.status(500).send(err)
         }
-        console.log(rows)
         if (rows) {
             return res.send(rows[0])
         } else {
@@ -145,14 +144,15 @@ router.put('/:id', (req, res) => {
                     if (req.body.new_password) {
                         password_insert = ` password = '${req.body.new_password}',`
                     }
-                    let sql = `update users set name = '${req.body.name}', birthday = '${
+                    let query = `update users set name = '${req.body.name}', birthday = '${
                         req.body.birthday
-                    }', gender = '${req.body.gender}', email = '${req.body.email}',${password_insert} device_type = '${
+                    }', gender = '${req.body.gender}', email = '${req.body.email}', ${password_insert} device_type = '${
                         req.body.device_type
                     }', last_seen = '${current_time}', information = '${req.body.information}', hide_elements = '${
                         req.body.hide_elements
-                    }', language = ${req.body.language} where id = ${req.params.id}`
-                    db.all(sql, (err, rows) => {
+                    }', language = '${req.body.language}' where id = ${req.params.id}`
+                    console.log(query)
+                    db.all(query, (err, rows) => {
                         if (err) {
                             return res.status(400).send({
                                 error: err
