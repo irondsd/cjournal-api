@@ -3,9 +3,6 @@ const router = express.Router()
 const sqlite = require('sqlite3')
 const db = new sqlite.Database('./db/trackers.db')
 
-// TODO: possibly distinguish if there's no data or there is no user on get data request
-// TODO: better error managing i.e. send explataion with 404
-
 router.get('/:id/prescriptions', (req, res) => {
     query = 'select * from prescriptions where users_id = ' + req.params.id
     console.log(query)
@@ -15,7 +12,7 @@ router.get('/:id/prescriptions', (req, res) => {
                 error: err
             })
         }
-        res.send(rows)
+        res.send(rows[0])
     })
 })
 
