@@ -66,9 +66,9 @@ router.post('/:id/tasks', (req, res) => {
         return res.status(400).send({ error: 'Not enough data' })
     }
     sql = `insert into tasks(users_id, activity_type, time, completed, last_updated, data) values 
-            ('${req.params.id}', '${req.body.activity_type}', '${req.body.time}', '0', '${timestamp()}', '${
-        req.body.data
-    }')`
+            ('${req.params.id}', '${req.body.activity_type}', '${
+        req.body.time
+    }', '0', '${timestamp()}', '${JSON.stringify(req.body.data)}'`
     console.log(sql)
     db.run(sql, function(err, rows) {
         if (err) {
