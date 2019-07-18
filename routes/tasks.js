@@ -68,7 +68,7 @@ router.post('/:id/tasks', (req, res) => {
     sql = `insert into tasks(users_id, activity_type, time, completed, last_updated, data) values 
             ('${req.params.id}', '${req.body.activity_type}', '${
         req.body.time
-    }', '0', '${timestamp()}', '${JSON.stringify(req.body.data)}'`
+    }', '0', '${timestamp()}', '${JSON.stringify(req.body.data)}')`
     console.log(sql)
     db.run(sql, function(err, rows) {
         if (err) {
