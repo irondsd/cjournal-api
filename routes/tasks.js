@@ -74,7 +74,9 @@ router.post('/:id/tasks', (req, res) => {
         if (err) {
             console.log(err)
         } else {
-            res.status(201).send()
+            res.status(201).send({
+                id: this.lastID
+            })
         }
     })
 })
