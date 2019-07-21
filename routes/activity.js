@@ -15,13 +15,11 @@ router.get('/:uid/activity', (req, res) => {
     if (req.query.to) {
         timeframe += ` and time_started < ${req.query.to} `
     }
-    let deleted = ` and deleted = `
+    let deleted = ` and deleted = 0`
     if (req.query.deleted == 1) {
-        deleted += `${req.query.deleted}`
+        deleted = ` and deleted = 1`
     } else if (req.query.deleted == 'all') {
         deleted = ''
-    } else {
-        deleted += '0'
     }
     let uploaded = ``
     if (req.query.uploaded) {
@@ -59,9 +57,15 @@ router.get('/:uid/activity/:aid', (req, res) => {
     if (req.query.version) {
         version = `, version`
     }
+    let deleted = ` and deleted = 0`
+    if (req.query.deleted == 1) {
+        deleted = ` and deleted = 1`
+    } else if (req.query.deleted == 'all') {
+        deleted = ''
+    }
     query = `select id, users_id, activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, data${uploaded}${version} from activity where id = ${
         req.params.aid
-    } and users_id = ${req.params.uid}`
+    } and users_id = ${req.params.uid}${deleted}`
 
     db.all(query, (err, rows) => {
         if (err) {
