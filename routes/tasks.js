@@ -107,15 +107,15 @@ router.put('/:uid/tasks/:aid', (req, res) => {
     if (req.body.completed) {
         sql = `update tasks set activity_type = '${req.body.activity_type}', time = '${req.body.time}', completed = '${
             req.body.completed
-        }', last_updated = '${last_updated}' where id = ${req.params.aid}`
+        }', last_updated = '${last_updated}', ref_id = '${req.params.aid}' where id = ${req.params.aid}`
     } else {
         sql = `update tasks set activity_type = '${req.body.activity_type}', time = '${
             req.body.time
-        }', last_updated = '${timestamp()}', data = '${req.body.data}' ref_id = '${req.params.aid}' where id = ${
+        }', last_updated = '${timestamp()}', data = '${req.body.data}', ref_id = '${req.params.aid}' where id = ${
             req.params.aid
         }`
     }
-
+    console.log(sql)
     db.run(sql, (err, rows) => {
         if (err) {
             res.status(400).send({
