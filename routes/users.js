@@ -141,8 +141,11 @@ router.put('/:id', (req, res) => {
                 hash = rows[0].password
                 if (bcrypt.compareSync(req.body.password, hash)) {
                     let password_insert = ``
+                    let hash
                     if (req.body.new_password) {
-                        password_insert = ` password = '${req.body.new_password}',`
+                        let salt = bcrypt.genSaltSync(10)
+                        hash = bcrypt.hashSync(req.body.new_password, salt)
+                        password_insert = ` password = '${hash}',`
                     }
                     let query = `update users set name = '${req.body.name}', birthday = '${
                         req.body.birthday
