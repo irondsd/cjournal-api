@@ -157,6 +157,10 @@ router.put('/:id', (req, res) => {
                     console.log(query)
                     db.all(query, (err, rows) => {
                         if (err) {
+                            if (err.errno === 19)
+                                return res.status(400).send({
+                                    error: 'This email is already used'
+                                })
                             return res.status(400).send({
                                 error: err
                             })
