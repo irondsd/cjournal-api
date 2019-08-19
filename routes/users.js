@@ -77,7 +77,6 @@ router.post('/', (req, res) => {
     }
     const current_time = (Date.now() / 1000) | 0
     db.all(`select exists (select 1 from users where email = '${req.body.email}' limit 1)`, function(err, rows) {
-        console.log(rows)
         if (err) {
             res.status(500).send({
                 error: err
@@ -132,7 +131,7 @@ router.put('/:id', (req, res) => {
     }
     const current_time = (Date.now() / 1000) | 0
     db.serialize(() => {
-        db.all(`select email, password from users where id = '${req.params.id}' limit 1`, (err, rows) => {
+        db.all(`select * from users where id = '${req.params.id}' limit 1`, (err, rows) => {
             if (err) {
                 log(err)
                 return res.status(400).send({
@@ -148,13 +147,22 @@ router.put('/:id', (req, res) => {
                         hash = bcrypt.hashSync(req.body.new_password, salt)
                         password_insert = ` password = '${hash}',`
                     }
-                    let query = `update users set name = '${req.body.name}', birthday = '${
-                        req.body.birthday
-                    }', gender = '${req.body.gender}', email = '${req.body.email}', ${password_insert} device_type = '${
-                        req.body.device_type
-                    }', last_seen = '${current_time}', information = '${req.body.information}', hide_elements = '${
-                        req.body.hide_elements
-                    }', language = '${req.body.language}' where id = ${req.params.id}`
+
+                    // prevent erasing changes
+                    let name = req.body.name ? req.body.name : rows[0].name
+                    let device_type = req.body.device_type ? req.body.device_type : rows[0].device_type
+                    let gender = req.body.gender ? req.body.gender : rows[0].gender
+                    let birthday = req.body.birthday ? req.body.birthday : rows[0].birthday
+                    let permissions = req.body.permissions ? req.body.permissions : rows[0].permissions
+                    let information = req.body.information ? req.body.information : rows[0].information
+                    let hide_elements = req.body.hide_elements ? req.body.hide_elements : rows[0].hide_elements
+                    let language = req.body.language ? req.body.language : rows[0].language
+
+                    let query = `update users set name = '${name}', birthday = '${birthday}', gender = '${gender}', email = '${
+                        req.body.email
+                    }', ${password_insert} device_type = '${device_type}', last_seen = '${current_time}', information = '${information}', hide_elements = '${hide_elements}', language = '${language}' where id = ${
+                        req.params.id
+                    }`
                     console.log(query)
                     db.all(query, (err, rows) => {
                         if (err) {
