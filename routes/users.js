@@ -89,11 +89,17 @@ router.post('/', (req, res) => {
         } else {
             let salt = bcrypt.genSaltSync(10)
             let hash = bcrypt.hashSync(req.body.password, salt)
-            let query = `INSERT INTO users(name, birthday, gender, email, password, device_type, last_seen, information, hide_elements, language) VALUES ('${
+
+            let permissions = req.body.permissions ? req.body.permissions : 1
+            let information = req.body.information ? req.body.information : ''
+            let hide_elements = req.body.hide_elements ? req.body.hide_elements : null
+            let language = req.body.language ? req.body.language : 'en'
+
+            let query = `INSERT INTO users(name, birthday, gender, email, password, device_type, last_seen, information, hide_elements, language, permissions) VALUES ('${
                 req.body.name
             }', '${req.body.birthday}', '${req.body.gender}', '${req.body.email}', '${hash}', '${
                 req.body.device_type
-            }', '${current_time}', '${req.body.information}', '${req.body.hide_elements}', '${req.body.language}')`
+            }', '${current_time}', '${information}', '${hide_elements}', '${language}', '${permissions}')`
             console.log(query)
             db.run(query, function(err, rows) {
                 if (err) {
