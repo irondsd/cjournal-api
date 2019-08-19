@@ -51,7 +51,8 @@ function create_session(res, req, user) {
                 course_therapy: user.course_therapy,
                 relief_of_attack: user.relief_of_attack,
                 tests: user.tests,
-                language: user.language
+                language: user.language,
+                permissions: user.permissions
             })
         }
     })
@@ -80,7 +81,8 @@ function create_qr_session(res, req, user) {
                 course_therapy: user.course_therapy,
                 relief_of_attack: user.relief_of_attack,
                 tests: user.tests,
-                language: user.language
+                language: user.language,
+                permissions: user.permissions
             }
             let cipherText = simpleCrypto.encrypt(response)
             QRCode.toDataURL(cipherText, function(err, url) {
