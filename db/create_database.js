@@ -17,7 +17,9 @@ db.serialize(() => {
                 information text,
                 hide_elements text,
                 language text,
-                last_seen datetime)`,
+                last_seen datetime),
+                permissions integer default 1`,
+
         err => {
             if (err) {
                 log(err)

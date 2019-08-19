@@ -9,8 +9,8 @@ const bcrypt = require('bcryptjs')
 // Get all users
 router.get('/', (req, res) => {
     let query = `select 
-users.id, name, birthday, gender, email, device_type, last_seen, information, hide_elements,
-prescriptions.course_therapy, relief_of_attack, tests, language
+users.id, name, birthday, gender, email, device_type, last_seen, information, hide_elements, language, permissions,
+prescriptions.course_therapy, relief_of_attack, tests
 from users 
 inner join 
 prescriptions on users.id = prescriptions.users_id`
@@ -24,12 +24,12 @@ prescriptions on users.id = prescriptions.users_id`
     })
 })
 
-// Get information about the user with specific
+// Get information about the user with specific id
 router.get('/:id', (req, res) => {
     let query =
         `select 
-users.id, name, birthday, gender, email, device_type, last_seen, information, hide_elements,
-prescriptions.course_therapy, relief_of_attack, tests, language
+users.id, name, birthday, gender, email, device_type, last_seen, information, hide_elements, language, permissions,
+prescriptions.course_therapy, relief_of_attack, tests
 from users 
 inner join 
 prescriptions on users.id = prescriptions.users_id
@@ -77,6 +77,7 @@ router.post('/', (req, res) => {
     }
     const current_time = (Date.now() / 1000) | 0
     db.all(`select exists (select 1 from users where email = '${req.body.email}' limit 1)`, function(err, rows) {
+        console.log(rows)
         if (err) {
             res.status(500).send({
                 error: err
