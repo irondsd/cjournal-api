@@ -132,7 +132,8 @@ router.post('/', (req, res) => {
 router.put('/:id', (req, res) => {
     if (!validate.update_user(req)) {
         return res.status(400).send({
-            error: 'request is not validated. Check readme at /api/ for usbirthday information'
+            // TODO: check api key on validation
+            error: 'request is not validated. Email is required in every user put request'
         })
     }
     const current_time = (Date.now() / 1000) | 0
@@ -144,50 +145,52 @@ router.put('/:id', (req, res) => {
                     error: err
                 })
             } else {
-                hash = rows[0].password
-                if (bcrypt.compareSync(req.body.password, hash)) {
-                    let password_insert = ``
-                    let hash
-                    if (req.body.new_password) {
-                        let salt = bcrypt.genSaltSync(10)
-                        hash = bcrypt.hashSync(req.body.new_password, salt)
-                        password_insert = ` password = '${hash}',`
-                    }
-
-                    // prevent erasing changes
-                    let name = req.body.name ? req.body.name : rows[0].name
-                    let device_type = req.body.device_type ? req.body.device_type : rows[0].device_type
-                    let gender = req.body.gender ? req.body.gender : rows[0].gender
-                    let birthday = req.body.birthday ? req.body.birthday : rows[0].birthday
-                    let permissions = req.body.permissions ? req.body.permissions : rows[0].permissions
-                    let information = req.body.information ? req.body.information : rows[0].information
-                    let hide_elements = req.body.hide_elements ? req.body.hide_elements : rows[0].hide_elements
-                    let language = req.body.language ? req.body.language : rows[0].language
-
-                    let query = `update users set name = '${name}', birthday = '${birthday}', gender = '${gender}', email = '${
-                        req.body.email
-                    }', ${password_insert} device_type = '${device_type}', last_seen = '${current_time}', information = '${information}', hide_elements = '${hide_elements}', language = '${language}' where id = ${
-                        req.params.id
-                    }`
-                    console.log(query)
-                    db.all(query, (err, rows) => {
-                        if (err) {
-                            if (err.errno === 19)
-                                return res.status(400).send({
-                                    error: 'This email is already used'
-                                })
-                            return res.status(400).send({
-                                error: err
-                            })
-                        } else {
-                            return res.status(200).send(rows)
+                let password_insert = ``
+                if (req.body.password) {
+                    hash = rows[0].password
+                    if (bcrypt.compareSync(req.body.password, hash)) {
+                        let hash
+                        if (req.body.new_password) {
+                            let salt = bcrypt.genSaltSync(10)
+                            hash = bcrypt.hashSync(req.body.new_password, salt)
+                            password_insert = ` password = '${hash}',`
                         }
-                    })
-                } else {
-                    res.status(400).send({
-                        error: 'wrong password'
-                    })
+                    } else {
+                        res.status(400).send({
+                            error: 'wrong password'
+                        })
+                    }
                 }
+
+                // prevent erasing changes
+                let name = req.body.name ? req.body.name : rows[0].name
+                let device_type = req.body.device_type ? req.body.device_type : rows[0].device_type
+                let gender = req.body.gender ? req.body.gender : rows[0].gender
+                let birthday = req.body.birthday ? req.body.birthday : rows[0].birthday
+                let permissions = req.body.permissions ? req.body.permissions : rows[0].permissions
+                let information = req.body.information ? req.body.information : rows[0].information
+                let hide_elements = req.body.hide_elements ? req.body.hide_elements : rows[0].hide_elements
+                let language = req.body.language ? req.body.language : rows[0].language
+
+                let query = `update users set name = '${name}', birthday = '${birthday}', gender = '${gender}', email = '${
+                    req.body.email
+                }', ${password_insert} device_type = '${device_type}', last_seen = '${current_time}', information = '${information}', hide_elements = '${hide_elements}', language = '${language}', permissions= '${permissions}' where id = ${
+                    req.params.id
+                }`
+                console.log(query)
+                db.all(query, (err, rows) => {
+                    if (err) {
+                        if (err.errno === 19)
+                            return res.status(400).send({
+                                error: 'This email is already used'
+                            })
+                        return res.status(400).send({
+                            error: err
+                        })
+                    } else {
+                        return res.status(200).send(rows)
+                    }
+                })
             }
         })
     })

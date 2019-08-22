@@ -25,7 +25,7 @@ function validate_new_user(req) {
 }
 
 function validate_update_user(req) {
-    if (req.body.email && req.body.password) {
+    if (req.body.email) {
         return true
     } else {
         return false
