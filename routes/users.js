@@ -159,6 +159,7 @@ router.put('/:id', (req, res) => {
                         res.status(400).send({
                             error: 'wrong password'
                         })
+                        return
                     }
                 }
 
