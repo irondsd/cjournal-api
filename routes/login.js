@@ -58,7 +58,6 @@ where users.email = '${req.body.email}' limit 1`
             }
             if (rows[0]) {
                 hash = rows[0].password
-                console.log(hash)
                 if (bcrypt.compareSync(req.body.password, hash)) {
                     user_id = rows[0].id
                     session.create_qr_session(res, req, rows[0])
@@ -96,7 +95,6 @@ router.put('/login', (req, res) => {
 
 router.delete('/logout', (req, res) => {
     if (req.query.api_key) {
-        console.log(req.query.api_key)
         db.run('', (err, rows) => {
             session.destroy_session(res, req, req.query.api_key)
         })

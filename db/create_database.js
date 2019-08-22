@@ -17,12 +17,12 @@ db.serialize(() => {
                 information text,
                 hide_elements text,
                 language text,
-                last_seen datetime),
-                permissions integer default 1`,
+                permissions integer not null default '1',
+                last_seen datetime)`,
 
         err => {
             if (err) {
-                log(err)
+                log('gg: ' + err)
                 errors = true
             }
         }
@@ -42,12 +42,12 @@ db.serialize(() => {
         data text,
         ref_id integer default null,
         deleted bool default false,
-        foreign key (users_id) references users(id)
+        foreign key (users_id) references users(id),
         foreign key (tasks_id) references tasks(id)
     )`,
         err => {
             if (err) {
-                log(err)
+                log('gg1', err)
                 errors = true
             }
         }
@@ -63,7 +63,7 @@ db.serialize(() => {
     )`,
         err => {
             if (err) {
-                log(err)
+                log('gg2', err)
                 errors = true
             }
         }
@@ -84,7 +84,7 @@ db.serialize(() => {
     )`,
         err => {
             if (err) {
-                log(err)
+                log('gg3', err)
                 errors = true
             }
         }
@@ -103,12 +103,12 @@ db.serialize(() => {
         data text,
         ref_id integer default null,
         deleted bool default false,
-        foreign key (users_id) references users(id)
+        foreign key (users_id) references users(id),
         foreign key (tasks_id) references tasks(id)
     )`,
         err => {
             if (err) {
-                log(err)
+                log('gg4', err)
                 errors = true
             }
         }
@@ -119,12 +119,13 @@ db.serialize(() => {
                 sid integer primary key, 
                 user_id int not null, 
                 api_key text not null,
+                permissions integer not null default '1',
                 renewable bool,
                 exp_date datetime not null
     )`,
         err => {
             if (err) {
-                log(err)
+                log('gg5', err)
                 errors = true
             }
         }
@@ -136,7 +137,7 @@ if (populate) {
         `INSERT INTO users(name, device_type, birthday, gender, last_seen, email, password, information, language) VALUES ('Alexander Feldman', 'Shovel','10.05.1957', 'male', '1550507313', 'ggn00b@mail.ru', '$2a$10$teACha.MBCW68XIqYHAZielRJa5qSbSx6DKf4ihAqTVqOgJtg3aoe', 'You are the patint of Whatever hostpital. Your doctor is Donald Trump. Wut? You crazy or what? You can contact him on the phone number +13947576392', 'ru')`,
         err => {
             if (err) {
-                log(err)
+                log('gg6', err)
                 errors = true
             }
         }
@@ -145,16 +146,16 @@ if (populate) {
         `INSERT INTO users(name, device_type, birthday, gender, last_seen, email, password, information, language) VALUES ('Carl Sagan', 'Telescope', '10.05.1987', 'male','1550507313', 'ggn00b@mail.ua', '$2a$10$teACha.MBCW68XIqYHAZielRJa5qSbSx6DKf4ihAqTVqOgJtg3aoe', 'You are the patint of Whatever hostpital. Your doctor is Donald Trump. Wut? You crazy or what? You can contact him on the phone number +13947576392', 'es')`,
         err => {
             if (err) {
-                log(err)
+                log('gg7', err)
                 errors = true
             }
         }
     )
     db.run(
-        `INSERT INTO users(name, device_type, birthday, gender, last_seen, email, password, information, language) VALUES ('Max Plank', 'Microscope', '10.05.1963', 'male','1550507313', 'ggn000b@gmail.com', '$2a$10$teACha.MBCW68XIqYHAZielRJa5qSbSx6DKf4ihAqTVqOgJtg3aoe', 'You are the patint of Whatever hostpital. Your doctor is Donald Trump. Wut? You crazy or what? You can contact him on the phone number +13947576392', 'en')`,
+        `INSERT INTO users(name, device_type, birthday, gender, last_seen, email, password, information, language, permissions) VALUES ('Max Plank', 'Microscope', '10.05.1963', 'male','1550507313', 'ggn000b@gmail.com', '$2a$10$teACha.MBCW68XIqYHAZielRJa5qSbSx6DKf4ihAqTVqOgJtg3aoe', 'You are the patint of Whatever hostpital. Your doctor is Donald Trump. Wut? You crazy or what? You can contact him on the phone number +13947576392', 'en', '3')`,
         err => {
             if (err) {
-                log(err)
+                log('gg8', err)
                 errors = true
             }
         }
@@ -172,7 +173,7 @@ if (populate) {
         )}'))`,
         err => {
             if (err) {
-                log(err)
+                log('gg9', err)
                 errors = true
             }
         }

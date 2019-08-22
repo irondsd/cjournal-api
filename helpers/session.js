@@ -31,9 +31,9 @@ function gen_exp_date() {
 function create_session(res, req, user) {
     api_key = gen_api_key()
     exp_date = gen_exp_date()
-
-    let sql = `insert into sessions(user_id, api_key, renewable, exp_date) values ('${user_id}', '${api_key}', 'true', '${exp_date}')`
-
+    let sql = `insert into sessions(user_id, api_key, renewable, exp_date, permissions) values ('${user_id}', '${api_key}', 'true', '${exp_date}', '${
+        user.permissions
+    }')`
     db.all(sql, (err, rows) => {
         if (err) {
             res.send('error creating session', err)
@@ -51,8 +51,8 @@ function create_session(res, req, user) {
                 course_therapy: user.course_therapy,
                 relief_of_attack: user.relief_of_attack,
                 tests: user.tests,
-                language: user.language,
-                permissions: user.permissions
+                permissions: user.permissions,
+                language: user.language
             })
         }
     })
@@ -62,7 +62,9 @@ function create_qr_session(res, req, user) {
     api_key = gen_api_key()
     exp_date = gen_exp_date()
 
-    let sql = `insert into sessions(user_id, api_key, renewable, exp_date) values ('${user_id}', '${api_key}', 'true', '${exp_date}')`
+    let sql = `insert into sessions(user_id, api_key, renewable, exp_date, permissions) values ('${user_id}', '${api_key}', 'true', '${exp_date}', '${
+        user.permissions
+    }')`
 
     db.all(sql, (err, rows) => {
         if (err) {
