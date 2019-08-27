@@ -54,8 +54,8 @@ router.delete('/:id', (req, res) => {
             return res.status(500).send(err)
         }
         if (this.changes) {
-            // so if the device was actualy deleted, we need to clear activity data from activity table as well
-            db.run('delete from activity where users_id = ' + req.params.id, function(err) {
+            // so if the device was actualy deleted, we need to clear prescritions data from prescritions table as well
+            db.run('delete from prescriptions where users_id = ' + req.params.id, function(err) {
                 if (err) {
                     console.log(err)
                 }
@@ -95,11 +95,7 @@ router.post('/', (req, res) => {
             let hide_elements = req.body.hide_elements ? req.body.hide_elements : null
             let language = req.body.language ? req.body.language : 'en'
 
-            let query = `INSERT INTO users(name, birthday, gender, email, password, device_type, last_seen, information, hide_elements, language, permissions) VALUES ('${
-                req.body.name
-            }', '${req.body.birthday}', '${req.body.gender}', '${req.body.email}', '${hash}', '${
-                req.body.device_type
-            }', '${current_time}', '${information}', '${hide_elements}', '${language}', '${permissions}')`
+            let query = `INSERT INTO users(name, birthday, gender, email, password, device_type, last_seen, information, hide_elements, language, permissions) VALUES ('${req.body.name}', '${req.body.birthday}', '${req.body.gender}', '${req.body.email}', '${hash}', '${req.body.device_type}', '${current_time}', '${information}', '${hide_elements}', '${language}', '${permissions}')`
             console.log(query)
             db.run(query, function(err, rows) {
                 if (err) {
@@ -107,9 +103,7 @@ router.post('/', (req, res) => {
                         error: err
                     })
                 } else {
-                    let query = `insert into prescriptions(users_id, course_therapy, relief_of_attack, tests) values ('${
-                        this.lastID
-                    }', '${req.body.course_therapy}', '${req.body.relief_of_attack}', '${req.body.tests}')`
+                    let query = `insert into prescriptions(users_id, course_therapy, relief_of_attack, tests) values ('${this.lastID}', '${req.body.course_therapy}', '${req.body.relief_of_attack}', '${req.body.tests}')`
                     let id = this.lastID
                     db.run(query, function(err, rows) {
                         if (err) {
@@ -172,12 +166,11 @@ router.put('/:id', (req, res) => {
                 let information = req.body.information ? req.body.information : rows[0].information
                 let hide_elements = req.body.hide_elements ? req.body.hide_elements : rows[0].hide_elements
                 let language = req.body.language ? req.body.language : rows[0].language
+                let course_therapy = req.body.course_therapy ? req.body.course_therapy : rows[0].course_therapy
+                let relief_of_attack = req.body.relief_of_attack ? req.body.relief_of_attack : rows[0].relief_of_attack
+                let tests = req.body.tests ? req.body.tests : rows[0].tests
 
-                let query = `update users set name = '${name}', birthday = '${birthday}', gender = '${gender}', email = '${
-                    req.body.email
-                }', ${password_insert} device_type = '${device_type}', last_seen = '${current_time}', information = '${information}', hide_elements = '${hide_elements}', language = '${language}', permissions= '${permissions}' where id = ${
-                    req.params.id
-                }`
+                let query = `update users set name = '${name}', birthday = '${birthday}', gender = '${gender}', email = '${req.body.email}', ${password_insert} device_type = '${device_type}', last_seen = '${current_time}', information = '${information}', hide_elements = '${hide_elements}', language = '${language}', permissions= '${permissions}' where id = ${req.params.id}`
                 console.log(query)
                 db.all(query, (err, rows) => {
                     if (err) {
@@ -189,7 +182,16 @@ router.put('/:id', (req, res) => {
                             error: err
                         })
                     } else {
-                        return res.status(200).send(rows)
+                        // edit prescriptions
+                        let query = `update prescriptions set course_therapy = '${course_therapy}', relief_of_attack = '${relief_of_attack}', tests = '${tests}' where users_id = ${req.params.id}`
+                        let id = this.lastID
+                        db.run(query, function(err, rows) {
+                            if (err) {
+                                return res.status(200).send(rows)
+                            } else {
+                                res.status(201).send(rows)
+                            }
+                        })
                     }
                 })
             }
