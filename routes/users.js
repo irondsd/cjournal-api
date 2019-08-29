@@ -113,7 +113,9 @@ router.post('/', (req, res) => {
                                 error: err
                             })
                         } else {
-                            res.status(201).send(rows)
+                            res.status(201).send({
+                                id: id
+                            })
                         }
                     })
                 }
