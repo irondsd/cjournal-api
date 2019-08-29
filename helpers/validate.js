@@ -6,9 +6,6 @@ function validate_new_user(req) {
     if (req.body.name && req.body.name.length < 3) {
         errors.push('Name must be at least 3 characters long')
     }
-    if (!req.body.device_type) {
-        errors.push('device_type must be specified')
-    }
     if (!req.body.email) {
         errors.push('email must be specified')
     }

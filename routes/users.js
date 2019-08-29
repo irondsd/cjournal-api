@@ -73,7 +73,9 @@ router.delete('/:id', (req, res) => {
 router.post('/', (req, res) => {
     let errors = validate.new_user(req)
     if (errors.length > 0) {
-        return res.status(400).send(errors)
+        return res.status(400).send({
+            error: errors
+        })
     }
     const current_time = (Date.now() / 1000) | 0
     db.all(`select exists (select 1 from users where email = '${req.body.email}' limit 1)`, function(err, rows) {
