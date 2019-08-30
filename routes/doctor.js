@@ -13,14 +13,23 @@ router.get('/:id/doctor', (req, res) => {
             })
         }
 
-        let patients = [
+        let patient_ids = [
             ...rows.map(el => {
                 return el.patient_id
             })
         ]
 
-        res.send({
-            patients: JSON.stringify(patients.sort())
+        query = `select 
+                users.id, name, birthday, gender, email, device_type, last_seen,
+                prescriptions.course_therapy, relief_of_attack, tests
+                from users 
+                inner join 
+                prescriptions on users.id = prescriptions.users_id where users.id in (${patient_ids})`
+        console.log(query)
+        db.all(query, (err, rows) => {
+            if (err) return res.status(400).send({ error: err })
+
+            res.send(rows)
         })
     })
 })
