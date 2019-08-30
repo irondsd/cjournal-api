@@ -3,7 +3,7 @@ const router = express.Router()
 const sqlite = require('sqlite3')
 const db = new sqlite.Database('./db/trackers.db')
 
-router.get('/:id/doctor', (req, res) => {
+router.get('/:id/patients', (req, res) => {
     query = 'select * from doctor where doctor_id = ' + req.params.id
     console.log(query)
     db.all(query, (err, rows) => {
@@ -34,7 +34,7 @@ router.get('/:id/doctor', (req, res) => {
     })
 })
 
-router.post('/:id/doctor', (req, res) => {
+router.post('/:id/patients', (req, res) => {
     if (!req.body.patient_id) {
         res.status(400).send({
             error: 'patient_id is not included in the body'
@@ -62,7 +62,7 @@ router.post('/:id/doctor', (req, res) => {
     })
 })
 
-router.delete('/:id/doctor', (req, res) => {
+router.delete('/:id/patients', (req, res) => {
     if (!req.body.patient_id) {
         res.status(400).send({
             error: 'patient_id is not included in the body'

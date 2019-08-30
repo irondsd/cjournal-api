@@ -13,7 +13,7 @@ const bodyParser = require('body-parser')
 const login = require('./routes/login')
 const session = require('./helpers/session')
 const tasks = require('./routes/tasks')
-const doctor = require('./routes/doctor')
+const patients = require('./routes/patients')
 const prescriptions = require('./routes/prescriptions')
 
 app.use(function(req, res, next) {
@@ -31,7 +31,7 @@ app.use('/api/users/', tasks)
 app.use('/api/users/', prescriptions)
 app.use('/api/users/', virtual_activity)
 app.use('/api/', login)
-app.use('/api/users/', doctor)
+app.use('/api/users/', patients)
 
 // just for testing, will be removed later
 app.get('/api/check/', function(req, res) {
