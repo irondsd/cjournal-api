@@ -3,8 +3,9 @@ const sqlite = require('sqlite3')
 const db = new sqlite.Database('./db/trackers.db')
 var QRCode = require('qrcode')
 var SimpleCrypto = require('simple-crypto-js').default
-
-var QRSecretKey = 'baba_yaga'
+var jwt = require('jsonwebtoken')
+const QRSecretKey = 'baba_yaga'
+const tokenKey = 'Mnemosyne'
 var simpleCrypto = new SimpleCrypto(QRSecretKey)
 
 function check_password(password, hash) {
@@ -13,15 +14,17 @@ function check_password(password, hash) {
     })
 }
 
-function gen_api_key() {
-    return (
-        Math.random()
-            .toString(36)
-            .substr(2) +
-        Math.random()
-            .toString(36)
-            .substr(2)
-    )
+function gen_api_key(user) {
+    // return (
+    //     Math.random()
+    //         .toString(36)
+    //         .substr(2) +
+    //     Math.random()
+    //         .toString(36)
+    //         .substr(2)
+    // )
+
+    return jwt.sign({ id: user.id, permissions: user.permissions }, tokenKey, { expiresIn: '30s' })
 }
 
 function gen_exp_date() {
@@ -29,11 +32,9 @@ function gen_exp_date() {
 }
 
 function create_session(res, req, user) {
-    api_key = gen_api_key()
+    api_key = gen_api_key(user)
     exp_date = gen_exp_date()
-    let sql = `insert into sessions(user_id, api_key, renewable, exp_date, permissions) values ('${user_id}', '${api_key}', 'true', '${exp_date}', '${
-        user.permissions
-    }')`
+    let sql = `insert into sessions(user_id, api_key, renewable, exp_date, permissions) values ('${user_id}', '${api_key}', 'true', '${exp_date}', '${user.permissions}')`
     db.all(sql, (err, rows) => {
         if (err) {
             res.send('error creating session', err)
@@ -62,9 +63,7 @@ function create_qr_session(res, req, user) {
     api_key = gen_api_key()
     exp_date = gen_exp_date()
 
-    let sql = `insert into sessions(user_id, api_key, renewable, exp_date, permissions) values ('${user_id}', '${api_key}', 'true', '${exp_date}', '${
-        user.permissions
-    }')`
+    let sql = `insert into sessions(user_id, api_key, renewable, exp_date, permissions) values ('${user_id}', '${api_key}', 'true', '${exp_date}', '${user.permissions}')`
 
     db.all(sql, (err, rows) => {
         if (err) {
@@ -134,20 +133,26 @@ function destroy_session(res, req, api_key) {
 }
 
 function validate_api_key(req, res) {
-    sql = `select * from sessions where api_key = '${req.query.api_key}'`
-    db.all(sql, (err, rows) => {
-        if (err) {
-            res.status(400).send({
-                error: err
-            })
-        }
-        if (rows.length > 0) {
-            res.send(rows[0])
-        } else {
-            res.status(400).send({
-                error: 'unauthorized'
-            })
-        }
+    // sql = `select * from sessions where api_key = '${req.query.api_key}'`
+    // db.all(sql, (err, rows) => {
+    //     if (err) {
+    //         res.status(400).send({
+    //             error: err
+    //         })
+    //     }
+    //     if (rows.length > 0) {
+    //         res.send(rows[0])
+    //     } else {
+    //         res.status(400).send({
+    //             error: 'unauthorized'
+    //         })
+    //     }
+    // })
+    if (!req.query.api_key) return res.sendStatus(403)
+
+    jwt.verify(req.query.api_key, tokenKey, function(err, decoded) {
+        if (err) res.status(403).send({ error: 'unauthorized' })
+        else res.send({ success: 'authorized' })
     })
 }
 
