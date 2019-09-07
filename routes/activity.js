@@ -63,9 +63,7 @@ router.get('/:uid/activity/:aid', (req, res) => {
     } else if (req.query.deleted == 'all') {
         deleted = ''
     }
-    query = `select id, users_id, activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, data${uploaded}${version} from activity where id = ${
-        req.params.aid
-    } and users_id = ${req.params.uid}${deleted}`
+    query = `select id, users_id, activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, data${uploaded}${version} from activity where id = ${req.params.aid} and users_id = ${req.params.uid}${deleted}`
 
     db.all(query, (err, rows) => {
         if (err) {
@@ -122,9 +120,7 @@ router.put('/:uid/activity/:aid', (req, res) => {
         })
     }
 
-    let queryPreserve = `insert into activity (users_id, activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, data, deleted, version, uploaded) SELECT users_id, activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, data, 1, version, uploaded FROM activity where id = '${
-        req.params.aid
-    }'`
+    let queryPreserve = `insert into activity (users_id, activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, data, deleted, version, uploaded) SELECT users_id, activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, data, 1, version, uploaded FROM activity where id = '${req.params.aid}'`
     db.run(queryPreserve, (err, rows) => {
         if (err) {
             console.log(err)

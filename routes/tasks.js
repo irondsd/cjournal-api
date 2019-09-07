@@ -44,9 +44,7 @@ router.get('/:uid/tasks', (req, res) => {
 })
 
 router.get('/:uid/tasks/:tid', (req, res) => {
-    query = `select id, users_id, activity_type, time, last_updated, ref_id, completed, deleted, data from tasks where id = ${
-        req.params.tid
-    } and users_id = ${req.params.uid}`
+    query = `select id, users_id, activity_type, time, last_updated, ref_id, completed, deleted, data from tasks where id = ${req.params.tid} and users_id = ${req.params.uid}`
 
     console.log(query)
     db.all(query, (err, rows) => {
@@ -105,9 +103,7 @@ router.put('/:uid/tasks/:aid', (req, res) => {
 
     let sql
     if (req.body.completed) {
-        sql = `update tasks set activity_type = '${req.body.activity_type}', time = '${req.body.time}', completed = '${
-            req.body.completed
-        }', last_updated = '${last_updated}', ref_id = '${req.params.aid}' where id = ${req.params.aid}`
+        sql = `update tasks set activity_type = '${req.body.activity_type}', time = '${req.body.time}', completed = '${req.body.completed}', last_updated = '${last_updated}', ref_id = '${req.params.aid}' where id = ${req.params.aid}`
     } else {
         sql = `update tasks set activity_type = '${req.body.activity_type}', time = '${
             req.body.time

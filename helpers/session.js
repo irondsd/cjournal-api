@@ -29,7 +29,7 @@ function create_session(res, req, user) {
 function generate_qr(user, res) {
     let api_key = gen_api_key(user)
 
-    // to preserve qr size. Maybe remove those later
+    // to decrease qr size, optional
     delete user.permissions
     delete user.device_type
     delete user.information
