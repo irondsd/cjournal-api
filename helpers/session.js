@@ -26,12 +26,9 @@ function create_session(res, req, user) {
     res.send(response(user, api_key))
 }
 
-async function create_qr_session(res, req, user) {
-    api_key = gen_api_key(user)
-    await generate_qr(user, api_key, res)
-}
+function generate_qr(user, res) {
+    let api_key = gen_api_key(user)
 
-function generate_qr(user, api_key, res) {
     // to preserve qr size. Maybe remove those later
     delete user.permissions
     delete user.device_type
@@ -63,10 +60,6 @@ response = function(user, api_key) {
     }
 }
 
-function renew_session(req, res) {
-    // TODO:
-}
-
 function validate_api_key(req, res) {
     if (!req.query.api_key) return res.sendStatus(403)
 
@@ -76,8 +69,15 @@ function validate_api_key(req, res) {
     })
 }
 
+async function decipher_api_key(api_key) {
+    return jwt.verify(api_key, tokenKey, function(err, decoded) {
+        if (err) return err
+        else return decoded
+    })
+}
+
 module.exports.check_password = check_password
 module.exports.create_session = create_session
-module.exports.create_qr_session = create_qr_session
 module.exports.validate_api_key = validate_api_key
-module.exports.renew_session = renew_session
+module.exports.generate_qr = generate_qr
+module.exports.decipher_api_key = decipher_api_key

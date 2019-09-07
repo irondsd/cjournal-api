@@ -16,7 +16,7 @@ router.post('/loginqr', (req, res, qr = true) => {
 })
 
 router.post('/qr', (req, res) => {
-    // TODO: generate qr code here
+    qr(req, res)
 })
 
 login = function(req, res, qr = false) {
@@ -38,7 +38,7 @@ where users.email = '${req.body.email}' limit 1`
                     if (qr === false) {
                         session.create_session(res, req, rows[0])
                     } else {
-                        session.create_qr_session(res, req, rows[0])
+                        session.generate_qr(rows[0], res)
                     }
                 } else {
                     res.status(403).send({
@@ -54,6 +54,32 @@ where users.email = '${req.body.email}' limit 1`
             error: 'no email and password received'
         })
     }
+}
+
+qr = function(req, res) {
+    session.decipher_api_key(req.query.api_key).then(decipher => {
+        if (!decipher.id) res.status(400).send({ error: decipher.message })
+
+        let id = decipher.id
+
+        let query = `select 
+users.id, name, birthday, gender, email, password, device_type, last_seen, information, hide_elements, language, permissions,
+prescriptions.course_therapy, relief_of_attack, tests
+from users 
+inner join 
+prescriptions on users.id = prescriptions.users_id
+where users.id = '${id}' limit 1`
+        db.all(query, (err, rows) => {
+            if (err) {
+                res.status(500).send(err.keys)
+            }
+            if (rows[0]) {
+                session.generate_qr(rows[0], res)
+            } else {
+                res.status(404).send()
+            }
+        })
+    })
 }
 
 module.exports = router
