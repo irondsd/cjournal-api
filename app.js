@@ -35,7 +35,10 @@ app.use('/api/users/', patients)
 
 // just for testing, will be removed later
 app.get('/api/check/', function(req, res) {
-    session.validate_api_key(req, res)
+    session.validate_api_key(req.query.api_key).then(result => {
+        if (result) res.send({ success: 'authorized' })
+        else res.status(403).send({ error: 'unauthorized' })
+    })
 })
 
 app.listen(port, () => {
