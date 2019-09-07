@@ -15,139 +15,59 @@ function check_password(password, hash) {
 }
 
 function gen_api_key(user) {
-    // return (
-    //     Math.random()
-    //         .toString(36)
-    //         .substr(2) +
-    //     Math.random()
-    //         .toString(36)
-    //         .substr(2)
-    // )
+    let options = { expiresIn: '365d' }
 
-    return jwt.sign({ id: user.id, permissions: user.permissions }, tokenKey, { expiresIn: '30s' })
-}
-
-function gen_exp_date() {
-    return (Date.now() / 1000) | (10 + 3600) // adds an hour
+    return jwt.sign({ id: user.id, permissions: user.permissions }, tokenKey)
 }
 
 function create_session(res, req, user) {
     api_key = gen_api_key(user)
-    exp_date = gen_exp_date()
-    let sql = `insert into sessions(user_id, api_key, renewable, exp_date, permissions) values ('${user_id}', '${api_key}', 'true', '${exp_date}', '${user.permissions}')`
-    db.all(sql, (err, rows) => {
-        if (err) {
-            res.send('error creating session', err)
-        } else {
-            res.send({
-                id: user_id,
-                name: user.name,
-                email: user.email,
-                gender: user.gender,
-                birthday: user.birthday,
-                api_key: api_key,
-                device_type: user.device_type,
-                information: user.information,
-                hide_elements: user.hide_elements,
-                course_therapy: user.course_therapy,
-                relief_of_attack: user.relief_of_attack,
-                tests: user.tests,
-                permissions: user.permissions,
-                language: user.language
-            })
-        }
+
+    res.send(response(user, api_key))
+}
+
+async function create_qr_session(res, req, user) {
+    api_key = gen_api_key(user)
+    await generate_qr(user, api_key, res)
+}
+
+function generate_qr(user, api_key, res) {
+    // to preserve qr size. Maybe remove those later
+    delete user.permissions
+    delete user.device_type
+    delete user.information
+    delete user.language
+
+    let cipherText = simpleCrypto.encrypt(response(user, api_key))
+    QRCode.toDataURL(cipherText, function(err, url) {
+        res.send({ qr: url })
     })
 }
 
-function create_qr_session(res, req, user) {
-    api_key = gen_api_key()
-    exp_date = gen_exp_date()
-
-    let sql = `insert into sessions(user_id, api_key, renewable, exp_date, permissions) values ('${user_id}', '${api_key}', 'true', '${exp_date}', '${user.permissions}')`
-
-    db.all(sql, (err, rows) => {
-        if (err) {
-            res.send('error creating session', err)
-        } else {
-            let response = {
-                id: user_id,
-                name: user.name,
-                email: user.email,
-                gender: user.gender,
-                birthday: user.birthday,
-                api_key: api_key,
-                device_type: user.device_type,
-                information: user.information,
-                hide_elements: user.hide_elements,
-                course_therapy: user.course_therapy,
-                relief_of_attack: user.relief_of_attack,
-                tests: user.tests,
-                language: user.language,
-                permissions: user.permissions
-            }
-            let cipherText = simpleCrypto.encrypt(response)
-            QRCode.toDataURL(cipherText, function(err, url) {
-                // response.dataimg = url
-                res.send({ qr: url })
-            })
-        }
-    })
+response = function(user, api_key) {
+    return {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        gender: user.gender,
+        birthday: user.birthday,
+        api_key: api_key,
+        device_type: user.device_type,
+        information: user.information,
+        hide_elements: user.hide_elements,
+        course_therapy: user.course_therapy,
+        relief_of_attack: user.relief_of_attack,
+        tests: user.tests,
+        language: user.language,
+        permissions: user.permissions
+    }
 }
 
 function renew_session(req, res) {
-    api_key = gen_api_key()
-    exp_date = gen_exp_date()
-    sql = `update sessions set api_key = '${api_key}', exp_date = '${exp_date}' where api_key = '${req.query.api_key}'`
-    db.run(sql, function(err, rows) {
-        if (err) {
-            res.status(400).send({
-                error: err
-            })
-        }
-        if (this.changes) {
-            res.send({
-                api_key: api_key
-            })
-        } else {
-            res.status(404).send({
-                error: 'no such session'
-            })
-        }
-    })
-}
-
-function destroy_session(res, req, api_key) {
-    sql = `delete from sessions where api_key = '${api_key}'`
-    db.run(sql, function(err) {
-        if (err) {
-            res.status(400).send({
-                error: err
-            })
-        }
-        if (this.changes) {
-            res.send()
-        } else {
-            res.status(404).send()
-        }
-    })
+    // TODO:
 }
 
 function validate_api_key(req, res) {
-    // sql = `select * from sessions where api_key = '${req.query.api_key}'`
-    // db.all(sql, (err, rows) => {
-    //     if (err) {
-    //         res.status(400).send({
-    //             error: err
-    //         })
-    //     }
-    //     if (rows.length > 0) {
-    //         res.send(rows[0])
-    //     } else {
-    //         res.status(400).send({
-    //             error: 'unauthorized'
-    //         })
-    //     }
-    // })
     if (!req.query.api_key) return res.sendStatus(403)
 
     jwt.verify(req.query.api_key, tokenKey, function(err, decoded) {
@@ -160,5 +80,4 @@ module.exports.check_password = check_password
 module.exports.create_session = create_session
 module.exports.create_qr_session = create_qr_session
 module.exports.validate_api_key = validate_api_key
-module.exports.destroy_session = destroy_session
 module.exports.renew_session = renew_session
