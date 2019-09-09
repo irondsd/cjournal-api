@@ -62,6 +62,8 @@ qr = function(req, res) {
 
         let id = decipher.id
 
+        if (req.params.id) id = req.params.id
+
         let query = `select 
 users.id, name, birthday, gender, email, password, device_type, last_seen, information, hide_elements, language, permissions,
 prescriptions.course_therapy, relief_of_attack, tests
