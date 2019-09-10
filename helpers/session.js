@@ -60,15 +60,6 @@ response = function(user, api_key) {
     }
 }
 
-// function validate_api_key(req, res) {
-//     if (!req.query.api_key) return res.status(403).send({ error: 'unauthorized' })
-
-//     jwt.verify(req.query.api_key, tokenKey, function(err, decoded) {
-//         if (err) res.status(403).send({ error: 'unauthorized' })
-//         else res.send({ success: 'authorized' })
-//     })
-// }
-
 async function validate_api_key(api_key) {
     if (!api_key) return false
 

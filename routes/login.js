@@ -58,7 +58,7 @@ where users.email = '${req.body.email}' limit 1`
 
 qr = function(req, res) {
     session.decipher_api_key(req.query.api_key).then(decipher => {
-        if (!decipher.id) res.status(400).send({ error: decipher.message })
+        if (!decipher.id) return res.status(400).send({ error: decipher.message })
 
         let id = decipher.id
 
@@ -73,12 +73,12 @@ prescriptions on users.id = prescriptions.users_id
 where users.id = '${id}' limit 1`
         db.all(query, (err, rows) => {
             if (err) {
-                res.status(500).send(err.keys)
+                return res.status(500).send(err.keys)
             }
             if (rows[0]) {
                 session.generate_qr(rows[0], res)
             } else {
-                res.status(404).send()
+                return res.status(404).send()
             }
         })
     })
