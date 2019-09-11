@@ -1,7 +1,8 @@
 const log = require('./helpers/logger')
 const express = require('express')
 const app = express()
-const port = process.env.PORT || 3000
+require('dotenv').config()
+const port = process.env.PORT || 3001
 const fs = require('fs')
 const sqlite = require('sqlite3')
 const db = new sqlite.Database('./db/trackers.db')
