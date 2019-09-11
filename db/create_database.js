@@ -123,21 +123,21 @@ db.serialize(() => {
         }
     )
 
-    db.run(
-        `create table if not exists sessions (
-                sid integer primary key, 
-                user_id int not null, 
-                api_key text not null,
-                permissions integer not null default '1',
-                renewable bool,
-                exp_date datetime not null
-    )`,
-        err => {
-            if (err) {
-                errors = true
-            }
-        }
-    )
+    // db.run(
+    //     `create table if not exists sessions (
+    //             sid integer primary key,
+    //             user_id int not null,
+    //             api_key text not null,
+    //             permissions integer not null default '1',
+    //             renewable bool,
+    //             exp_date datetime not null
+    // )`,
+    //     err => {
+    //         if (err) {
+    //             errors = true
+    //         }
+    //     }
+    // )
 })
 
 if (populate) {
