@@ -28,6 +28,9 @@ from users
 inner join 
 prescriptions on users.id = prescriptions.users_id
 where users.email = '${req.body.email}' limit 1`
+        let short = false
+        if (req.query.hasOwnProperty('short')) short = true
+        console.log(short)
         db.all(query, (err, rows) => {
             if (err) {
                 res.status(500).send(err.keys)
@@ -38,7 +41,7 @@ where users.email = '${req.body.email}' limit 1`
                     if (qr === false) {
                         session.create_session(res, req, rows[0])
                     } else {
-                        session.generate_qr(rows[0], res)
+                        session.generate_qr(rows[0], res, short)
                     }
                 } else {
                     res.status(403).send({

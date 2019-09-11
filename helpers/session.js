@@ -26,7 +26,7 @@ function create_session(res, req, user) {
     res.send(response(user, api_key))
 }
 
-function generate_qr(user, res) {
+function generate_qr(user, res, short = false) {
     let api_key = gen_api_key(user)
 
     // to decrease qr size, optional
@@ -35,7 +35,16 @@ function generate_qr(user, res) {
     delete user.information
     delete user.language
 
+    if (short) {
+        delete user.hide_elements
+        delete user.course_therapy
+        delete user.relief_of_attack
+        delete user.tests
+        delete user.device_type
+    }
+
     let cipherText = simpleCrypto.encrypt(response(user, api_key))
+    console.log(cipherText)
     QRCode.toDataURL(cipherText, function(err, url) {
         res.send({ qr: url })
     })
