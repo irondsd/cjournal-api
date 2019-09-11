@@ -34,6 +34,34 @@ router.get('/:id/patients', (req, res) => {
     })
 })
 
+router.get('/:id/doctors', (req, res) => {
+    query = 'select * from doctor where patient_id = ' + req.params.id
+    console.log(query)
+    db.all(query, (err, rows) => {
+        if (err) {
+            res.status(500).send({
+                error: err
+            })
+        }
+
+        let doctor_ids = [
+            ...rows.map(el => {
+                return el.doctor_id
+            })
+        ]
+
+        query = `select 
+                id, name, birthday, gender, email, device_type, last_seen from users
+                where users.id in (${doctor_ids})`
+        console.log(query)
+        db.all(query, (err, rows) => {
+            if (err) return res.status(400).send({ error: err })
+
+            res.send(rows)
+        })
+    })
+})
+
 router.post('/:id/patients', (req, res) => {
     if (!req.body.patient_id) {
         res.status(400).send({
