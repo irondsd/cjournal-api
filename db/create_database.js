@@ -103,7 +103,9 @@ db.serialize(() => {
     db.run(
         `create table if not exists virtual_activity (
         id integer primary key,
+        activity_id integer not null,
         users_id integer not null,
+        doctor_id integer not null,
         activity_type text not null,
         time_started datetime not null,
         time_ended datetime,
@@ -114,7 +116,9 @@ db.serialize(() => {
         ref_id integer default null,
         deleted bool default false,
         foreign key (users_id) references users(id),
-        foreign key (tasks_id) references tasks(id)
+        foreign key (doctor_id) references users(id),
+        foreign key (tasks_id) references tasks(id),
+        foreign key (activity_id) references activity(id)
     )`,
         err => {
             if (err) {
@@ -122,22 +126,6 @@ db.serialize(() => {
             }
         }
     )
-
-    // db.run(
-    //     `create table if not exists sessions (
-    //             sid integer primary key,
-    //             user_id int not null,
-    //             api_key text not null,
-    //             permissions integer not null default '1',
-    //             renewable bool,
-    //             exp_date datetime not null
-    // )`,
-    //     err => {
-    //         if (err) {
-    //             errors = true
-    //         }
-    //     }
-    // )
 })
 
 if (populate) {
