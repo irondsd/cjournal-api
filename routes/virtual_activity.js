@@ -20,7 +20,7 @@ router.get('/:uid/virtual_activity', (req, res) => {
     if (req.query.uploaded) uploaded = `, uploaded`
 
     let doctor_id = ``
-    if (req.body.doctor_id) doctor_id = ` and doctor_id = ${req.body.doctor_id}`
+    if (req.query.doctor_id) doctor_id = ` and doctor_id = ${req.query.doctor_id}`
 
     sql =
         `select activity_id, users_id, doctor_id, activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, data${uploaded} from virtual_activity where users_id = ` +
@@ -51,7 +51,7 @@ router.get('/:uid/virtual_activity/:aid', (req, res) => {
     else if (req.query.deleted == 'all') deleted = ''
 
     let doctor_id = ``
-    if (req.body.doctor_id) doctor_id = `and doctor_id = ${req.body.doctor_id}`
+    if (req.query.doctor_id) doctor_id = `and doctor_id = ${req.query.doctor_id}`
 
     query = `select activity_id, users_id, doctor_id, activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, data${uploaded} from virtual_activity where activity_id = ${req.params.aid} and users_id = ${req.params.uid}${deleted} ${doctor_id}`
 
