@@ -78,36 +78,38 @@ router.post('/:uid/virtual_activity', (req, res) => {
         return res.status(400).send()
     }
 
-    let check = `select id from virtual_activity where activity_id = '${req.body.activity_id}' and doctor_id = '${req.body.doctor_id}' and deleted = '0'`
-    db.all(check, function(err, rows) {
-        if (err) {
-            res.status(500).send({
-                error: err
-            })
-        }
-        if (rows[0]) {
-            return updateVirtualActivity(req, res)
-        } else {
-            let sql = `insert into virtual_activity(activity_id, users_id, doctor_id, activity_type, time_started, data, tasks_id, time_ended, last_updated, uploaded) values
+    if (req.body.activity_id) {
+        let check = `select id from virtual_activity where activity_id = '${req.body.activity_id}' and doctor_id = '${req.body.doctor_id}' and deleted = '0'`
+        db.all(check, function(err, rows) {
+            if (err) {
+                res.status(500).send({
+                    error: err
+                })
+            }
+            if (rows[0]) {
+                return updateVirtualActivity(req, res)
+            }
+        })
+    } else {
+        let sql = `insert into virtual_activity(activity_id, users_id, doctor_id, activity_type, time_started, data, tasks_id, time_ended, last_updated, uploaded) values
                            ('${req.body.activity_id}', '${req.params.uid}', '${req.body.doctor_id}', '${
-                req.body.activity_type
-            }', '${req.body.time_started}', '${JSON.stringify(req.body.data)}', '${
-                req.body.tasks_id ? req.body.tasks_id : null
-            }', '${req.body.time_ended ? req.body.time_ended : null}', '${req.body.last_updated}', '${timestamp()}')`
-            db.run(sql, function(err, rows) {
-                if (err) {
-                    console.log(err)
-                } else {
-                    res.status(201).send({
-                        id: this.lastID
-                    })
-                    if (req.body.tasks_id && req.body.data.successful) {
-                        taskMarkCompleted(req.body.tasks_id)
-                    }
+            req.body.activity_type
+        }', '${req.body.time_started}', '${JSON.stringify(req.body.data)}', '${
+            req.body.tasks_id ? req.body.tasks_id : null
+        }', '${req.body.time_ended ? req.body.time_ended : null}', '${req.body.last_updated}', '${timestamp()}')`
+        db.run(sql, function(err, rows) {
+            if (err) {
+                console.log(err)
+            } else {
+                res.status(201).send({
+                    id: this.lastID
+                })
+                if (req.body.tasks_id && req.body.data.successful) {
+                    taskMarkCompleted(req.body.tasks_id)
                 }
-            })
-        }
-    })
+            }
+        })
+    }
 })
 
 router.put('/:uid/virtual_activity/:aid', (req, res) => {
