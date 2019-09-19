@@ -36,7 +36,7 @@ router.get('/:uid/virtual_activity', (req, res) => {
                 error: err
             })
         }
-        // for (el of rows) delete Object.assign(el, { ['id']: el['activity_id'] })['activity_id']
+        for (el of rows) el.id = 'v' + el.id
 
         res.send(rows)
     })
@@ -65,6 +65,7 @@ router.get('/:uid/virtual_activity/:aid', (req, res) => {
             return res.status(500).send(err)
         }
         if (rows.length > 0) {
+            for (el of rows) el.id = 'v' + el.id
             return res.send(rows[0])
         } else {
             return res.status(404).send()
@@ -163,7 +164,7 @@ function updateVirtualActivity(req, res) {
                             console.log('added ref id')
                         }
                     )
-                    res.status(201).send(rows)
+                    res.status(201).send({ id: req.body.activity_id })
                 }
             })
         }
