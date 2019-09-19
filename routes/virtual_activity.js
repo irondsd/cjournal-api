@@ -7,70 +7,70 @@ let { timestamp } = require('../helpers/timestamp')
 let { updateLastSeen } = require('../helpers/updateLastSeen')
 let { taskMarkCompleted } = require('../helpers/taskMarkCompleted')
 
-router.get('/:uid/virtual_activity', (req, res) => {
-    let timeframe = ``
-    if (req.query.from) timeframe += ` and time_started > ${req.query.from} `
-    if (req.query.to) timeframe += ` and time_started < ${req.query.to} `
+// router.get('/:uid/virtual_activity', (req, res) => {
+//     let timeframe = ``
+//     if (req.query.from) timeframe += ` and time_started > ${req.query.from} `
+//     if (req.query.to) timeframe += ` and time_started < ${req.query.to} `
 
-    let deleted = ` and deleted = 0`
-    if (req.query.deleted == 1) deleted = ` and deleted = 1`
-    else if (req.query.deleted == 'all') deleted = ''
+//     let deleted = ` and deleted = 0`
+//     if (req.query.deleted == 1) deleted = ` and deleted = 1`
+//     else if (req.query.deleted == 'all') deleted = ''
 
-    let uploaded = ``
-    if (req.query.uploaded) uploaded = `, uploaded`
+//     let uploaded = ``
+//     if (req.query.uploaded) uploaded = `, uploaded`
 
-    let doctor_id = ``
-    if (req.query.doctor_id) doctor_id = ` and doctor_id = ${req.query.doctor_id}`
+//     let doctor_id = ``
+//     if (req.query.doctor_id) doctor_id = ` and doctor_id = ${req.query.doctor_id}`
 
-    sql =
-        `select id, activity_id, users_id, doctor_id, activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, data${uploaded} from virtual_activity where users_id = ` +
-        req.params.uid +
-        timeframe +
-        deleted +
-        doctor_id
+//     sql =
+//         `select id, activity_id, users_id, doctor_id, activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, data${uploaded} from virtual_activity where users_id = ` +
+//         req.params.uid +
+//         timeframe +
+//         deleted +
+//         doctor_id
 
-    console.log(sql)
-    db.all(sql, function(err, rows) {
-        if (err) {
-            res.status(500).send({
-                error: err
-            })
-        }
-        // for (el of rows) delete Object.assign(el, { ['id']: el['activity_id'] })['activity_id']
+//     console.log(sql)
+//     db.all(sql, function(err, rows) {
+//         if (err) {
+//             res.status(500).send({
+//                 error: err
+//             })
+//         }
+//         // for (el of rows) delete Object.assign(el, { ['id']: el['activity_id'] })['activity_id']
 
-        res.send(rows)
-    })
-})
+//         res.send(rows)
+//     })
+// })
 
-router.get('/:uid/virtual_activity/:aid', (req, res) => {
-    let uploaded = ``
-    if (req.query.uploaded) uploaded = `, uploaded`
+// router.get('/:uid/virtual_activity/:aid', (req, res) => {
+//     let uploaded = ``
+//     if (req.query.uploaded) uploaded = `, uploaded`
 
-    let deleted = ` and deleted = 0`
-    if (req.query.deleted == 1) deleted = ` and deleted = 1`
-    else if (req.query.deleted == 'all') deleted = ''
+//     let deleted = ` and deleted = 0`
+//     if (req.query.deleted == 1) deleted = ` and deleted = 1`
+//     else if (req.query.deleted == 'all') deleted = ''
 
-    let doctor_id = ``
-    if (req.query.doctor_id) doctor_id = `and doctor_id = ${req.query.doctor_id}`
+//     let doctor_id = ``
+//     if (req.query.doctor_id) doctor_id = `and doctor_id = ${req.query.doctor_id}`
 
-    let query = `select id, activity_id, users_id, doctor_id, activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, data${uploaded} from virtual_activity where activity_id = ${req.params.aid} and users_id = ${req.params.uid}${deleted} ${doctor_id}`
+//     let query = `select id, activity_id, users_id, doctor_id, activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, data${uploaded} from virtual_activity where activity_id = ${req.params.aid} and users_id = ${req.params.uid}${deleted} ${doctor_id}`
 
-    if (req.params.aid.includes('v'))
-        query = `select id, activity_id, users_id, doctor_id, activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, data${uploaded} from virtual_activity where id = ${req.params.aid.substring(
-            1
-        )} and users_id = ${req.params.uid}${deleted} ${doctor_id}`
-    console.log(query)
-    db.all(query, (err, rows) => {
-        if (err) {
-            return res.status(500).send(err)
-        }
-        if (rows.length > 0) {
-            return res.send(rows[0])
-        } else {
-            return res.status(404).send()
-        }
-    })
-})
+//     if (req.params.aid.includes('v'))
+//         query = `select id, activity_id, users_id, doctor_id, activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, data${uploaded} from virtual_activity where id = ${req.params.aid.substring(
+//             1
+//         )} and users_id = ${req.params.uid}${deleted} ${doctor_id}`
+//     console.log(query)
+//     db.all(query, (err, rows) => {
+//         if (err) {
+//             return res.status(500).send(err)
+//         }
+//         if (rows.length > 0) {
+//             return res.send(rows[0])
+//         } else {
+//             return res.status(404).send()
+//         }
+//     })
+// })
 
 router.post('/:uid/virtual_activity', (req, res) => {
     // TODO: make virtua; activity validation
@@ -81,6 +81,7 @@ router.post('/:uid/virtual_activity', (req, res) => {
     if (req.body.activity_id) {
         let check = `select id from virtual_activity where activity_id = '${req.body.activity_id}' and doctor_id = '${req.body.doctor_id}' and deleted = '0'`
         db.all(check, function(err, rows) {
+            console.log(rows)
             if (err) {
                 res.status(500).send({
                     error: err
@@ -88,27 +89,12 @@ router.post('/:uid/virtual_activity', (req, res) => {
             }
             if (rows[0]) {
                 return updateVirtualActivity(req, res)
+            } else {
+                postVirtualActivity(req, res)
             }
         })
     } else {
-        let sql = `insert into virtual_activity(activity_id, users_id, doctor_id, activity_type, time_started, data, tasks_id, time_ended, last_updated, uploaded) values
-                           ('${req.body.activity_id}', '${req.params.uid}', '${req.body.doctor_id}', '${
-            req.body.activity_type
-        }', '${req.body.time_started}', '${JSON.stringify(req.body.data)}', '${
-            req.body.tasks_id ? req.body.tasks_id : null
-        }', '${req.body.time_ended ? req.body.time_ended : null}', '${req.body.last_updated}', '${timestamp()}')`
-        db.run(sql, function(err, rows) {
-            if (err) {
-                console.log(err)
-            } else {
-                res.status(201).send({
-                    id: this.lastID
-                })
-                if (req.body.tasks_id && req.body.data.successful) {
-                    taskMarkCompleted(req.body.tasks_id)
-                }
-            }
-        })
+        postVirtualActivity(req, res)
     }
 })
 
@@ -126,6 +112,27 @@ router.put('/:uid/virtual_activity/:aid', (req, res) => {
 
     updateVirtualActivity(req, res)
 })
+
+function postVirtualActivity(req, res) {
+    let sql = `insert into virtual_activity(activity_id, users_id, doctor_id, activity_type, time_started, data, tasks_id, time_ended, last_updated, uploaded) values
+                           ('${req.body.activity_id}', '${req.params.uid}', '${req.body.doctor_id}', '${
+        req.body.activity_type
+    }', '${req.body.time_started}', '${JSON.stringify(req.body.data)}', '${
+        req.body.tasks_id ? req.body.tasks_id : null
+    }', '${req.body.time_ended ? req.body.time_ended : null}', '${req.body.last_updated}', '${timestamp()}')`
+    db.run(sql, function(err, rows) {
+        if (err) {
+            console.log(err)
+        } else {
+            res.status(201).send({
+                id: this.lastID
+            })
+            if (req.body.tasks_id && req.body.data.successful) {
+                taskMarkCompleted(req.body.tasks_id)
+            }
+        }
+    })
+}
 
 function updateVirtualActivity(req, res) {
     let id = req.params.aid
