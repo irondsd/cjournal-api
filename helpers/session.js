@@ -4,9 +4,7 @@ const db = new sqlite.Database('./db/trackers.db')
 var QRCode = require('qrcode')
 var SimpleCrypto = require('simple-crypto-js').default
 var jwt = require('jsonwebtoken')
-const QRSecretKey = 'baba_yaga'
-const tokenKey = 'Mnemosyne'
-var simpleCrypto = new SimpleCrypto(QRSecretKey)
+var simpleCrypto = new SimpleCrypto(process.env.QR_KEY)
 
 function check_password(password, hash) {
     bcrypt.compare(password, hash, function(err, res) {
@@ -15,9 +13,9 @@ function check_password(password, hash) {
 }
 
 function gen_api_key(user) {
-    let options = { expiresIn: '365d' }
+    // let options = { expiresIn: '365d' }
 
-    return jwt.sign({ id: user.id, permissions: user.permissions }, tokenKey)
+    return jwt.sign({ id: user.id, permissions: user.permissions }, process.env.TOKEN_KEY)
 }
 
 function create_session(res, req, user) {
@@ -72,14 +70,14 @@ response = function(user, api_key) {
 async function validate_api_key(api_key) {
     if (!api_key) return false
 
-    return jwt.verify(api_key, tokenKey, function(err, decoded) {
+    return jwt.verify(api_key, process.env.TOKEN_KEY, function(err, decoded) {
         if (err) return false
         else return true
     })
 }
 
 async function decipher_api_key(api_key) {
-    return jwt.verify(api_key, tokenKey, function(err, decoded) {
+    return jwt.verify(api_key, process.env.TOKEN_KEY, function(err, decoded) {
         if (err) return err
         else return decoded
     })

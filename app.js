@@ -16,6 +16,7 @@ const session = require('./helpers/session')
 const tasks = require('./routes/tasks')
 const patients = require('./routes/patients')
 const prescriptions = require('./routes/prescriptions')
+const checkAuth = require('./middleware/checkAuth')
 
 app.use(function(req, res, next) {
     res.header('Access-Control-Allow-Origin', '*')
@@ -35,11 +36,8 @@ app.use('/api/', login)
 app.use('/api/users/', patients)
 
 // just for testing, will be removed later
-app.get('/api/check/', function(req, res) {
-    session.validate_api_key(req.query.api_key).then(result => {
-        if (result) res.send({ success: 'authorized' })
-        else res.status(403).send({ error: 'unauthorized' })
-    })
+app.get('/api/check/', checkAuth, (req, res, next) => {
+    res.send(req.decoded)
 })
 
 app.listen(port, () => {
