@@ -131,12 +131,15 @@ function postVirtualActivity(req, res) {
 }
 
 function updateVirtualActivity(req, res) {
-    let id_type = 'id'
-    let id = req.params.aid.substring(1)
+    let id_type
+    let id
 
     if (req.body.activity_id) {
         id = req.body.activity_id
         id_type = 'activity_id'
+    } else {
+        id_type = 'id'
+        id = req.params.aid.substring(1)
     }
 
     let queryPreserve = `insert into virtual_activity (activity_id, users_id, doctor_id,
