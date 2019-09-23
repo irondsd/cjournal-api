@@ -76,6 +76,8 @@ router.get('/:uid/virtual_activity/:aid', (req, res) => {
 router.post('/:uid/virtual_activity', (req, res) => {
     // TODO: make virtua; activity validation
 
+    if (req.body.activity_id === 'undefined') delete req.body.activity_id
+
     if (req.body.activity_id) {
         let check = `select id from virtual_activity where activity_id = '${req.body.activity_id}' and doctor_id = '${req.body.doctor_id}' and deleted = '0'`
         db.all(check, function(err, rows) {
@@ -152,6 +154,7 @@ function updateVirtualActivity(req, res) {
             }', ref_id = '${id}', uploaded = '${timestamp()}', set_deleted = '${
                 req.body.set_deleted ? req.body.set_deleted : 0
             }' where activity_id = ${id}`
+
             console.log(sql)
             db.run(sql, function(err, rows) {
                 if (err) {
@@ -173,16 +176,9 @@ function updateVirtualActivity(req, res) {
 }
 
 router.delete('/:uid/virtual_activity/:aid', (req, res) => {
-    if (false) {
-        //validate api_key
-        return res.status(400).send({
-            error: 'Internal error'
-        })
-    }
-
     let sql = `update virtual_activity set deleted = '1' where activity_id = '${req.params.aid}'`
 
-    if (req.params.aid.includes('v'))
+    if (req.body.aid.includes('v'))
         sql = `update virtual_activity set deleted = '1' where id = '${req.params.aid.substring(1)}'`
     console.log(sql)
     db.run(sql, function(err, rows) {
