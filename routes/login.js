@@ -15,8 +15,9 @@ const simpleCrypto = new SimpleCrypto(process.env.QR_KEY)
 router.post('/login', checkLogin, (req, res, next) => {
     log(`user ${req.user.email} is successfully logged in`)
     let api_key = gen_api_key(req.user)
+    req.user.api_key = api_key
 
-    res.send(response(req.user, api_key))
+    res.send(response(req.user))
 })
 
 router.post('/loginqr', checkLogin, (req, res, next) => {
@@ -46,6 +47,7 @@ where users.id = '${id}' limit 1`
         if (rows[0]) {
             log(`user ${req.decoded.id} generated qr for user ${rows[0].id}`)
             req.user = rows[0]
+            req.user.api_key = gen_api_key(req.user)
             generate_qr(req, res)
         } else {
             return res.status(404).send()
@@ -59,14 +61,14 @@ gen_api_key = function(user) {
     return jwt.sign({ id: user.id, permissions: user.permissions }, process.env.TOKEN_KEY)
 }
 
-response = function(user, api_key) {
+response = function(user) {
     return {
         id: user.id,
         name: user.name,
         email: user.email,
         gender: user.gender,
         birthday: user.birthday,
-        api_key: api_key,
+        api_key: user.api_key,
         device_type: user.device_type,
         information: user.information,
         hide_elements: user.hide_elements,
@@ -94,8 +96,8 @@ generate_qr = function(req, res) {
         delete req.user.device_type
     }
 
-    let cipherText = simpleCrypto.encrypt(response(req.user, req.user.api_key))
-    // console.log(cipherText)
+    let cipherText = simpleCrypto.encrypt(response(req.user))
+    // console.log(simpleCrypto.decrypt(cipherText))
     QRCode.toDataURL(cipherText, function(err, url) {
         res.send({ qr: url })
     })

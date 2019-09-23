@@ -5,16 +5,17 @@ const db = new sqlite.Database('./db/trackers.db')
 const validate = require('../helpers/validate')
 const log = require('../helpers/logger')
 const bcrypt = require('bcryptjs')
+const checkAuth = require('../middleware/checkAuth')
 
 // Get all users
-router.get('/', (req, res) => {
+router.get('/', checkAuth, (req, res, next) => {
     let query = `select 
 users.id, name, birthday, gender, email, device_type, last_seen, information, hide_elements, language, permissions,
 prescriptions.course_therapy, relief_of_attack, tests
 from users 
 inner join 
 prescriptions on users.id = prescriptions.users_id`
-    console.log(query)
+    // console.log(query)
     db.all(query, (err, rows) => {
         if (err) {
             log(err)
@@ -34,7 +35,7 @@ from users
 inner join 
 prescriptions on users.id = prescriptions.users_id
 where users.id = ` + req.params.id
-    console.log(query)
+    // console.log(query)
     db.all(query, (err, rows) => {
         if (err) {
             return res.status(500).send(err)
