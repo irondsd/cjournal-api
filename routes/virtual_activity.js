@@ -178,7 +178,7 @@ function updateVirtualActivity(req, res) {
 router.delete('/:uid/virtual_activity/:aid', (req, res) => {
     let sql = `update virtual_activity set deleted = '1' where activity_id = '${req.params.aid}'`
 
-    if (req.body.aid.includes('v'))
+    if (req.params.aid.includes('v'))
         sql = `update virtual_activity set deleted = '1' where id = '${req.params.aid.substring(1)}'`
     console.log(sql)
     db.run(sql, function(err, rows) {
