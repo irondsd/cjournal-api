@@ -3,17 +3,28 @@ const router = express.Router()
 const sqlite = require('sqlite3')
 const db = new sqlite.Database('./db/trackers.db')
 const validate = require('../helpers/validate')
-const session = require('../helpers/session')
 const log = require('../helpers/logger')
 const bcrypt = require('bcryptjs')
 const checkAuth = require('../middleware/checkAuth')
+const checkLogin = require('../middleware/checkLogin')
+const jwt = require('jsonwebtoken')
+const QRCode = require('qrcode')
+const SimpleCrypto = require('simple-crypto-js').default
+const simpleCrypto = new SimpleCrypto(process.env.QR_KEY)
 
-router.post('/login', (req, res) => {
-    login(req, res)
+router.post('/login', checkLogin, (req, res, next) => {
+    log(`user ${req.user.email} is successfully logged in`)
+    let api_key = gen_api_key(req.user)
+
+    res.send(response(req.user, api_key))
 })
 
-router.post('/loginqr', (req, res, qr = true) => {
-    login(req, res, true)
+router.post('/loginqr', checkLogin, (req, res, next) => {
+    let api_key = gen_api_key(req.user)
+    req.user.api_key = api_key
+
+    log(`user ${req.body.email} generated qr for himself`)
+    generate_qr(req, res)
 })
 
 router.post('/qr', checkAuth, (req, res, next) => {
@@ -33,50 +44,61 @@ where users.id = '${id}' limit 1`
             return res.status(500).send(err.keys)
         }
         if (rows[0]) {
-            session.generate_qr(rows[0], res)
+            log(`user ${req.decoded.id} generated qr for user ${rows[0].id}`)
+            req.user = rows[0]
+            generate_qr(req, res)
         } else {
             return res.status(404).send()
         }
     })
 })
 
-login = function(req, res, qr = false) {
-    if (req.body.email && req.body.password) {
-        let query = `select 
-users.id, name, birthday, gender, email, password, device_type, last_seen, information, hide_elements, language, permissions,
-prescriptions.course_therapy, relief_of_attack, tests
-from users 
-inner join 
-prescriptions on users.id = prescriptions.users_id
-where users.email = '${req.body.email}' limit 1`
-        let short = false
-        if (req.query.hasOwnProperty('short')) short = true
-        db.all(query, (err, rows) => {
-            if (err) {
-                res.status(500).send(err.keys)
-            }
-            if (rows[0]) {
-                hash = rows[0].password
-                if (bcrypt.compareSync(req.body.password, hash)) {
-                    if (qr === false) {
-                        session.create_session(res, req, rows[0])
-                    } else {
-                        session.generate_qr(rows[0], res, short)
-                    }
-                } else {
-                    res.status(403).send({
-                        error: 'wrong password'
-                    })
-                }
-            } else {
-                res.status(404).send()
-            }
-        })
-    } else {
-        res.status(400).send({
-            error: 'no email and password received'
-        })
+gen_api_key = function(user) {
+    // let options = { expiresIn: '365d' }
+
+    return jwt.sign({ id: user.id, permissions: user.permissions }, process.env.TOKEN_KEY)
+}
+
+response = function(user, api_key) {
+    return {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        gender: user.gender,
+        birthday: user.birthday,
+        api_key: api_key,
+        device_type: user.device_type,
+        information: user.information,
+        hide_elements: user.hide_elements,
+        course_therapy: user.course_therapy,
+        relief_of_attack: user.relief_of_attack,
+        tests: user.tests,
+        language: user.language,
+        permissions: user.permissions
     }
+}
+
+generate_qr = function(req, res) {
+    // information that mobile app doesn't need
+    delete req.user.permissions
+    delete req.user.device_type
+    delete req.user.information
+    delete req.user.language
+
+    if (req.query.short) {
+        // short qr version
+        delete req.user.hide_elements
+        delete req.user.course_therapy
+        delete req.user.relief_of_attack
+        delete req.user.tests
+        delete req.user.device_type
+    }
+
+    let cipherText = simpleCrypto.encrypt(response(req.user, req.user.api_key))
+    // console.log(cipherText)
+    QRCode.toDataURL(cipherText, function(err, url) {
+        res.send({ qr: url })
+    })
 }
 
 module.exports = router
