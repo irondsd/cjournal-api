@@ -29,12 +29,24 @@ router.get('/:uid/activity', (req, res) => {
     if (req.query.version) {
         version = `, version`
     }
+
+    let page = ``
+
     sql =
         `select id, users_id, activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, data${uploaded}${version} from activity where users_id = ` +
         req.params.uid +
         timeframe +
         deleted
-
+    if (req.query.limit) {
+        let page = 0
+        if (req.query.page) page = req.query.page * req.query.limit
+        sql =
+            `select id, users_id, activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, data${uploaded}${version} from activity where users_id = ` +
+            req.params.uid +
+            timeframe +
+            deleted +
+            ` order by time_started desc limit ${page}, ${req.query.limit}`
+    }
     console.log(sql)
     db.all(sql, function(err, rows) {
         if (err) {
