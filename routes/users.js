@@ -9,6 +9,7 @@ const checkAuth = require('../middleware/checkAuth')
 
 // Get all users
 router.get('/', checkAuth, (req, res, next) => {
+    log(`user ${req.decoded.id} requested all users list`)
     let query = `select 
 users.id, name, birthday, gender, email, device_type, last_seen, information, hide_elements, language, permissions,
 prescriptions.course_therapy, relief_of_attack, tests
@@ -26,7 +27,8 @@ prescriptions on users.id = prescriptions.users_id`
 })
 
 // Get information about the user with specific id
-router.get('/:id', (req, res) => {
+router.get('/:id', checkAuth, (req, res, next) => {
+    log(`user ${req.decoded.id} requested user ${req.params.id}`)
     let query =
         `select 
 users.id, name, birthday, gender, email, device_type, last_seen, information, hide_elements, language, permissions,
@@ -48,8 +50,8 @@ where users.id = ` + req.params.id
     })
 })
 
-router.delete('/:id', (req, res) => {
-    // TODO: verify password before
+router.delete('/:id', checkAuth, (req, res, next) => {
+    log(`user ${req.decoded.id} deleted user ${req.params.id}`)
     db.run('delete from users where id = ' + req.params.id, function(err) {
         if (err) {
             return res.status(500).send(err)
@@ -71,7 +73,7 @@ router.delete('/:id', (req, res) => {
 })
 
 // Add user
-router.post('/', (req, res) => {
+router.post('/', checkAuth, (req, res, next) => {
     let errors = validate.new_user(req)
     if (errors.length > 0) {
         return res.status(400).send({
@@ -86,6 +88,7 @@ router.post('/', (req, res) => {
             })
         }
         if (rows[0][Object.keys(rows[0])[0]] === 1) {
+            log(`user ${req.decoded.id} tried to post user with email ${req.body.email}`)
             return res.status(409).send({
                 error: 'user with email is already registered'
             })
@@ -106,6 +109,7 @@ router.post('/', (req, res) => {
                         error: err
                     })
                 } else {
+                    log(`user ${req.decoded.id} posted user with email ${req.body.email}`)
                     let query = `insert into prescriptions(users_id, course_therapy, relief_of_attack, tests) values ('${this.lastID}', '${req.body.course_therapy}', '${req.body.relief_of_attack}', '${req.body.tests}')`
                     let id = this.lastID
                     db.run(query, function(err, rows) {
@@ -128,7 +132,7 @@ router.post('/', (req, res) => {
 })
 
 // Update user
-router.put('/:id', (req, res) => {
+router.put('/:id', checkAuth, (req, res, next) => {
     if (!validate.update_user(req)) {
         return res.status(400).send({
             // TODO: check api key on validation
@@ -144,6 +148,7 @@ router.put('/:id', (req, res) => {
                     error: err
                 })
             } else {
+                log(`user ${req.decoded.id} updated user ${req.params.id}`)
                 let password_insert = ``
                 if (req.body.password) {
                     hash = rows[0].password
