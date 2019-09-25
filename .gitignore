@@ -17,3 +17,6 @@ db/trackers.db
 
 # ignore .env
 .env
+
+#uploads
+audios/
