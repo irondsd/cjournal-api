@@ -33,6 +33,7 @@ app.use('/api/users/', prescriptions)
 app.use('/api/users/', virtual_activity)
 app.use('/api/', login)
 app.use('/api/users/', patients)
+app.use('/audios/', express.static('audios'))
 
 // just for testing, will be removed later
 app.get('/api/check/', checkAuth, (req, res, next) => {

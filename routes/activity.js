@@ -3,9 +3,10 @@ const router = express.Router()
 const sqlite = require('sqlite3')
 const db = new sqlite.Database('./db/trackers.db')
 const validate = require('../helpers/validate')
-let { timestamp } = require('../helpers/timestamp')
-let { updateLastSeen } = require('../helpers/updateLastSeen')
-let { taskMarkCompleted } = require('../helpers/taskMarkCompleted')
+const { timestamp } = require('../helpers/timestamp')
+const { updateLastSeen } = require('../helpers/updateLastSeen')
+const { taskMarkCompleted } = require('../helpers/taskMarkCompleted')
+const { saveAudio } = require('../middleware/saveAudio')
 
 router.get('/:uid/activity', (req, res) => {
     let timeframe = ``
@@ -91,7 +92,7 @@ router.get('/:uid/activity/:aid', (req, res) => {
     // updateLastSeen(req.params.uid)
 })
 
-router.post('/:uid/activity', (req, res) => {
+router.post('/:uid/activity', saveAudio, (req, res, next) => {
     if (!validate.activity_record(req)) {
         return res.status(400).send()
     }
@@ -108,9 +109,11 @@ router.post('/:uid/activity', (req, res) => {
         if (err) {
             console.log(err)
         } else {
-            res.status(201).send({
+            let response = {
                 id: this.lastID
-            })
+            }
+            if (req.file) response.audio = req.file.path
+            res.status(201).send(response)
             if (req.body.tasks_id && req.body.data.successful) {
                 taskMarkCompleted(req.body.tasks_id)
             }
@@ -120,7 +123,7 @@ router.post('/:uid/activity', (req, res) => {
     updateLastSeen(req.params.uid)
 })
 
-router.put('/:uid/activity/:aid', (req, res) => {
+router.put('/:uid/activity/:aid', saveAudio, (req, res, next) => {
     if (!validate.activity_record(req)) {
         return res.status(400).send({
             error: 'Did not receive enough information',
@@ -155,7 +158,11 @@ router.put('/:uid/activity/:aid', (req, res) => {
             db.run(`update activity set ref_id = '${this.lastID}' where id = ${req.params.aid}`, (err, rows) => {
                 console.log('added ref id')
             })
-            res.status(201).send(rows)
+            let response = {
+                id: req.params.aid
+            }
+            if (req.file) response.audio = req.file.path
+            res.status(201).send(response)
         }
     })
 
