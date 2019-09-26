@@ -4,7 +4,6 @@ const sqlite = require('sqlite3')
 const db = new sqlite.Database('./db/trackers.db')
 const validate = require('../helpers/validate')
 let { timestamp } = require('../helpers/timestamp')
-let { updateLastSeen } = require('../helpers/updateLastSeen')
 let { taskMarkCompleted } = require('../helpers/taskMarkCompleted')
 
 router.get('/:uid/virtual_activity', (req, res) => {

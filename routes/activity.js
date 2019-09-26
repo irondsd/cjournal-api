@@ -4,7 +4,6 @@ const sqlite = require('sqlite3')
 const db = new sqlite.Database('./db/trackers.db')
 const validate = require('../helpers/validate')
 const { timestamp } = require('../helpers/timestamp')
-const { updateLastSeen } = require('../helpers/updateLastSeen')
 const { taskMarkCompleted } = require('../helpers/taskMarkCompleted')
 const { saveAudio } = require('../middleware/saveAudio')
 
@@ -57,8 +56,6 @@ router.get('/:uid/activity', (req, res) => {
         }
         res.send(rows)
     })
-
-    // updateLastSeen(req.params.uid)
 })
 
 router.get('/:uid/activity/:aid', (req, res) => {
@@ -88,8 +85,6 @@ router.get('/:uid/activity/:aid', (req, res) => {
             return res.status(404).send()
         }
     })
-
-    // updateLastSeen(req.params.uid)
 })
 
 router.post('/:uid/activity', saveAudio, (req, res, next) => {
@@ -119,8 +114,6 @@ router.post('/:uid/activity', saveAudio, (req, res, next) => {
             }
         }
     })
-
-    updateLastSeen(req.params.uid)
 })
 
 router.put('/:uid/activity/:aid', saveAudio, (req, res, next) => {
@@ -165,8 +158,6 @@ router.put('/:uid/activity/:aid', saveAudio, (req, res, next) => {
             res.status(201).send(response)
         }
     })
-
-    updateLastSeen(req.params.uid)
 })
 
 router.delete('/:uid/activity/:aid', (req, res) => {
@@ -190,8 +181,6 @@ router.delete('/:uid/activity/:aid', (req, res) => {
             res.status(404).send(rows)
         }
     })
-
-    updateLastSeen(req.params.uid)
 })
 
 // Put request is to add the data and can be done only by the user. No doctor or admin can change the original information
