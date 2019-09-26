@@ -13,7 +13,7 @@ const SimpleCrypto = require('simple-crypto-js').default
 const simpleCrypto = new SimpleCrypto(process.env.QR_KEY)
 
 router.post('/login', checkLogin, (req, res, next) => {
-    log(`user ${req.decoded.id} is successfully logged in`)
+    log(`user ${req.user.id} is successfully logged in`)
     let api_key = gen_api_key(req.user)
     req.user.api_key = api_key
 
@@ -24,7 +24,7 @@ router.post('/loginqr', checkLogin, (req, res, next) => {
     let api_key = gen_api_key(req.user)
     req.user.api_key = api_key
 
-    log(`user ${req.decoded.id} generated qr for himself`)
+    log(`user ${req.user.id} generated qr for himself`)
     generate_qr(req, res)
 })
 
