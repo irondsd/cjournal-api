@@ -1,6 +1,7 @@
 let { timestamp } = require('./timestamp')
 const sqlite = require('sqlite3')
 const db = new sqlite.Database('./db/trackers.db')
+const log = require('./logger')
 
 function updateLastSeen(id) {
     let query = `update users set last_seen = '${timestamp()}' where id = ${id}`
@@ -9,9 +10,9 @@ function updateLastSeen(id) {
             console.log(err)
         }
         if (this.changes) {
-            console.log('updated last seen')
+            // log(`updated user ${id} last seen`)
         } else {
-            console.log('error, need inspection')
+            log(`error updating user ${id} last seen`)
         }
     })
 }
