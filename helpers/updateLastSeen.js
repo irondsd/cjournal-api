@@ -10,7 +10,7 @@ function updateLastSeen(id) {
             console.log(err)
         }
         if (this.changes) {
-            // log(`updated user ${id} last seen`)
+            log(`updated user ${id} last seen`)
         } else {
             log(`error updating user ${id} last seen`)
         }
