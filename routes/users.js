@@ -2,11 +2,12 @@ const express = require('express')
 const router = express.Router()
 const sqlite = require('sqlite3')
 const db = new sqlite.Database('./db/trackers.db')
-const validate = require('../helpers/validate')
 const bcrypt = require('bcryptjs')
 const checkAuth = require('../middleware/checkAuth')
+const validateNewUser = require('../middleware/validateNewUser')
 const errors = require('../helpers/errors')
 const log = require('../helpers/logger')
+const { timestamp } = require('../helpers/timestamp')
 
 // Get all users
 router.get('/', checkAuth, (req, res, next) => {
@@ -78,14 +79,7 @@ router.delete('/:id', checkAuth, (req, res, next) => {
 })
 
 // Add user
-router.post('/', checkAuth, (req, res, next) => {
-    let errors = validate.new_user(req)
-    if (errors.length > 0) {
-        return res.status(400).send({
-            error: errors
-        })
-    }
-    const current_time = (Date.now() / 1000) | 0
+router.post('/', validateNewUser, checkAuth, (req, res, next) => {
     db.all(`select exists (select 1 from users where email = '${req.body.email}' limit 1)`, function(err, rows) {
         if (err) {
             log(`users internal error ${err}`)
@@ -103,7 +97,11 @@ router.post('/', checkAuth, (req, res, next) => {
             let hide_elements = req.body.hide_elements ? req.body.hide_elements : null
             let language = req.body.language ? req.body.language : 'en'
 
-            let query = `INSERT INTO users(name, birthday, gender, email, password, device_type, last_seen, information, hide_elements, language, permissions) VALUES ('${req.body.name}', '${req.body.birthday}', '${req.body.gender}', '${req.body.email}', '${hash}', '${req.body.device_type}', '${current_time}', '${information}', '${hide_elements}', '${language}', '${permissions}')`
+            let query = `INSERT INTO users(name, birthday, gender, email, password, device_type, last_seen, information, hide_elements, language, permissions) VALUES ('${
+                req.body.name
+            }', '${req.body.birthday}', '${req.body.gender}', '${req.body.email}', '${hash}', '${
+                req.body.device_type
+            }', '${timestamp()}', '${information}', '${hide_elements}', '${language}', '${permissions}')`
             console.log(query)
             db.run(query, function(err, rows) {
                 if (err) {
