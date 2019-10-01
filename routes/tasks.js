@@ -60,9 +60,6 @@ router.get('/:uid/tasks/:tid', (req, res) => {
 })
 
 router.post('/:id/tasks', validateTask, (req, res, next) => {
-    if (!validate.task_record(req)) {
-        return res.status(400).send({ error: 'Not enough data' })
-    }
     sql = `insert into tasks(users_id, activity_type, time, completed, last_updated, data) values 
             ('${req.params.id}', '${req.body.activity_type}', '${
         req.body.time
@@ -81,16 +78,6 @@ router.post('/:id/tasks', validateTask, (req, res, next) => {
 })
 
 router.put('/:uid/tasks/:aid', validateTask, (req, res, next) => {
-    if (!validate.task_record(req)) {
-        return res.status(400).send({
-            error: 'Did not receive enough information',
-            example: {
-                activity_type: 'Walking',
-                time: 1552401333,
-                completed: false
-            }
-        })
-    }
     let queryPreserve = `insert into tasks (users_id, activity_type, time, completed, ref_id, last_updated, data, deleted) SELECT users_id, activity_type, time, completed, ref_id, ${timestamp()}, data, 1 FROM tasks where id = '${
         req.params.aid
     }'`

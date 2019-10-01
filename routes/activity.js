@@ -90,10 +90,6 @@ router.get('/:uid/activity/:aid', (req, res) => {
 })
 
 router.post('/:uid/activity', validateActivity, saveAudio, (req, res, next) => {
-    if (!validate.activity_record(req)) {
-        return res.status(400).send()
-    }
-
     let sql = `insert into activity(users_id, activity_type, time_started, data, tasks_id, time_ended, version, last_updated, uploaded) values 
             ('${req.params.uid}', '${req.body.activity_type}', '${req.body.time_started}', '${JSON.stringify(
         req.body.data

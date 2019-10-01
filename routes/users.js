@@ -131,12 +131,6 @@ router.post('/', validateNewUser, checkAuth, (req, res, next) => {
 
 // Update user
 router.put('/:id', checkAuth, (req, res, next) => {
-    if (!validate.update_user(req)) {
-        return res.status(400).send({
-            // TODO: check api key on validation
-            error: 'request is not validated. Email is required in every user put request'
-        })
-    }
     const current_time = (Date.now() / 1000) | 0
     db.serialize(() => {
         db.all(`select * from users where id = '${req.params.id}' limit 1`, (err, rows) => {
