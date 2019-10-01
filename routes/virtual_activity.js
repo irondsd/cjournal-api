@@ -2,11 +2,11 @@ const express = require('express')
 const router = express.Router()
 const sqlite = require('sqlite3')
 const db = new sqlite.Database('./db/trackers.db')
-const validate = require('../helpers/validate')
 let { timestamp } = require('../helpers/timestamp')
 let { taskMarkCompleted } = require('../helpers/taskMarkCompleted')
 const errors = require('../helpers/errors')
 const log = require('../helpers/logger')
+const validateActivity = require('../middleware/validateActivity')
 
 router.get('/:uid/virtual_activity', (req, res) => {
     let timeframe = ``
@@ -75,9 +75,7 @@ router.get('/:uid/virtual_activity/:aid', (req, res) => {
     })
 })
 
-router.post('/:uid/virtual_activity', (req, res) => {
-    // TODO: make virtua; activity validation
-
+router.post('/:uid/virtual_activity', validateActivity, (req, res, next) => {
     if (req.body.activity_id === 'undefined') delete req.body.activity_id
 
     if (req.body.activity_id) {
@@ -99,9 +97,7 @@ router.post('/:uid/virtual_activity', (req, res) => {
     }
 })
 
-router.put('/:uid/virtual_activity/:aid', (req, res) => {
-    // TODO: checks
-
+router.put('/:uid/virtual_activity/:aid', validateActivity, (req, res, next) => {
     if (req.body.activity_id === 'undefined') delete req.body.activity_id
 
     updateVirtualActivity(req, res)

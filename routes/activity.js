@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 const sqlite = require('sqlite3')
 const db = new sqlite.Database('./db/trackers.db')
-const validate = require('../helpers/validate')
+const validateActivity = require('../middleware/validateActivity')
 const { timestamp } = require('../helpers/timestamp')
 const { taskMarkCompleted } = require('../helpers/taskMarkCompleted')
 const { saveAudio } = require('../middleware/saveAudio')
@@ -49,7 +49,7 @@ router.get('/:uid/activity', (req, res) => {
             deleted +
             ` order by time_started desc limit ${page}, ${req.query.limit}`
     }
-    console.log(sql)
+    // console.log(sql)
     db.all(sql, function(err, rows) {
         if (err) {
             log(`get all activity internal error ${err}`)
@@ -89,7 +89,7 @@ router.get('/:uid/activity/:aid', (req, res) => {
     })
 })
 
-router.post('/:uid/activity', saveAudio, (req, res, next) => {
+router.post('/:uid/activity', validateActivity, saveAudio, (req, res, next) => {
     if (!validate.activity_record(req)) {
         return res.status(400).send()
     }
@@ -119,25 +119,14 @@ router.post('/:uid/activity', saveAudio, (req, res, next) => {
     })
 })
 
-router.put('/:uid/activity/:aid', saveAudio, (req, res, next) => {
-    if (!validate.activity_record(req)) {
-        return res.status(400).send({
-            error: 'Did not receive enough information',
-            example: {
-                activity_type: 'Walking',
-                data: '{ steps: 44, distance: 55.3, successful: true }',
-                time_started: 1552401333
-            }
-        })
-    }
-
+router.put('/:uid/activity/:aid', validateActivity, saveAudio, (req, res, next) => {
     let queryPreserve = `insert into activity (users_id, activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, data, deleted, version, uploaded) SELECT users_id, activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, data, 1, version, uploaded FROM activity where id = '${req.params.aid}'`
     db.run(queryPreserve, (err, rows) => {
         if (err) {
             log(`put preserve activity internal error ${err}`)
             return errors.internalError(res)
         } else {
-            console.log('preserved row')
+            // console.log('preserved row')
         }
     })
     let sql = `update activity set activity_type = '${req.body.activity_type}', time_started = '${
@@ -145,14 +134,14 @@ router.put('/:uid/activity/:aid', saveAudio, (req, res, next) => {
     }', time_ended = '${req.body.time_ended}', data = '${JSON.stringify(req.body.data)}', last_updated = '${
         req.params.last_updated
     }', ref_id = '${req.params.aid}', uploaded = '${timestamp()}' where id = ${req.params.aid}`
-    console.log(queryPreserve)
+    // console.log(queryPreserve)
     db.run(sql, function(err, rows) {
         if (err) {
             log(`put activity internal error ${err}`)
             return errors.internalError(res)
         } else {
             db.run(`update activity set ref_id = '${this.lastID}' where id = ${req.params.aid}`, (err, rows) => {
-                console.log('added ref id')
+                // console.log('added ref id')
             })
             let response = {
                 id: req.params.aid
