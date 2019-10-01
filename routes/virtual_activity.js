@@ -5,6 +5,8 @@ const db = new sqlite.Database('./db/trackers.db')
 const validate = require('../helpers/validate')
 let { timestamp } = require('../helpers/timestamp')
 let { taskMarkCompleted } = require('../helpers/taskMarkCompleted')
+const errors = require('../helpers/errors')
+const log = require('../helpers/logger')
 
 router.get('/:uid/virtual_activity', (req, res) => {
     let timeframe = ``
@@ -31,9 +33,8 @@ router.get('/:uid/virtual_activity', (req, res) => {
     console.log(sql)
     db.all(sql, function(err, rows) {
         if (err) {
-            res.status(500).send({
-                error: err
-            })
+            log(`virtual internal error ${err}`)
+            return errors.internalError(res)
         }
         if (Array.isArray(rows)) for (el of rows) el.id = 'v' + el.id
 
@@ -61,7 +62,8 @@ router.get('/:uid/virtual_activity/:aid', (req, res) => {
     console.log(query)
     db.all(query, (err, rows) => {
         if (err) {
-            return res.status(500).send(err)
+            log(`virtual internal error ${err}`)
+            return errors.internalError(res)
         }
         if (rows.length > 0) {
             for (el of rows) el.id = 'v' + el.id
@@ -81,11 +83,9 @@ router.post('/:uid/virtual_activity', (req, res) => {
         let check = `select id from virtual_activity where activity_id = '${req.body.activity_id}' and doctor_id = '${req.body.doctor_id}' and deleted = '0'`
         console.log(check)
         db.all(check, function(err, rows) {
-            console.log(rows)
             if (err) {
-                res.status(500).send({
-                    error: err
-                })
+                log(`virtual internal error ${err}`)
+                return errors.internalError(res)
             }
             if (rows[0]) {
                 return updateVirtualActivity(req, res)
@@ -117,7 +117,8 @@ function postVirtualActivity(req, res) {
     }')`
     db.run(sql, function(err, rows) {
         if (err) {
-            console.log(err)
+            log(`virtual internal error ${err}`)
+            return errors.internalError(res)
         } else {
             res.status(201).send({
                 id: this.lastID
@@ -145,7 +146,8 @@ function updateVirtualActivity(req, res) {
          activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, data, deleted, uploaded, set_deleted) SELECT activity_id, users_id, doctor_id, activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, data, 1, uploaded, set_deleted FROM virtual_activity where ${id_type} = '${id}' and doctor_id = ${req.body.doctor_id}`
     db.run(queryPreserve, (err, rows) => {
         if (err) {
-            console.log(err)
+            log(`virtual internal error ${err}`)
+            return errors.internalError(res)
         } else {
             let sql = `update virtual_activity set activity_type = '${req.body.activity_type}', time_started = '${
                 req.body.time_started
@@ -155,7 +157,7 @@ function updateVirtualActivity(req, res) {
                 req.body.set_deleted ? req.body.set_deleted : 0
             }' where ${id_type} = ${id}`
 
-            console.log(sql)
+            // console.log(sql)
             db.run(sql, function(err, rows) {
                 if (err) {
                     res.status(400).send({
@@ -183,9 +185,8 @@ router.delete('/:uid/virtual_activity/:aid', (req, res) => {
     console.log(sql)
     db.run(sql, function(err, rows) {
         if (err) {
-            res.status(400).send({
-                error: err
-            })
+            log(`virtual internal error ${err}`)
+            return errors.internalError(res)
         }
         if (this.changes) {
             res.status(200).send()

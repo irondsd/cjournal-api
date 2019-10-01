@@ -2,15 +2,16 @@ const express = require('express')
 const router = express.Router()
 const sqlite = require('sqlite3')
 const db = new sqlite.Database('./db/trackers.db')
+const errors = require('../helpers/errors')
+const log = require('../helpers/logger')
 
 router.get('/:id/patients', (req, res) => {
     query = 'select * from doctor where doctor_id = ' + req.params.id
     console.log(query)
     db.all(query, (err, rows) => {
         if (err) {
-            res.status(500).send({
-                error: err
-            })
+            log(`patients internal error ${err}`)
+            return errors.internalError(res)
         }
 
         let patient_ids = [
@@ -27,7 +28,10 @@ router.get('/:id/patients', (req, res) => {
                 prescriptions on users.id = prescriptions.users_id where users.id in (${patient_ids})`
         console.log(query)
         db.all(query, (err, rows) => {
-            if (err) return res.status(400).send({ error: err })
+            if (err) {
+                log(`patients internal error ${err}`)
+                return errors.internalError(res)
+            }
 
             res.send(rows)
         })
@@ -39,9 +43,8 @@ router.get('/:id/doctors', (req, res) => {
     console.log(query)
     db.all(query, (err, rows) => {
         if (err) {
-            res.status(500).send({
-                error: err
-            })
+            log(`patients internal error ${err}`)
+            return errors.internalError(res)
         }
 
         let doctor_ids = [
@@ -55,7 +58,10 @@ router.get('/:id/doctors', (req, res) => {
                 where users.id in (${doctor_ids})`
         console.log(query)
         db.all(query, (err, rows) => {
-            if (err) return res.status(400).send({ error: err })
+            if (err) {
+                log(`patients internal error ${err}`)
+                return errors.internalError(res)
+            }
 
             res.send(rows)
         })
@@ -83,7 +89,8 @@ router.post('/:id/patients', (req, res) => {
     console.log(query)
     db.run(query, function(err, rows) {
         if (err) {
-            console.log(err)
+            log(`patients internal error ${err}`)
+            return errors.internalError(res)
         } else {
             res.status(201).send()
         }
@@ -114,9 +121,8 @@ router.delete('/:id/patients', (req, res) => {
     console.log(sql)
     db.run(sql, (err, rows) => {
         if (err) {
-            res.status(400).send({
-                error: err
-            })
+            log(`patients internal error ${err}`)
+            return errors.internalError(res)
         } else {
             res.status(204).send(rows)
         }

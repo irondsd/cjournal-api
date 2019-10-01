@@ -1,5 +1,7 @@
 const jwt = require('jsonwebtoken')
 const { updateLastSeen } = require('../helpers/updateLastSeen')
+const errors = require('../helpers/errors')
+const log = require('../helpers/logger')
 
 module.exports = (req, res, next) => {
     try {
@@ -8,6 +10,7 @@ module.exports = (req, res, next) => {
         updateLastSeen(decoded.id)
         next()
     } catch (error) {
-        res.status(401).send({ error: 'unauthorized' })
+        log(`unsuccessful api key decode ${req.query.api_key}`)
+        errors.unauthorized(res)
     }
 }

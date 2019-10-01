@@ -2,6 +2,7 @@ const sqlite = require('sqlite3')
 const db = new sqlite.Database('./db/trackers.db')
 const bcrypt = require('bcryptjs')
 const log = require('../helpers/logger')
+const errors = require('../helpers/errors')
 
 module.exports = (req, res, next) => {
     if (req.body.email && req.body.password) {
@@ -15,7 +16,8 @@ where users.email = '${req.body.email}' limit 1`
         // console.log(query)
         db.all(query, (err, rows) => {
             if (err) {
-                res.status(500).send(err.keys)
+                log(`check login internal error ${err}`)
+                return errors.internalError(res)
             }
             if (rows[0]) {
                 hash = rows[0].password

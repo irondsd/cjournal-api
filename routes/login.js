@@ -3,7 +3,6 @@ const router = express.Router()
 const sqlite = require('sqlite3')
 const db = new sqlite.Database('./db/trackers.db')
 const validate = require('../helpers/validate')
-const log = require('../helpers/logger')
 const bcrypt = require('bcryptjs')
 const checkAuth = require('../middleware/checkAuth')
 const checkLogin = require('../middleware/checkLogin')
@@ -11,6 +10,8 @@ const jwt = require('jsonwebtoken')
 const QRCode = require('qrcode')
 const SimpleCrypto = require('simple-crypto-js').default
 const simpleCrypto = new SimpleCrypto(process.env.QR_KEY)
+const errors = require('../helpers/errors')
+const log = require('../helpers/logger')
 
 router.post('/login', checkLogin, (req, res, next) => {
     log(`user ${req.user.id} is successfully logged in`)
@@ -42,7 +43,8 @@ prescriptions on users.id = prescriptions.users_id
 where users.id = '${id}' limit 1`
     db.all(query, (err, rows) => {
         if (err) {
-            return res.status(500).send(err.keys)
+            log(`login internal error ${err}`)
+            return errors.internalError(res)
         }
         if (rows[0]) {
             log(`user ${req.decoded.id} generated qr for user ${rows[0].id}`)

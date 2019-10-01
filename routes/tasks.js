@@ -4,6 +4,8 @@ const sqlite = require('sqlite3')
 const db = new sqlite.Database('./db/trackers.db')
 const validate = require('../helpers/validate')
 let { timestamp } = require('../helpers/timestamp')
+const errors = require('../helpers/errors')
+const log = require('../helpers/logger')
 
 // TODO: possibly distinguish if there's no data or there is no user on get data request
 // TODO: better error managing i.e. send explataion with 404
@@ -35,9 +37,8 @@ router.get('/:uid/tasks', (req, res) => {
     console.log(sql)
     db.all(sql, (err, rows) => {
         if (err) {
-            res.status(500).send({
-                error: err
-            })
+            log(`tasks internal error ${err}`)
+            return errors.internalError(res)
         }
         res.send(rows)
     })
@@ -49,7 +50,8 @@ router.get('/:uid/tasks/:tid', (req, res) => {
     console.log(query)
     db.all(query, (err, rows) => {
         if (err) {
-            return res.status(500).send(err)
+            log(`tasks internal error ${err}`)
+            return errors.internalError(res)
         }
         if (rows.length > 0) {
             return res.send(rows[0])
@@ -70,7 +72,8 @@ router.post('/:id/tasks', (req, res) => {
     console.log(sql)
     db.run(sql, function(err, rows) {
         if (err) {
-            console.log(err)
+            log(`tasks internal error ${err}`)
+            return errors.internalError(res)
         } else {
             res.status(201).send({
                 id: this.lastID
@@ -95,7 +98,8 @@ router.put('/:uid/tasks/:aid', (req, res) => {
     }'`
     db.run(queryPreserve, (err, rows) => {
         if (err) {
-            console.log(err)
+            log(`tasks internal error ${err}`)
+            return errors.internalError(res)
         } else {
             console.log('preserved row')
         }
@@ -114,9 +118,8 @@ router.put('/:uid/tasks/:aid', (req, res) => {
     console.log(sql)
     db.run(sql, (err, rows) => {
         if (err) {
-            res.status(400).send({
-                error: err
-            })
+            log(`tasks internal error ${err}`)
+            return errors.internalError(res)
         } else {
             db.run(`update tasks set ref_id = '${this.lastID}' where id = ${req.params.aid}`, (err, rows) => {
                 console.log('added ref id')
@@ -136,9 +139,8 @@ router.delete('/:uid/tasks/:aid', (req, res) => {
     let sql = `update tasks set deleted = '1', last_updated = '${timestamp()}' where id = '${req.params.aid}'`
     db.run(sql, (err, rows) => {
         if (err) {
-            res.status(400).send({
-                error: err
-            })
+            log(`tasks internal error ${err}`)
+            return errors.internalError(res)
         } else {
             res.status(204).send(rows)
         }

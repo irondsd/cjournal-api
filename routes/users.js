@@ -3,9 +3,10 @@ const router = express.Router()
 const sqlite = require('sqlite3')
 const db = new sqlite.Database('./db/trackers.db')
 const validate = require('../helpers/validate')
-const log = require('../helpers/logger')
 const bcrypt = require('bcryptjs')
 const checkAuth = require('../middleware/checkAuth')
+const errors = require('../helpers/errors')
+const log = require('../helpers/logger')
 
 // Get all users
 router.get('/', checkAuth, (req, res, next) => {
@@ -19,8 +20,8 @@ prescriptions on users.id = prescriptions.users_id`
     // console.log(query)
     db.all(query, (err, rows) => {
         if (err) {
-            log(err)
-            res.status(500).send(err.keys)
+            log(`users internal error ${err}`)
+            return errors.internalError(res)
         }
         res.send(rows)
     })
@@ -40,7 +41,8 @@ where users.id = ` + req.params.id
     // console.log(query)
     db.all(query, (err, rows) => {
         if (err) {
-            return res.status(500).send(err)
+            log(`users internal error ${err}`)
+            return errors.internalError(res)
         }
         if (rows) {
             return res.send(rows[0])
@@ -54,7 +56,8 @@ router.delete('/:id', checkAuth, (req, res, next) => {
     log(`user ${req.decoded.id} deleted user ${req.params.id}`)
     db.run('delete from users where id = ' + req.params.id, function(err) {
         if (err) {
-            return res.status(500).send(err)
+            log(`users internal error ${err}`)
+            return errors.internalError(res)
         }
         if (this.changes) {
             // so if the device was actualy deleted, we need to clear prescritions data from prescritions table as well
@@ -83,9 +86,8 @@ router.post('/', checkAuth, (req, res, next) => {
     const current_time = (Date.now() / 1000) | 0
     db.all(`select exists (select 1 from users where email = '${req.body.email}' limit 1)`, function(err, rows) {
         if (err) {
-            res.status(500).send({
-                error: err
-            })
+            log(`users internal error ${err}`)
+            return errors.internalError(res)
         }
         if (rows[0][Object.keys(rows[0])[0]] === 1) {
             log(`user ${req.decoded.id} tried to post user with email ${req.body.email}`)
@@ -143,10 +145,8 @@ router.put('/:id', checkAuth, (req, res, next) => {
     db.serialize(() => {
         db.all(`select * from users where id = '${req.params.id}' limit 1`, (err, rows) => {
             if (err) {
-                log(err)
-                return res.status(400).send({
-                    error: err
-                })
+                log(`users internal error ${err}`)
+                return errors.internalError(res)
             } else {
                 log(`user ${req.decoded.id} updated user ${req.params.id}`)
                 let password_insert = ``
@@ -197,7 +197,8 @@ router.put('/:id', checkAuth, (req, res, next) => {
                         let id = this.lastID
                         db.run(query, function(err, rows) {
                             if (err) {
-                                return res.status(200).send(rows)
+                                log(`users internal error ${err}`)
+                                return errors.internalError(res)
                             } else {
                                 res.status(201).send(rows)
                             }

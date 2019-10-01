@@ -6,6 +6,8 @@ const validate = require('../helpers/validate')
 const { timestamp } = require('../helpers/timestamp')
 const { taskMarkCompleted } = require('../helpers/taskMarkCompleted')
 const { saveAudio } = require('../middleware/saveAudio')
+const errors = require('../helpers/errors')
+const log = require('../helpers/logger')
 
 router.get('/:uid/activity', (req, res) => {
     let timeframe = ``
@@ -50,9 +52,8 @@ router.get('/:uid/activity', (req, res) => {
     console.log(sql)
     db.all(sql, function(err, rows) {
         if (err) {
-            res.status(500).send({
-                error: err
-            })
+            log(`activity internal error ${err}`)
+            return errors.internalError(res)
         }
         res.send(rows)
     })
@@ -77,7 +78,8 @@ router.get('/:uid/activity/:aid', (req, res) => {
 
     db.all(query, (err, rows) => {
         if (err) {
-            return res.status(500).send(err)
+            log(`activity internal error ${err}`)
+            return errors.internalError(res)
         }
         if (rows.length > 0) {
             return res.send(rows[0])
@@ -102,14 +104,15 @@ router.post('/:uid/activity', saveAudio, (req, res, next) => {
     // console.log(sql)
     db.run(sql, function(err, rows) {
         if (err) {
-            console.log(err)
+            log(`activity internal error ${err}`)
+            return errors.internalError(res)
         } else {
             let response = {
                 id: this.lastID
             }
             if (req.file) response.audio = req.file.path
             res.status(201).send(response)
-            if (req.body.tasks_id && req.body.data.successful) {
+            if (req.body.tasks_id) {
                 taskMarkCompleted(req.body.tasks_id)
             }
         }
@@ -131,7 +134,8 @@ router.put('/:uid/activity/:aid', saveAudio, (req, res, next) => {
     let queryPreserve = `insert into activity (users_id, activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, data, deleted, version, uploaded) SELECT users_id, activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, data, 1, version, uploaded FROM activity where id = '${req.params.aid}'`
     db.run(queryPreserve, (err, rows) => {
         if (err) {
-            console.log(err)
+            log(`activity internal error ${err}`)
+            return errors.internalError(res)
         } else {
             console.log('preserved row')
         }
@@ -144,9 +148,8 @@ router.put('/:uid/activity/:aid', saveAudio, (req, res, next) => {
     console.log(queryPreserve)
     db.run(sql, function(err, rows) {
         if (err) {
-            res.status(400).send({
-                error: err
-            })
+            log(`activity internal error ${err}`)
+            return errors.internalError(res)
         } else {
             db.run(`update activity set ref_id = '${this.lastID}' where id = ${req.params.aid}`, (err, rows) => {
                 console.log('added ref id')
@@ -171,9 +174,8 @@ router.delete('/:uid/activity/:aid', (req, res) => {
     let sql = `update activity set deleted = '1', uploaded = '${timestamp()}' where id = '${req.params.aid}'`
     db.run(sql, function(err, rows) {
         if (err) {
-            res.status(400).send({
-                error: err
-            })
+            log(`activity internal error ${err}`)
+            return errors.internalError(res)
         }
         if (this.changes) {
             res.status(200).send()
