@@ -20,7 +20,7 @@ prescriptions on users.id = prescriptions.users_id`
     // console.log(query)
     db.all(query, (err, rows) => {
         if (err) {
-            log(`users internal error ${err}`)
+            log(`get all users internal error ${err}`)
             return errors.internalError(res)
         }
         res.send(rows)
@@ -47,7 +47,8 @@ where users.id = ` + req.params.id
         if (rows) {
             return res.send(rows[0])
         } else {
-            return res.status(404).send()
+            log(`get users id not found ${req.params.id}`)
+            return errors.notFound(res)
         }
     })
 })
@@ -70,7 +71,8 @@ router.delete('/:id', checkAuth, (req, res, next) => {
             // and finally return 204
             return res.status(204).send()
         } else {
-            return res.status(404).send()
+            log(`delete users id not found ${req.params.id}`)
+            return errors.notFound(res)
         }
     })
 })

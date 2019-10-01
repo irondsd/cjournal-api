@@ -52,7 +52,8 @@ where users.id = '${id}' limit 1`
             req.user.api_key = gen_api_key(req.user)
             generate_qr(req, res)
         } else {
-            return res.status(404).send()
+            log(`qr user not found ${id}`)
+            return errors.notFound(res)
         }
     })
 })
