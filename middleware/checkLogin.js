@@ -32,7 +32,7 @@ where users.email = '${req.body.email}' limit 1`
                 }
             } else {
                 log(`unknown user ${req.body.email} login attempt`)
-                res.status(404).send()
+                errors.notFound(res)
             }
         })
     } else {

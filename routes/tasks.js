@@ -7,9 +7,6 @@ let { timestamp } = require('../helpers/timestamp')
 const errors = require('../helpers/errors')
 const log = require('../helpers/logger')
 
-// TODO: possibly distinguish if there's no data or there is no user on get data request
-// TODO: better error managing i.e. send explataion with 404
-
 router.get('/:uid/tasks', (req, res) => {
     let timeframe = ``
     if (req.query.from) {
@@ -56,7 +53,8 @@ router.get('/:uid/tasks/:tid', (req, res) => {
         if (rows.length > 0) {
             return res.send(rows[0])
         } else {
-            return res.status(404).send()
+            log(`get tasks not found ${req.params.tid}`)
+            return errors.notFound(res)
         }
     })
 })

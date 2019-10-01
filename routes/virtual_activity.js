@@ -69,7 +69,8 @@ router.get('/:uid/virtual_activity/:aid', (req, res) => {
             for (el of rows) el.id = 'v' + el.id
             return res.send(rows[0])
         } else {
-            return res.status(404).send()
+            log(`get virtual id not found ${req.params.aid}`)
+            return errors.notFound(res)
         }
     })
 })
@@ -191,7 +192,8 @@ router.delete('/:uid/virtual_activity/:aid', (req, res) => {
         if (this.changes) {
             res.status(200).send()
         } else {
-            res.status(404).send(rows)
+            log(`delete virtual id not found ${req.params.id}`)
+            return errors.notFound(res)
         }
     })
 })

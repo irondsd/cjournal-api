@@ -44,7 +44,7 @@ where users.id = ` + req.params.id
             log(`users internal error ${err}`)
             return errors.internalError(res)
         }
-        if (rows) {
+        if (rows.length > 0) {
             return res.send(rows[0])
         } else {
             log(`get users id not found ${req.params.id}`)

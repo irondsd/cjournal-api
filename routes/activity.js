@@ -52,7 +52,7 @@ router.get('/:uid/activity', (req, res) => {
     console.log(sql)
     db.all(sql, function(err, rows) {
         if (err) {
-            log(`activity internal error ${err}`)
+            log(`get all activity internal error ${err}`)
             return errors.internalError(res)
         }
         res.send(rows)
@@ -78,13 +78,13 @@ router.get('/:uid/activity/:aid', (req, res) => {
 
     db.all(query, (err, rows) => {
         if (err) {
-            log(`activity internal error ${err}`)
+            log(`get id activity internal error ${err}`)
             return errors.internalError(res)
         }
         if (rows.length > 0) {
             return res.send(rows[0])
         } else {
-            return res.status(404).send()
+            return errors.notFound(res)
         }
     })
 })
@@ -104,7 +104,7 @@ router.post('/:uid/activity', saveAudio, (req, res, next) => {
     // console.log(sql)
     db.run(sql, function(err, rows) {
         if (err) {
-            log(`activity internal error ${err}`)
+            log(`post activity internal error ${err}`)
             return errors.internalError(res)
         } else {
             let response = {
@@ -134,7 +134,7 @@ router.put('/:uid/activity/:aid', saveAudio, (req, res, next) => {
     let queryPreserve = `insert into activity (users_id, activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, data, deleted, version, uploaded) SELECT users_id, activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, data, 1, version, uploaded FROM activity where id = '${req.params.aid}'`
     db.run(queryPreserve, (err, rows) => {
         if (err) {
-            log(`activity internal error ${err}`)
+            log(`put preserve activity internal error ${err}`)
             return errors.internalError(res)
         } else {
             console.log('preserved row')
@@ -148,7 +148,7 @@ router.put('/:uid/activity/:aid', saveAudio, (req, res, next) => {
     console.log(queryPreserve)
     db.run(sql, function(err, rows) {
         if (err) {
-            log(`activity internal error ${err}`)
+            log(`put activity internal error ${err}`)
             return errors.internalError(res)
         } else {
             db.run(`update activity set ref_id = '${this.lastID}' where id = ${req.params.aid}`, (err, rows) => {
@@ -174,13 +174,13 @@ router.delete('/:uid/activity/:aid', (req, res) => {
     let sql = `update activity set deleted = '1', uploaded = '${timestamp()}' where id = '${req.params.aid}'`
     db.run(sql, function(err, rows) {
         if (err) {
-            log(`activity internal error ${err}`)
+            log(`delete activity internal error ${err}`)
             return errors.internalError(res)
         }
         if (this.changes) {
             res.status(200).send()
         } else {
-            res.status(404).send(rows)
+            errors.notFound(res)
         }
     })
 })
