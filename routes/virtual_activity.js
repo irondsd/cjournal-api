@@ -161,9 +161,8 @@ function updateVirtualActivity(req, res) {
             // console.log(sql)
             db.run(sql, function(err, rows) {
                 if (err) {
-                    res.status(400).send({
-                        error: err
-                    })
+                    log(`put virtual internal error ${err}`)
+                    return errors.internalError(res)
                 } else {
                     db.run(
                         `update virtual_activity set ref_id = '${this.lastID}' where activity_id = ${id}`,

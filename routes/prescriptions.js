@@ -46,9 +46,7 @@ router.put('/:id/prescriptions/', (req, res) => {
 
 router.delete('/:uid/tasks/:aid', (req, res) => {
     if (!req.params.aid) {
-        return res.status(400).send({
-            error: 'Did not receive enough information'
-        })
+        return errors.incompleteInput(res)
     }
 
     let sql = `update tasks set deleted = '1', last_updated = '${timestamp()}' where id = '${req.params.aid}'`

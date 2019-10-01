@@ -70,9 +70,7 @@ router.get('/:id/doctors', (req, res) => {
 
 router.post('/:id/patients', (req, res) => {
     if (!req.body.patient_id) {
-        res.status(400).send({
-            error: 'patient_id is not included in the body'
-        })
+        return errors.incompleteInput(res)
     }
     let values = ''
     if (Array.isArray(req.body.patient_id)) {
@@ -99,9 +97,7 @@ router.post('/:id/patients', (req, res) => {
 
 router.delete('/:id/patients', (req, res) => {
     if (!req.body.patient_id) {
-        res.status(400).send({
-            error: 'patient_id is not included in the body'
-        })
+        return errors.incompleteInput(res)
     }
 
     let patients = ''

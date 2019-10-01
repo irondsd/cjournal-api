@@ -164,13 +164,6 @@ router.put('/:uid/activity/:aid', saveAudio, (req, res, next) => {
 })
 
 router.delete('/:uid/activity/:aid', (req, res) => {
-    if (false) {
-        //validate api_key
-        return res.status(400).send({
-            error: 'Internal error'
-        })
-    }
-
     let sql = `update activity set deleted = '1', uploaded = '${timestamp()}' where id = '${req.params.aid}'`
     db.run(sql, function(err, rows) {
         if (err) {

@@ -93,9 +93,7 @@ router.post('/', checkAuth, (req, res, next) => {
         }
         if (rows[0][Object.keys(rows[0])[0]] === 1) {
             log(`user ${req.decoded.id} tried to post user with email ${req.body.email}`)
-            return res.status(409).send({
-                error: 'user with email is already registered'
-            })
+            return errors.userExists(res)
         } else {
             let salt = bcrypt.genSaltSync(10)
             let hash = bcrypt.hashSync(req.body.password, salt)
@@ -109,9 +107,8 @@ router.post('/', checkAuth, (req, res, next) => {
             console.log(query)
             db.run(query, function(err, rows) {
                 if (err) {
-                    res.status(400).send({
-                        error: err
-                    })
+                    log(`post users internal error ${err}`)
+                    return errors.internalError(res)
                 } else {
                     log(`user ${req.decoded.id} posted user with email ${req.body.email}`)
                     let query = `insert into prescriptions(users_id, course_therapy, relief_of_attack, tests) values ('${this.lastID}', '${req.body.course_therapy}', '${req.body.relief_of_attack}', '${req.body.tests}')`
@@ -120,9 +117,8 @@ router.post('/', checkAuth, (req, res, next) => {
                         if (err) {
                             // to make sure it'll be deleted in case something goes wrong here
                             db.run('delete from users where id = ' + id)
-                            res.status(400).send({
-                                error: err
-                            })
+                            log(`need inspection users line 120: ${query}`)
+                            return errors.internalError(res)
                         } else {
                             res.status(201).send({
                                 id: id
@@ -162,10 +158,8 @@ router.put('/:id', checkAuth, (req, res, next) => {
                             password_insert = ` password = '${hash}',`
                         }
                     } else {
-                        res.status(400).send({
-                            error: 'wrong password'
-                        })
-                        return
+                        log(`put users wrong password`)
+                        errors.wrongPassword(res)
                     }
                 }
 
@@ -186,13 +180,12 @@ router.put('/:id', checkAuth, (req, res, next) => {
                 console.log(query)
                 db.all(query, (err, rows) => {
                     if (err) {
-                        if (err.errno === 19)
-                            return res.status(400).send({
-                                error: 'This email is already used'
-                            })
-                        return res.status(400).send({
-                            error: err
-                        })
+                        if (err.errno === 19) {
+                            log(`put users error email exists ${req.body.email}`)
+                            return errors.userExists(res)
+                        }
+                        log(`need inspection users line 187 error`)
+                        return errors.internalError(res)
                     } else {
                         // edit prescriptions
                         let query = `update prescriptions set course_therapy = '${course_therapy}', relief_of_attack = '${relief_of_attack}', tests = '${tests}' where users_id = ${req.params.id}`

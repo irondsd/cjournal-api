@@ -26,9 +26,7 @@ where users.email = '${req.body.email}' limit 1`
                     next()
                 } else {
                     log(`user ${req.body.email} failed login attempt`)
-                    res.status(403).send({
-                        error: 'wrong password'
-                    })
+                    return errors.wrongPassword(res)
                 }
             } else {
                 log(`unknown user ${req.body.email} login attempt`)
@@ -36,8 +34,7 @@ where users.email = '${req.body.email}' limit 1`
             }
         })
     } else {
-        res.status(400).send({
-            error: 'no email or no password received'
-        })
+        log(`failed login attempt incomplete input`)
+        errors.incompleteInput(res)
     }
 }
