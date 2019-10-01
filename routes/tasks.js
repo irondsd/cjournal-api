@@ -2,10 +2,10 @@ const express = require('express')
 const router = express.Router()
 const sqlite = require('sqlite3')
 const db = new sqlite.Database('./db/trackers.db')
-const validate = require('../helpers/validate')
 let { timestamp } = require('../helpers/timestamp')
 const errors = require('../helpers/errors')
 const log = require('../helpers/logger')
+const validateTask = require('../middleware/validateTask')
 
 router.get('/:uid/tasks', (req, res) => {
     let timeframe = ``
@@ -59,7 +59,7 @@ router.get('/:uid/tasks/:tid', (req, res) => {
     })
 })
 
-router.post('/:id/tasks', (req, res) => {
+router.post('/:id/tasks', validateTask, (req, res, next) => {
     if (!validate.task_record(req)) {
         return res.status(400).send({ error: 'Not enough data' })
     }
@@ -80,7 +80,7 @@ router.post('/:id/tasks', (req, res) => {
     })
 })
 
-router.put('/:uid/tasks/:aid', (req, res) => {
+router.put('/:uid/tasks/:aid', validateTask, (req, res, next) => {
     if (!validate.task_record(req)) {
         return res.status(400).send({
             error: 'Did not receive enough information',
@@ -99,7 +99,7 @@ router.put('/:uid/tasks/:aid', (req, res) => {
             log(`tasks internal error ${err}`)
             return errors.internalError(res)
         } else {
-            console.log('preserved row')
+            // console.log('preserved row')
         }
     })
 
@@ -113,14 +113,14 @@ router.put('/:uid/tasks/:aid', (req, res) => {
             req.params.aid
         }' where id = ${req.params.aid}`
     }
-    console.log(sql)
+    // console.log(sql)
     db.run(sql, (err, rows) => {
         if (err) {
             log(`tasks internal error ${err}`)
             return errors.internalError(res)
         } else {
             db.run(`update tasks set ref_id = '${this.lastID}' where id = ${req.params.aid}`, (err, rows) => {
-                console.log('added ref id')
+                // console.log('added ref id')
             })
             res.status(201).send(rows)
         }
