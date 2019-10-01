@@ -7,7 +7,7 @@ const log = require('../helpers/logger')
 
 router.get('/:id/prescriptions', (req, res) => {
     query = 'select * from prescriptions where users_id = ' + req.params.id
-    console.log(query)
+    // console.log(query)
     db.all(query, (err, rows) => {
         if (err) {
             log(`prescriptions internal error ${err}`)
@@ -20,7 +20,7 @@ router.get('/:id/prescriptions', (req, res) => {
 router.post('/:id/prescriptions', (req, res) => {
     query = `insert into prescriptions(users_id, course_therapy, relief_of_attack, tests) values 
             ('${req.params.id}', '${req.body.course_therapy}', '${req.body.relief_of_attack}', '${req.body.tests}')`
-    console.log(query)
+    // console.log(query)
     db.run(query, function(err, rows) {
         if (err) {
             log(`prescriptions internal error ${err}`)
@@ -33,7 +33,7 @@ router.post('/:id/prescriptions', (req, res) => {
 
 router.put('/:id/prescriptions/', (req, res) => {
     query = `update prescriptions set course_therapy = '${req.body.course_therapy}', relief_of_attack = '${req.body.relief_of_attack}', tests = '${req.body.tests}' where users_id = '${req.params.id}'`
-    console.log(query)
+    // console.log(query)
     db.run(query, function(err, rows) {
         if (err) {
             log(`prescriptions internal error ${err}`)

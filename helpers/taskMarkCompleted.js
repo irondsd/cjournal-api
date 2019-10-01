@@ -1,17 +1,18 @@
 let { timestamp } = require('./timestamp')
 const sqlite = require('sqlite3')
 const db = new sqlite.Database('./db/trackers.db')
+const log = require('../helpers/logger')
 
 function taskMarkCompleted(tasks_id) {
     let sql = `update tasks set completed = '1', last_updated = '${timestamp()}' where id = ${tasks_id}`
     db.run(sql, function(err) {
         if (err) {
-            console.log(err)
+            log(`internal error task mark completed need inspection ${err}`)
         }
         if (this.changes) {
-            console.log(`marked task ${tasks_id} as completed`)
+            log(`marked task ${tasks_id} as completed`)
         } else {
-            console.log('whatever')
+            log(`task mark completed unchanged may need inspection`)
         }
     })
 }

@@ -270,7 +270,7 @@ if (populate) {
             console.log(records)
         })
 
-        console.log(`Sucessfully created the database with tables and populated each table it with 3 sample records`)
+        log(`Sucessfully created the database`)
     }
 }
 
