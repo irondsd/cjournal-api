@@ -30,7 +30,7 @@ router.get('/:uid/virtual_activity', (req, res) => {
         deleted +
         doctor_id
 
-    console.log(sql)
+    // console.log(sql)
     db.all(sql, function(err, rows) {
         if (err) {
             log(`virtual internal error ${err}`)
@@ -59,7 +59,7 @@ router.get('/:uid/virtual_activity/:aid', (req, res) => {
         query = `select id, activity_id, users_id, doctor_id, activity_type, time_started, time_ended, tasks_id, data${uploaded}, set_deleted from virtual_activity where id = ${req.params.aid.substring(
             1
         )} and users_id = ${req.params.uid}${deleted} ${doctor_id}`
-    console.log(query)
+    // console.log(query)
     db.all(query, (err, rows) => {
         if (err) {
             log(`virtual internal error ${err}`)
@@ -80,7 +80,7 @@ router.post('/:uid/virtual_activity', validateActivity, (req, res, next) => {
 
     if (req.body.activity_id) {
         let check = `select id from virtual_activity where activity_id = '${req.body.activity_id}' and doctor_id = '${req.body.doctor_id}' and deleted = '0'`
-        console.log(check)
+        // console.log(check)
         db.all(check, function(err, rows) {
             if (err) {
                 log(`virtual internal error ${err}`)
@@ -163,7 +163,7 @@ function updateVirtualActivity(req, res) {
                     db.run(
                         `update virtual_activity set ref_id = '${this.lastID}' where activity_id = ${id}`,
                         (err, rows) => {
-                            console.log('added ref id')
+                            // console.log('added ref id')
                         }
                     )
                     res.status(201).send({ id: req.body.activity_id })
@@ -178,7 +178,7 @@ router.delete('/:uid/virtual_activity/:aid', (req, res) => {
 
     if (req.params.aid.includes('v'))
         sql = `update virtual_activity set deleted = '1' where id = '${req.params.aid.substring(1)}'`
-    console.log(sql)
+    // console.log(sql)
     db.run(sql, function(err, rows) {
         if (err) {
             log(`virtual internal error ${err}`)

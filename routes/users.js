@@ -65,7 +65,7 @@ router.delete('/:id', checkAuth, (req, res, next) => {
             // so if the device was actualy deleted, we need to clear prescritions data from prescritions table as well
             db.run('delete from prescriptions where users_id = ' + req.params.id, function(err) {
                 if (err) {
-                    console.log(err)
+                    log(`error delete users need inspection ${err}`)
                 }
             })
 
@@ -102,7 +102,7 @@ router.post('/', validateNewUser, checkAuth, (req, res, next) => {
             }', '${req.body.birthday}', '${req.body.gender}', '${req.body.email}', '${hash}', '${
                 req.body.device_type
             }', '${timestamp()}', '${information}', '${hide_elements}', '${language}', '${permissions}')`
-            console.log(query)
+            // console.log(query)
             db.run(query, function(err, rows) {
                 if (err) {
                     log(`post users internal error ${err}`)
@@ -175,7 +175,7 @@ router.put('/:id', checkAuth, (req, res, next) => {
                 let tests = req.body.tests ? req.body.tests : rows[0].tests
 
                 let query = `update users set name = '${name}', birthday = '${birthday}', gender = '${gender}', email = '${req.body.email}', ${password_insert} device_type = '${device_type}', last_seen = '${current_time}', information = '${information}', hide_elements = '${hide_elements}', language = '${language}', permissions= '${permissions}' where id = ${req.params.id}`
-                console.log(query)
+                // console.log(query)
                 db.all(query, (err, rows) => {
                     if (err) {
                         if (err.errno === 19) {

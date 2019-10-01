@@ -31,7 +31,7 @@ router.get('/:uid/tasks', (req, res) => {
         deleted
 
     // sql = 'select * from tasks where users_id = ' + req.params.uid + ' ' + timeframe + completed
-    console.log(sql)
+    // console.log(sql)
     db.all(sql, (err, rows) => {
         if (err) {
             log(`tasks internal error ${err}`)
@@ -44,7 +44,7 @@ router.get('/:uid/tasks', (req, res) => {
 router.get('/:uid/tasks/:tid', (req, res) => {
     query = `select id, users_id, activity_type, time, last_updated, ref_id, completed, deleted, data from tasks where id = ${req.params.tid} and users_id = ${req.params.uid}`
 
-    console.log(query)
+    // console.log(query)
     db.all(query, (err, rows) => {
         if (err) {
             log(`tasks internal error ${err}`)
@@ -67,7 +67,7 @@ router.post('/:id/tasks', validateTask, (req, res, next) => {
             ('${req.params.id}', '${req.body.activity_type}', '${
         req.body.time
     }', '0', '${timestamp()}', '${JSON.stringify(req.body.data)}')`
-    console.log(sql)
+    // console.log(sql)
     db.run(sql, function(err, rows) {
         if (err) {
             log(`tasks internal error ${err}`)
