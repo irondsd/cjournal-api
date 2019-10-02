@@ -22,6 +22,12 @@ where users.email = '${req.body.email}' limit 1`
             if (rows[0]) {
                 hash = rows[0].password
                 if (bcrypt.compareSync(req.body.password, hash)) {
+                    for (el of rows) {
+                        el.hide_elements = JSON.parse(el.hide_elements)
+                        el.course_therapy = JSON.parse(el.course_therapy)
+                        el.relief_of_attack = JSON.parse(el.relief_of_attack)
+                        el.tests = JSON.parse(el.tests)
+                    }
                     req.user = rows[0]
                     next()
                 } else {

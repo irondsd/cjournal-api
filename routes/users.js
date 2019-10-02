@@ -24,6 +24,16 @@ prescriptions on users.id = prescriptions.users_id`
             log(`get all users internal error ${err}`)
             return errors.internalError(res)
         }
+
+        if (Array.isArray(rows)) {
+            for (el of rows) {
+                el.hide_elements = JSON.parse(el.hide_elements)
+                el.course_therapy = JSON.parse(el.course_therapy)
+                el.relief_of_attack = JSON.parse(el.relief_of_attack)
+                el.tests = JSON.parse(el.tests)
+            }
+        }
+
         res.send(rows)
     })
 })
@@ -46,6 +56,12 @@ where users.id = ` + req.params.id
             return errors.internalError(res)
         }
         if (rows.length > 0) {
+            for (el of rows) {
+                el.hide_elements = JSON.parse(el.hide_elements)
+                el.course_therapy = JSON.parse(el.course_therapy)
+                el.relief_of_attack = JSON.parse(el.relief_of_attack)
+                el.tests = JSON.parse(el.tests)
+            }
             return res.send(rows[0])
         } else {
             log(`get users id not found ${req.params.id}`)
@@ -94,14 +110,16 @@ router.post('/', validateNewUser, checkAuth, (req, res, next) => {
 
             let permissions = req.body.permissions ? req.body.permissions : 1
             let information = req.body.information ? req.body.information : ''
-            let hide_elements = req.body.hide_elements ? req.body.hide_elements : null
+            let hide_elements = req.body.hide_elements ? req.body.hide_elements : []
             let language = req.body.language ? req.body.language : 'en'
 
             let query = `INSERT INTO users(name, birthday, gender, email, password, device_type, last_seen, information, hide_elements, language, permissions) VALUES ('${
                 req.body.name
             }', '${req.body.birthday}', '${req.body.gender}', '${req.body.email}', '${hash}', '${
                 req.body.device_type
-            }', '${timestamp()}', '${information}', '${hide_elements}', '${language}', '${permissions}')`
+            }', '${timestamp()}', '${information}', '${JSON.stringify(
+                hide_elements
+            )}', '${language}', '${permissions}')`
             // console.log(query)
             db.run(query, function(err, rows) {
                 if (err) {
@@ -109,7 +127,11 @@ router.post('/', validateNewUser, checkAuth, (req, res, next) => {
                     return errors.internalError(res)
                 } else {
                     log(`user ${req.decoded.id} posted user with email ${req.body.email}`)
-                    let query = `insert into prescriptions(users_id, course_therapy, relief_of_attack, tests) values ('${this.lastID}', '${req.body.course_therapy}', '${req.body.relief_of_attack}', '${req.body.tests}')`
+                    let query = `insert into prescriptions(users_id, course_therapy, relief_of_attack, tests) values ('${
+                        this.lastID
+                    }', '${JSON.stringify(req.body.course_therapy)}', '${JSON.stringify(
+                        req.body.relief_of_attack
+                    )}', '${JSON.stringify(req.body.tests)}')`
                     let id = this.lastID
                     db.run(query, function(err, rows) {
                         if (err) {
@@ -168,7 +190,11 @@ router.put('/:id', checkAuth, (req, res, next) => {
                 let relief_of_attack = req.body.relief_of_attack ? req.body.relief_of_attack : rows[0].relief_of_attack
                 let tests = req.body.tests ? req.body.tests : rows[0].tests
 
-                let query = `update users set name = '${name}', birthday = '${birthday}', gender = '${gender}', email = '${req.body.email}', ${password_insert} device_type = '${device_type}', last_seen = '${current_time}', information = '${information}', hide_elements = '${hide_elements}', language = '${language}', permissions= '${permissions}' where id = ${req.params.id}`
+                let query = `update users set name = '${name}', birthday = '${birthday}', gender = '${gender}', email = '${
+                    req.body.email
+                }', ${password_insert} device_type = '${device_type}', last_seen = '${current_time}', information = '${information}', hide_elements = '${JSON.stringify(
+                    hide_elements
+                )}', language = '${language}', permissions= '${permissions}' where id = ${req.params.id}`
                 // console.log(query)
                 db.all(query, (err, rows) => {
                     if (err) {
@@ -180,7 +206,11 @@ router.put('/:id', checkAuth, (req, res, next) => {
                         return errors.internalError(res)
                     } else {
                         // edit prescriptions
-                        let query = `update prescriptions set course_therapy = '${course_therapy}', relief_of_attack = '${relief_of_attack}', tests = '${tests}' where users_id = ${req.params.id}`
+                        let query = `update prescriptions set course_therapy = '${JSON.stringify(
+                            course_therapy
+                        )}', relief_of_attack = '${JSON.stringify(relief_of_attack)}', tests = '${JSON.stringify(
+                            tests
+                        )}' where users_id = ${req.params.id}`
                         let id = this.lastID
                         db.run(query, function(err, rows) {
                             if (err) {
