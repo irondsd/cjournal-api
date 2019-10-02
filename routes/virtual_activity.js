@@ -37,8 +37,9 @@ router.get('/:uid/virtual_activity', (req, res) => {
             return errors.internalError(res)
         }
         if (Array.isArray(rows)) for (el of rows) el.id = 'v' + el.id
+        if (Array.isArray(rows)) for (el of rows) el.data = JSON.parse(el.data)
 
-        res.send(rows)
+        return res.send(rows)
     })
 })
 
@@ -67,6 +68,7 @@ router.get('/:uid/virtual_activity/:aid', (req, res) => {
         }
         if (rows.length > 0) {
             for (el of rows) el.id = 'v' + el.id
+            for (el of rows) el.data = JSON.parse(el.data)
             return res.send(rows[0])
         } else {
             log(`get virtual id not found ${req.params.aid}`)

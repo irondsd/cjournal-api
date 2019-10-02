@@ -37,14 +37,10 @@ router.get('/:uid/tasks', (req, res) => {
             log(`tasks internal error ${err}`)
             return errors.internalError(res)
         }
-        if (rows.length > 0) {
-            rows.map(item => {
-                return (item.data = JSON.parse(item.data))
-            })
-            res.send(rows)
-        } else {
-            res.send([])
-        }
+
+        if (Array.isArray(rows)) for (el of rows) el.data = JSON.parse(el.data)
+
+        res.send(rows)
     })
 })
 
@@ -58,9 +54,7 @@ router.get('/:uid/tasks/:tid', (req, res) => {
             return errors.internalError(res)
         }
         if (rows.length > 0) {
-            rows.map(item => {
-                return (item.data = JSON.parse(item.data))
-            })
+            for (el of rows) el.data = JSON.parse(el.data)
             return res.send(rows[0])
         } else {
             log(`get tasks not found ${req.params.tid}`)
