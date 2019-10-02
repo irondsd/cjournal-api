@@ -37,7 +37,14 @@ router.get('/:uid/tasks', (req, res) => {
             log(`tasks internal error ${err}`)
             return errors.internalError(res)
         }
-        res.send(rows)
+        if (rows.length > 0) {
+            rows.map(item => {
+                return (item.data = JSON.parse(item.data))
+            })
+            res.send(rows)
+        } else {
+            res.send([])
+        }
     })
 })
 
@@ -51,6 +58,9 @@ router.get('/:uid/tasks/:tid', (req, res) => {
             return errors.internalError(res)
         }
         if (rows.length > 0) {
+            rows.map(item => {
+                return (item.data = JSON.parse(item.data))
+            })
             return res.send(rows[0])
         } else {
             log(`get tasks not found ${req.params.tid}`)
@@ -120,6 +130,23 @@ router.delete('/:uid/tasks/:aid', (req, res) => {
     }
 
     let sql = `update tasks set deleted = '1', last_updated = '${timestamp()}' where id = '${req.params.aid}'`
+    db.run(sql, (err, rows) => {
+        if (err) {
+            log(`tasks internal error ${err}`)
+            return errors.internalError(res)
+        } else {
+            res.status(204).send(rows)
+        }
+    })
+})
+
+// undelete
+router.patch('/:uid/tasks/:aid', (req, res) => {
+    if (!req.params.aid) {
+        return errors.incompleteInput(res)
+    }
+
+    let sql = `update tasks set deleted = '0', last_updated = '${timestamp()}' where id = '${req.params.aid}'`
     db.run(sql, (err, rows) => {
         if (err) {
             log(`tasks internal error ${err}`)
