@@ -55,7 +55,14 @@ router.get('/:uid/activity', (req, res) => {
             log(`get all activity internal error ${err}`)
             return errors.internalError(res)
         }
-        res.send(rows)
+        if (rows.length > 0) {
+            rows.map(item => {
+                return (item.data = JSON.parse(item.data))
+            })
+            res.send(rows)
+        } else {
+            res.send([])
+        }
     })
 })
 
@@ -82,6 +89,9 @@ router.get('/:uid/activity/:aid', (req, res) => {
             return errors.internalError(res)
         }
         if (rows.length > 0) {
+            rows.map(item => {
+                return (item.data = JSON.parse(item.data))
+            })
             return res.send(rows[0])
         } else {
             return errors.notFound(res)
