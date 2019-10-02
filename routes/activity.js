@@ -163,6 +163,22 @@ router.delete('/:uid/activity/:aid', (req, res) => {
     })
 })
 
+// undelete
+router.patch('/:uid/activity/:aid', (req, res) => {
+    let sql = `update activity set deleted = '0', uploaded = '${timestamp()}' where id = '${req.params.aid}'`
+    db.run(sql, function(err, rows) {
+        if (err) {
+            log(`undelete activity internal error ${err}`)
+            return errors.internalError(res)
+        }
+        if (this.changes) {
+            res.status(200).send()
+        } else {
+            errors.notFound(res)
+        }
+    })
+})
+
 // Put request is to add the data and can be done only by the user. No doctor or admin can change the original information
 // All the changes should be made in virtual activity
 

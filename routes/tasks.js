@@ -132,7 +132,7 @@ router.delete('/:uid/tasks/:aid', (req, res) => {
     let sql = `update tasks set deleted = '1', last_updated = '${timestamp()}' where id = '${req.params.aid}'`
     db.run(sql, (err, rows) => {
         if (err) {
-            log(`tasks internal error ${err}`)
+            log(`delete tasks internal error ${err}`)
             return errors.internalError(res)
         } else {
             res.status(204).send(rows)
@@ -149,7 +149,7 @@ router.patch('/:uid/tasks/:aid', (req, res) => {
     let sql = `update tasks set deleted = '0', last_updated = '${timestamp()}' where id = '${req.params.aid}'`
     db.run(sql, (err, rows) => {
         if (err) {
-            log(`tasks internal error ${err}`)
+            log(`undelete tasks internal error ${err}`)
             return errors.internalError(res)
         } else {
             res.status(204).send(rows)

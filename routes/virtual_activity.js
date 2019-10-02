@@ -193,4 +193,24 @@ router.delete('/:uid/virtual_activity/:aid', (req, res) => {
     })
 })
 
+router.patch('/:uid/virtual_activity/:aid', (req, res) => {
+    let sql = `update virtual_activity set deleted = '0' where activity_id = '${req.params.aid}'`
+
+    if (req.params.aid.includes('v'))
+        sql = `update virtual_activity set deleted = '0' where id = '${req.params.aid.substring(1)}'`
+    // console.log(sql)
+    db.run(sql, function(err, rows) {
+        if (err) {
+            log(`virtual internal error ${err}`)
+            return errors.internalError(res)
+        }
+        if (this.changes) {
+            res.status(200).send()
+        } else {
+            log(`delete virtual id not found ${req.params.id}`)
+            return errors.notFound(res)
+        }
+    })
+})
+
 module.exports = router
