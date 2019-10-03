@@ -35,7 +35,7 @@ router.get('/:uid/activity', (req, res) => {
     let page = ``
 
     sql =
-        `select id, users_id, activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, data${uploaded}${version} from activity where users_id = ` +
+        `select id, users_id, activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, comment, data${uploaded}${version} from activity where users_id = ` +
         req.params.uid +
         timeframe +
         deleted
@@ -43,7 +43,7 @@ router.get('/:uid/activity', (req, res) => {
         let page = 0
         if (req.query.page) page = req.query.page * req.query.limit
         sql =
-            `select id, users_id, activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, data${uploaded}${version} from activity where users_id = ` +
+            `select id, users_id, activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, comment, data${uploaded}${version} from activity where users_id = ` +
             req.params.uid +
             timeframe +
             deleted +
@@ -76,7 +76,7 @@ router.get('/:uid/activity/:aid', (req, res) => {
     } else if (req.query.deleted == 'all') {
         deleted = ''
     }
-    query = `select id, users_id, activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, data${uploaded}${version} from activity where id = ${req.params.aid} and users_id = ${req.params.uid}${deleted}`
+    query = `select id, users_id, activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, comment, data${uploaded}${version} from activity where id = ${req.params.aid} and users_id = ${req.params.uid}${deleted}`
 
     db.all(query, (err, rows) => {
         if (err) {
@@ -93,12 +93,12 @@ router.get('/:uid/activity/:aid', (req, res) => {
 })
 
 router.post('/:uid/activity', validateActivity, saveAudio, (req, res, next) => {
-    let sql = `insert into activity(users_id, activity_type, time_started, data, tasks_id, time_ended, version, last_updated, uploaded) values 
-            ('${req.params.uid}', '${req.body.activity_type}', '${req.body.time_started}', '${JSON.stringify(
-        req.body.data
-    )}', '${req.body.tasks_id ? req.body.tasks_id : null}', '${req.body.time_ended ? req.body.time_ended : null}', '${
-        req.body.version ? req.body.version : null
-    }', '${req.body.last_updated}', '${timestamp()}')`
+    let sql = `insert into activity(users_id, activity_type, time_started, comment, data, tasks_id, time_ended, version, last_updated, uploaded) values 
+            ('${req.params.uid}', '${req.body.activity_type}', '${req.body.time_started}', '${
+        req.body.comment
+    }', '${JSON.stringify(req.body.data)}', '${req.body.tasks_id ? req.body.tasks_id : null}', '${
+        req.body.time_ended ? req.body.time_ended : null
+    }', '${req.body.version ? req.body.version : null}', '${req.body.last_updated}', '${timestamp()}')`
 
     // console.log(sql)
     db.run(sql, function(err, rows) {
@@ -119,7 +119,7 @@ router.post('/:uid/activity', validateActivity, saveAudio, (req, res, next) => {
 })
 
 router.put('/:uid/activity/:aid', validateActivity, saveAudio, (req, res, next) => {
-    let queryPreserve = `insert into activity (users_id, activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, data, deleted, version, uploaded) SELECT users_id, activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, data, 1, version, uploaded FROM activity where id = '${req.params.aid}'`
+    let queryPreserve = `insert into activity (users_id, activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, comment, data, deleted, version, uploaded) SELECT users_id, activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, comment, data, 1, version, uploaded FROM activity where id = '${req.params.aid}'`
     db.run(queryPreserve, (err, rows) => {
         if (err) {
             log(`put preserve activity internal error ${err}`)
@@ -130,9 +130,11 @@ router.put('/:uid/activity/:aid', validateActivity, saveAudio, (req, res, next) 
     })
     let sql = `update activity set activity_type = '${req.body.activity_type}', time_started = '${
         req.body.time_started
-    }', time_ended = '${req.body.time_ended}', data = '${JSON.stringify(req.body.data)}', last_updated = '${
-        req.params.last_updated
-    }', ref_id = '${req.params.aid}', uploaded = '${timestamp()}' where id = ${req.params.aid}`
+    }', time_ended = '${req.body.time_ended}', comment = '${req.body.comment}', data = '${JSON.stringify(
+        req.body.data
+    )}', last_updated = '${req.params.last_updated}', ref_id = '${
+        req.params.aid
+    }', uploaded = '${timestamp()}' where id = ${req.params.aid}`
     // console.log(queryPreserve)
     db.run(sql, function(err, rows) {
         if (err) {
