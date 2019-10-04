@@ -10,10 +10,8 @@ module.exports = (req, res, next) => {
     }
     if (!req.body.email) {
         errors.push('email must be specified')
-    }
-    if (req.body.email) {
-        if (!req.body.email.includes('@') || !req.body.email.includes('.')) {
-            // TODO: make a better check in the future
+    } else {
+        if (!validateEmail(req.body.email)) {
             errors.push('email is invalid')
         }
     }
@@ -26,4 +24,9 @@ module.exports = (req, res, next) => {
     } else {
         next()
     }
+}
+
+function validateEmail(email) {
+    let re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+    return re.test(String(email).toLowerCase())
 }
