@@ -1,4 +1,5 @@
 const errors = require('../helpers/errors')
+const validateEmail = require('../helpers/validateEmail')
 
 module.exports = (req, res, next) => {
     let errors = []
@@ -24,9 +25,4 @@ module.exports = (req, res, next) => {
     } else {
         next()
     }
-}
-
-function validateEmail(email) {
-    let re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-    return re.test(String(email).toLowerCase())
 }

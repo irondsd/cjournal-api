@@ -21,3 +21,7 @@ exports.wrongPassword = function internalError(res) {
 exports.incompleteInput = function internalError(res) {
     res.status(409).send({ error: 'incomplete input' })
 }
+
+exports.incorrectInput = function internalError(res) {
+    res.status(409).send({ error: 'incorrect input' })
+}

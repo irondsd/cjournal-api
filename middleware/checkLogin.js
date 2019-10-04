@@ -3,9 +3,11 @@ const db = new sqlite.Database('./db/trackers.db')
 const bcrypt = require('bcryptjs')
 const log = require('../helpers/logger')
 const errors = require('../helpers/errors')
+const validateEmail = require('../helpers/validateEmail')
 
 module.exports = (req, res, next) => {
     if (req.body.email && req.body.password) {
+        if (!validateEmail(req.body.email)) return errors.incorrectInput(res)
         let query = `select 
 users.id, name, birthday, gender, email, password, device_type, last_seen, information, hide_elements, language, permissions,
 prescriptions.course_therapy, relief_of_attack, tests

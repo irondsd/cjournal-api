@@ -5,6 +5,7 @@ const db = new sqlite.Database('./db/trackers.db')
 const bcrypt = require('bcryptjs')
 const checkAuth = require('../middleware/checkAuth')
 const validateNewUser = require('../middleware/validateNewUser')
+const validateEditUser = require('../middleware/validateEditUser')
 const errors = require('../helpers/errors')
 const log = require('../helpers/logger')
 const { timestamp } = require('../helpers/timestamp')
@@ -169,7 +170,7 @@ router.post('/', validateNewUser, checkAuth, (req, res, next) => {
 })
 
 // Update user
-router.put('/:id', checkAuth, (req, res, next) => {
+router.put('/:id', validateEditUser, checkAuth, (req, res, next) => {
     const current_time = (Date.now() / 1000) | 0
     db.serialize(() => {
         db.all(
