@@ -2,211 +2,60 @@
 
 ## Usage
 
-### List all devices
+### Users
 
 **Definition**
 
-`GET /api/devices`
+`GET /api/users/`
+`GET /api/users/<id>`
+`POST /api/users/<id>`
+`PUT /api/users/<id>`
+`DELETE /api/users/<id>`
 
-**Parameters**
+**query**
 
-- `is_online` (Optional) Select only online devices
-- `device_type` (Optional) Select devices with specific type
-- `api_key` (Required) An API key
+-   `api_key` (Required) An API key
 
-**Response**
+**Responses**
 
-- `200 OK` on success
+-   `200` On success
+-   `404` Not found
+-   `409` User exists (on POST or PUT)
+-   `500` Internal Error
 
 ```json
 [
     {
-        "id": "1",
-        "name": "Alexander Feldman",
-        "device_type": "cardio tracker",
-        "last_seen": "1550272682",
+        "id": 1, // integer
+        "name": "Alexander Feldman", // string
+        "birthday": "10.05.1957", // string
+        "gender": "male", // string
+        "email": "ggn00b@mail.ru", // string
+        "device_type": "incart box v4.3", // string
+        "last_seen": 1570184394, // integer in unix timestamp
+        "information": "info about the user", // string
+        "hide_elements": ["Walking", "Stairs"], // an array of strings
+        "language": "ru", // string
+        "permissions": 1, // integer of either 1 (patient), 2 (doctor) or 3 (admin)
+        "course_therapy": ["Acebutolol", "Atenolol"], // an array of strings
+        "relief_of_attack": ["Bisoprolol", "Betaxolol"], // an array of strings
+        "tests": ["Nadolol", "Propranolol"] // an array of strings
     },
     {
-        "id": "2",
-        "name": "Jane Doe",
-        "device_type": "cardio tracker",
-        "last_seen": "1550272682",
+        "id": 2, // integer
+        "name": "Jane Doe", // string
+        "birthday": "07.10.2019", // string in format of DD.MM.YYYY
+        "gender": "male", // string
+        "email": "test@test.com", // string
+        "device_type": "incart box v4.3", // string
+        "last_seen": 1570015787, // integer in unix timestamp
+        "information": "", // string
+        "hide_elements": [], // an array of strings
+        "language": "ru", // string
+        "permissions": 3, // integer of either 1 (patient), 2 (doctor) or 3 (admin)
+        "course_therapy": ["Acebutolol", "Atenolol"], // an array of strings
+        "relief_of_attack": ["Bisoprolol", "Betaxolol"], // an array of strings
+        "tests": ["Nadolol", "Propranolol"] // an array of strings
     }
 ]
 ```
-
-### Registering a new device
-
-**Definition**
-
-`POST /api/devices`
-
-**Arguments**
-
-- `"id":int` a globally unique identifier for this device
-- `"name":string` a name of a patient using the device
-- `"device_type":string` the type of the device used by the patient
-
-**Response**
-
-- `201 Created` on success
-
-```json
-{
-        "id": "3",
-        "name": "John Doe",
-        "device_type": "cardio tracker",
-        "last_seen": "1550272682",
-}
-```
-
-## Lookup device details
-
-**Definition**
-
-`GET /api/devices/<id>`
-
-**Arguments**
-
-- `"id":int` a globally unique identifier for this device
-- `"name":string` a name of a patient using the device
-- `"device_type":string` the type of the device used by the patient
-- `"is_online":boolean` shows if the device is currently online
-- `"last_seen":string` the last time the device went online with unix timestamp
-
-**Response**
-
-- `404 Not Found` if the device does not exist
-- `200 OK` on success
-
-```json
-{
-        "id": "3",
-        "name": "John Doe",
-        "device_type": "cardio tracker",
-        "last_seen": "1550272682",
-}
-```
-
-## Delete a device
-
-**Definition**
-
-`DELETE /devices/<id>`
-
-**Response**
-
-- `404 Not Found` if the device does not exist
-- `204 No Content` on success
-
-Deleting the device will also remove all the data stored for this device
-
-### Updating device information
-
-**Definition**
-
-`PUT /api/devices/<id>`
-
-**Arguments**
-
-- `"name":string` (Optional) a name of a patient using the device
-- `"device_type":string` (Optional) the type of the device used by the patient
-
-both arguments are optional, but either one must be present for a successful request.
-
-**Response**
-
-- `204 No Content` on success
-- `404 Not Found` if the device does not exist
-- `400 Bad Request` if either name or device_type was not specified
-
-```json
-{
-        "id": "3",
-        "name": "John Doe",
-        "device_type": "cardio tracker",
-        "last_seen": "1550272682",
-}
-```
-
-## Lookup device data
-
-`GET /api/devices/<id>/data/?api_key=sample_key&from=1345432423`
-
-**Parameters**
-
-- `from` (Optional) Beginning timestamp of a range - only display records after this time
-- `to` (Optional) End timestamp of a range - only display records before this time
-- `exercise_type` (Optional) Select only one specific exercise type
-- `successfil` (Optional) Select only successful or unsuccessful samples
-- `api_key` (Required) An API key
-
-**Response**
-
-- `404 Not Found` if the device does not exist
-- `200 OK` on success
-
-```json
-{
-        "id": "1",
-        "exercise_type": "Walking",
-        "time_started": "1550272682",
-        "duration": 300,
-        "successful": true,
-        "distance": 97.3,
-        "steps": 128,
-},
-{
-        "id": "2",
-        "exercise_type": "Stairs",
-        "time_started": "1550274641",
-        "duration": 300,
-        "successful": true,
-        "distance": 97.3,
-        "steps": 128,
-},
-{
-        "id": "3",
-        "exercise_type": "Walking",
-        "time_started": "1550234120",
-        "duration": 40,
-        "successful": false,
-        "distance": 0,
-        "steps": 0,
-},
-```
-
-### adding new data from device to database
-
-**Definition**
-
-`POST /api/devices/<id>/data/`
-
-**Arguments**
-
-- `"exercise_type":string` (Required) a name of an exercise patient completed
-- `"time_started":string` (Required) unix timestamp of the time exercise started
-- `"duration":int` (Required) duration of the exercise in seconds
-- `"successful":boolean` (Required) if the exercise was terminated
-- `"distance":float` (Optional) total distance covered in meters
-- `"steps":int` (Optional) total steps taken during the exercise
-
-**Response**
-
-- `201 Created` on success
-- `400 Bad Request` if some of the values were wrong
-
-```json
-{
-        "id": "3",
-        "exercise_type": "Walking",
-        "time_started": "1550234120",
-        "duration": 40,
-        "successful": false,
-        "distance": 0,
-        "steps": 0,
-}
-```
-
-### updating device data
-With current realization is not possible to modify stored data. If the device was deleted, assiciated data will be removed as well.
