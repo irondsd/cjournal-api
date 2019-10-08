@@ -16,6 +16,7 @@ const tasks = require('./routes/tasks')
 const patients = require('./routes/patients')
 const prescriptions = require('./routes/prescriptions')
 const checkAuth = require('./middleware/checkAuth')
+const errorHandlers = require('./helpers/errorHandlers')
 
 app.use(function(req, res, next) {
     res.header('Access-Control-Allow-Origin', '*')
@@ -34,6 +35,9 @@ app.use('/api/users/', virtual_activity)
 app.use('/api/', login)
 app.use('/api/users/', patients)
 app.use('/audios/', express.static('audios'))
+
+// handle errors
+app.use((error, req, res, next) => errorHandlers(error, req, res, next))
 
 // just for testing, will be removed later
 app.get('/api/check/', checkAuth, (req, res, next) => {

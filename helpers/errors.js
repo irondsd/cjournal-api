@@ -1,3 +1,7 @@
+exports.invalidData = function invalidData(res, message) {
+    res.status(400).send({ error: message })
+}
+
 exports.unauthorized = function unauthorized(res) {
     res.status(401).send({ error: 'unauthorized' })
 }
