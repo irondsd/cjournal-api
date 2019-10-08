@@ -4,6 +4,7 @@ const sqlite = require('sqlite3')
 const db = new sqlite.Database('./db/trackers.db')
 const errors = require('../helpers/errors')
 const log = require('../helpers/logger')
+const arrayStringify = require('../helpers/arrayStringify')
 
 router.get('/:id/prescriptions', (req, res) => {
     query = 'select * from prescriptions where users_id = ' + req.params.id
@@ -24,10 +25,12 @@ router.get('/:id/prescriptions', (req, res) => {
 })
 
 router.post('/:id/prescriptions', (req, res) => {
+    let course_therapy = arrayStringify(req.body.course_therapy)
+    let relief_of_attack = arrayStringify(req.body.relief_of_attack)
+    let tests = arrayStringify(req.body.tests)
+
     query = `insert into prescriptions(users_id, course_therapy, relief_of_attack, tests) values 
-            ('${req.params.id}', '${JSON.stringify(req.body.course_therapy)}', '${JSON.stringify(
-        req.body.relief_of_attack
-    )}', '${JSON.stringify(req.body.tests)}')`
+            ('${req.params.id}', '${course_therapy}', '${relief_of_attack}', '${tests}')`
     // console.log(query)
     db.run(query, function(err, rows) {
         if (err) {
@@ -40,11 +43,11 @@ router.post('/:id/prescriptions', (req, res) => {
 })
 
 router.put('/:id/prescriptions/', (req, res) => {
-    query = `update prescriptions set course_therapy = '${JSON.stringify(
-        req.body.course_therapy
-    )}', relief_of_attack = '${JSON.stringify(req.body.relief_of_attack)}', tests = '${JSON.stringify(
-        req.body.tests
-    )}' where users_id = '${req.params.id}'`
+    let course_therapy = arrayStringify(req.body.course_therapy)
+    let relief_of_attack = arrayStringify(req.body.relief_of_attack)
+    let tests = arrayStringify(req.body.tests)
+
+    query = `update prescriptions set course_therapy = '${course_therapy}', relief_of_attack = '${relief_of_attack}', tests = '${tests}' where users_id = '${req.params.id}'`
     // console.log(query)
     db.run(query, function(err, rows) {
         if (err) {
@@ -56,20 +59,20 @@ router.put('/:id/prescriptions/', (req, res) => {
     })
 })
 
-router.delete('/:uid/tasks/:aid', (req, res) => {
-    if (!req.params.aid) {
-        return errors.incompleteInput(res)
-    }
+// router.delete('/:uid/prescriptions/:aid', (req, res) => {
+//     if (!req.params.aid) {
+//         return errors.incompleteInput(res)
+//     }
 
-    let sql = `update tasks set deleted = '1', last_updated = '${timestamp()}' where id = '${req.params.aid}'`
-    db.run(sql, (err, rows) => {
-        if (err) {
-            log(`prescriptions internal error ${err}`)
-            errors.internalError(res)
-        } else {
-            res.status(204).send(rows)
-        }
-    })
-})
+//     let sql = `update tasks set deleted = '1', last_updated = '${timestamp()}' where id = '${req.params.aid}'`
+//     db.run(sql, (err, rows) => {
+//         if (err) {
+//             log(`prescriptions internal error ${err}`)
+//             errors.internalError(res)
+//         } else {
+//             res.status(204).send(rows)
+//         }
+//     })
+// })
 
 module.exports = router
