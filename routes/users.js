@@ -9,7 +9,6 @@ const validateEditUser = require('../middleware/validateEditUser')
 const errors = require('../helpers/errors')
 const log = require('../helpers/logger')
 const { timestamp } = require('../helpers/timestamp')
-const SqlString = require('sqlstring')
 const stringSanitizer = require('../helpers/stringSanitizer')
 const arrayStringify = require('../helpers/arrayStringify')
 
