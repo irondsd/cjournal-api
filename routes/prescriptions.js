@@ -5,6 +5,7 @@ const db = new sqlite.Database('./db/trackers.db')
 const errors = require('../helpers/errors')
 const log = require('../helpers/logger')
 const arrayStringify = require('../helpers/arrayStringify')
+const checkAuth = require('../middleware/checkAuth')
 
 router.get('/:id/prescriptions', (req, res) => {
     query = 'select * from prescriptions where users_id = ' + req.params.id
@@ -24,7 +25,7 @@ router.get('/:id/prescriptions', (req, res) => {
     })
 })
 
-router.post('/:id/prescriptions', (req, res) => {
+router.post('/:id/prescriptions', checkAuth, (req, res, next) => {
     let course_therapy = arrayStringify(req.body.course_therapy)
     let relief_of_attack = arrayStringify(req.body.relief_of_attack)
     let tests = arrayStringify(req.body.tests)
@@ -37,12 +38,13 @@ router.post('/:id/prescriptions', (req, res) => {
             log(`prescriptions internal error ${err}`)
             errors.internalError(res)
         } else {
+            log(`user ${req.decoded.id} updated prescriptions for user ${req.params.id}`)
             res.status(201).send()
         }
     })
 })
 
-router.put('/:id/prescriptions/', (req, res) => {
+router.put('/:id/prescriptions/', checkAuth, (req, res, next) => {
     let course_therapy = arrayStringify(req.body.course_therapy)
     let relief_of_attack = arrayStringify(req.body.relief_of_attack)
     let tests = arrayStringify(req.body.tests)
@@ -54,12 +56,13 @@ router.put('/:id/prescriptions/', (req, res) => {
             log(`prescriptions internal error ${err}`)
             errors.internalError(res)
         } else {
+            log(`user ${req.decoded.id} updated prescriptions for user ${req.params.id}`)
             res.status(201).send()
         }
     })
 })
 
-// router.delete('/:uid/prescriptions/:aid', (req, res) => {
+// router.delete('/:uid/prescriptions/:aid', (req, res, next) => {
 //     if (!req.params.aid) {
 //         return errors.incompleteInput(res)
 //     }
