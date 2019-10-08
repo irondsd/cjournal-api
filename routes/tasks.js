@@ -6,6 +6,7 @@ let { timestamp } = require('../helpers/timestamp')
 const errors = require('../helpers/errors')
 const log = require('../helpers/logger')
 const validateTask = require('../middleware/validateTask')
+const stringSanitizer = require('../helpers/stringSanitizer')
 
 router.get('/:uid/tasks', (req, res) => {
     let timeframe = ``
@@ -64,13 +65,13 @@ router.get('/:uid/tasks/:tid', (req, res) => {
 })
 
 router.post('/:id/tasks', validateTask, (req, res, next) => {
-    let id = req.params.id
-    let activity_type = req.body.activity_type
-    let time = req.body.time
+    let users_id = parseInt(req.params.id)
+    let activity_type = stringSanitizer(req.body.activity_type)
+    let time = parseInt(req.body.time)
     let data = JSON.stringify(req.body.data)
 
     sql = `insert into tasks(users_id, activity_type, time, completed, last_updated, data) values 
-            ('${id}', '${activity_type}', '${time}', '0', '${timestamp()}', '${data}')`
+            ('${users_id}', '${activity_type}', '${time}', '0', '${timestamp()}', '${data}')`
     // console.log(sql)
     db.run(sql, function(err, rows) {
         if (err) {
@@ -85,11 +86,11 @@ router.post('/:id/tasks', validateTask, (req, res, next) => {
 })
 
 router.put('/:uid/tasks/:aid', validateTask, (req, res, next) => {
-    let user_id = req.params.uid
-    let id = req.params.aid
-    let activity_type = req.body.activity_type
-    let time = req.body.time
-    let completed = req.body.completed ? req.body.completed : false
+    let user_id = parseInt(req.params.uid)
+    let id = parseInt(req.params.aid)
+    let activity_type = stringSanitizer(req.body.activity_type)
+    let time = parseInt(req.body.time)
+    let completed = req.body.completed ? parseInt(req.body.completed) : false
     let data = req.body.data ? req.body.data : {}
 
     let queryPreserve = `insert into tasks (users_id, activity_type, time, completed, ref_id, last_updated, data, deleted) SELECT users_id, activity_type, time, completed, ref_id, ${timestamp()}, data, 1 FROM tasks where id = '${id}'`

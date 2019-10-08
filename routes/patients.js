@@ -6,7 +6,7 @@ const errors = require('../helpers/errors')
 const log = require('../helpers/logger')
 
 router.get('/:id/patients', (req, res) => {
-    query = 'select * from doctor where doctor_id = ' + req.params.id
+    query = 'select distinct * from doctor where doctor_id = ' + req.params.id
     // console.log(query)
     db.all(query, (err, rows) => {
         if (err) {
@@ -39,7 +39,7 @@ router.get('/:id/patients', (req, res) => {
 })
 
 router.get('/:id/doctors', (req, res) => {
-    query = 'select * from doctor where patient_id = ' + req.params.id
+    query = 'select distinct * from doctor where patient_id = ' + req.params.id
     // console.log(query)
     db.all(query, (err, rows) => {
         if (err) {

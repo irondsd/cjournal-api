@@ -296,7 +296,7 @@ _queries with id from activity table_
 ```json
 {
     "users_id": 1,
-    "course_therapy": ["Acebutolol", "Diclofenac", "Etodolac"],
+    "course_therapy": ["Acebutolol", "Diclofenac", "Etocolac"],
     "relief_of_attack": ["Bisoprolol", "Betaxolol"],
     "tests": ["Olol", "Lolol"]
 }

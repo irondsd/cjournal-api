@@ -1,4 +1,4 @@
-function log(message) {
+module.exports = function log(message) {
     var timestamp = new Date()
     console.log(message)
     const fs = require('fs')
@@ -6,5 +6,3 @@ function log(message) {
         if (err) console.log(`logger error need inspection ${err}`)
     })
 }
-
-module.exports = log

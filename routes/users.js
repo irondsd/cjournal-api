@@ -120,7 +120,7 @@ router.post('/', validateNewUser, checkAuth, (req, res, next) => {
             let hash = bcrypt.hashSync(req.body.password, salt)
 
             let name = stringSanitizer(req.body.name)
-            let email = req.body.email
+            let email = req.body.email // already checked by the middleware
             let birthday = req.body.birthday ? stringSanitizer(req.body.birthday) : '01.01.1970'
             let gender = req.body.gender ? stringSanitizer(req.body.gender) : 'male'
             let device_type = stringSanitizer(req.body.device_type)
@@ -201,6 +201,7 @@ prescriptions on users.id = prescriptions.users_id where id = '${req.params.id}'
                     let course_therapy = arrayStringify(req.body.course_therapy, rows[0].course_therapy)
                     let relief_of_attack = arrayStringify(req.body.relief_of_attack, rows[0].relief_of_attack)
                     let tests = arrayStringify(req.body.tests, rows[0].tests)
+
                     let query = `update users set name = '${name}', birthday = '${birthday}', gender = '${gender}', email = '${req.body.email}', ${password_insert} device_type = '${device_type}', last_seen = '${current_time}', information = '${information}', hide_elements = '${hide_elements}', language = '${language}', permissions= '${permissions}' where id = ${req.params.id}`
                     // console.log(query)
                     db.all(query, (err, rows) => {

@@ -1,7 +1,7 @@
+require('dotenv').config()
 const log = require('./helpers/logger')
 const express = require('express')
 const app = express()
-require('dotenv').config()
 const port = process.env.PORT || 3001
 const fs = require('fs')
 const sqlite = require('sqlite3')
@@ -47,5 +47,3 @@ app.get('/api/check/', checkAuth, (req, res, next) => {
 app.listen(port, () => {
     log(`Server started on port ${port}`)
 })
-
-// TODO: update readme
