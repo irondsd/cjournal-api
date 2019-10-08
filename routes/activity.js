@@ -55,7 +55,11 @@ router.get('/:uid/activity', (req, res) => {
             log(`get all activity internal error ${err}`)
             return errors.internalError(res)
         }
-        if (Array.isArray(rows)) for (el of rows) el.data = JSON.parse(el.data)
+        try {
+            if (Array.isArray(rows)) for (el of rows) el.data = JSON.parse(el.data)
+        } catch (error) {
+            log(`error parsing json data from activity ${error}`)
+        }
 
         return res.send(rows)
     })
@@ -84,7 +88,11 @@ router.get('/:uid/activity/:aid', (req, res) => {
             return errors.internalError(res)
         }
         if (rows.length > 0) {
-            for (el of rows) el.data = JSON.parse(el.data)
+            try {
+                for (el of rows) el.data = JSON.parse(el.data)
+            } catch (error) {
+                log(`error parsing json data from activity id ${rows[0].id}, data = ${rows[0].data}`)
+            }
             return res.send(rows[0])
         } else {
             return errors.notFound(res)
@@ -92,13 +100,30 @@ router.get('/:uid/activity/:aid', (req, res) => {
     })
 })
 
-router.post('/:uid/activity', validateActivity, saveAudio, (req, res, next) => {
+router.post('/:uid/activity', saveAudio, validateActivity, (req, res, next) => {
+    let users_id = req.params.uid
+    let activity_type = req.body.activity_type
+    let time_started = req.body.time_started
+    let time_ended = req.body.time_ended ? req.body.time_ended : null
+    let tasks_id = req.body.tasks_id ? req.body.tasks_id : null
+    let version = req.body.version ? req.body.version : 1
+    let comment = req.body.comment ? req.body.comment : ''
+    let data = req.body.data ? req.body.data : {}
+    let last_updated = req.body.last_updated ? req.body.last_updated : timestamp()
+
+    // form-data doesn't allow to send objects
+    if (typeof req.body.data === 'string')
+        try {
+            data = JSON.parse(req.body.data)
+        } catch (error) {
+            data = {}
+        }
+
+    if (req.file) data.audio = req.file.path
+    data = JSON.stringify(data)
+
     let sql = `insert into activity(users_id, activity_type, time_started, comment, data, tasks_id, time_ended, version, last_updated, uploaded) values 
-            ('${req.params.uid}', '${req.body.activity_type}', '${req.body.time_started}', '${
-        req.body.comment
-    }', '${JSON.stringify(req.body.data)}', '${req.body.tasks_id ? req.body.tasks_id : null}', '${
-        req.body.time_ended ? req.body.time_ended : null
-    }', '${req.body.version ? req.body.version : null}', '${req.body.last_updated}', '${timestamp()}')`
+            ('${users_id}', '${activity_type}', '${time_started}', '${comment}', '${data}', '${tasks_id}', '${time_ended}', '${version}', '${last_updated}', '${timestamp()}')`
 
     // console.log(sql)
     db.run(sql, function(err, rows) {
@@ -106,11 +131,9 @@ router.post('/:uid/activity', validateActivity, saveAudio, (req, res, next) => {
             log(`post activity internal error ${err}`)
             return errors.internalError(res)
         } else {
-            let response = {
+            res.status(201).send({
                 id: this.lastID
-            }
-            if (req.file) response.audio = req.file.path
-            res.status(201).send(response)
+            })
             if (req.body.tasks_id) {
                 taskMarkCompleted(req.body.tasks_id)
             }
@@ -118,7 +141,28 @@ router.post('/:uid/activity', validateActivity, saveAudio, (req, res, next) => {
     })
 })
 
-router.put('/:uid/activity/:aid', validateActivity, saveAudio, (req, res, next) => {
+router.put('/:uid/activity/:aid', saveAudio, validateActivity, (req, res, next) => {
+    let users_id = req.params.uid
+    let activity_type = req.body.activity_type
+    let time_started = req.body.time_started
+    let time_ended = req.body.time_ended ? req.body.time_ended : null
+    let tasks_id = req.body.tasks_id ? req.body.tasks_id : null
+    let version = req.body.version ? req.body.version : 1
+    let comment = req.body.comment ? req.body.comment : ''
+    let data = req.body.data ? req.body.data : {}
+    let last_updated = req.body.last_updated ? req.body.last_updated : timestamp()
+
+    // form-data doesn't allow to send objects
+    if (typeof req.body.data === 'string')
+        try {
+            data = JSON.parse(req.body.data)
+        } catch (error) {
+            data = {}
+        }
+
+    if (req.file) data.audio = req.file.path
+    data = JSON.stringify(data)
+
     let queryPreserve = `insert into activity (users_id, activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, comment, data, deleted, version, uploaded) SELECT users_id, activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, comment, data, 1, version, uploaded FROM activity where id = '${req.params.aid}'`
     db.run(queryPreserve, (err, rows) => {
         if (err) {
@@ -128,13 +172,9 @@ router.put('/:uid/activity/:aid', validateActivity, saveAudio, (req, res, next) 
             // console.log('preserved row')
         }
     })
-    let sql = `update activity set activity_type = '${req.body.activity_type}', time_started = '${
-        req.body.time_started
-    }', time_ended = '${req.body.time_ended}', comment = '${req.body.comment}', data = '${JSON.stringify(
-        req.body.data
-    )}', last_updated = '${req.params.last_updated}', ref_id = '${
-        req.params.aid
-    }', uploaded = '${timestamp()}' where id = ${req.params.aid}`
+    let sql = `update activity set activity_type = '${activity_type}', time_started = '${time_started}', 
+    time_ended = '${time_ended}', comment = '${comment}', data = '${data}', last_updated = '${last_updated}', 
+    ref_id = '${req.params.aid}', uploaded = '${timestamp()}' where id = ${req.params.aid}`
     // console.log(queryPreserve)
     db.run(sql, function(err, rows) {
         if (err) {
@@ -144,11 +184,9 @@ router.put('/:uid/activity/:aid', validateActivity, saveAudio, (req, res, next) 
             db.run(`update activity set ref_id = '${this.lastID}' where id = ${req.params.aid}`, (err, rows) => {
                 // console.log('added ref id')
             })
-            let response = {
+            res.status(201).send({
                 id: req.params.aid
-            }
-            if (req.file) response.audio = req.file.path
-            res.status(201).send(response)
+            })
         }
     })
 })
