@@ -64,10 +64,13 @@ router.get('/:uid/tasks/:tid', (req, res) => {
 })
 
 router.post('/:id/tasks', validateTask, (req, res, next) => {
+    let id = req.params.id
+    let activity_type = req.body.activity_type
+    let time = req.body.time
+    let data = JSON.stringify(req.body.data)
+
     sql = `insert into tasks(users_id, activity_type, time, completed, last_updated, data) values 
-            ('${req.params.id}', '${req.body.activity_type}', '${
-        req.body.time
-    }', '0', '${timestamp()}', '${JSON.stringify(req.body.data)}')`
+            ('${id}', '${activity_type}', '${time}', '0', '${timestamp()}', '${data}')`
     // console.log(sql)
     db.run(sql, function(err, rows) {
         if (err) {
@@ -82,9 +85,14 @@ router.post('/:id/tasks', validateTask, (req, res, next) => {
 })
 
 router.put('/:uid/tasks/:aid', validateTask, (req, res, next) => {
-    let queryPreserve = `insert into tasks (users_id, activity_type, time, completed, ref_id, last_updated, data, deleted) SELECT users_id, activity_type, time, completed, ref_id, ${timestamp()}, data, 1 FROM tasks where id = '${
-        req.params.aid
-    }'`
+    let user_id = req.params.uid
+    let id = req.params.aid
+    let activity_type = req.body.activity_type
+    let time = req.body.time
+    let completed = req.body.completed ? req.body.completed : false
+    let data = req.body.data ? req.body.data : {}
+
+    let queryPreserve = `insert into tasks (users_id, activity_type, time, completed, ref_id, last_updated, data, deleted) SELECT users_id, activity_type, time, completed, ref_id, ${timestamp()}, data, 1 FROM tasks where id = '${id}'`
     db.run(queryPreserve, (err, rows) => {
         if (err) {
             log(`tasks internal error ${err}`)
@@ -96,13 +104,9 @@ router.put('/:uid/tasks/:aid', validateTask, (req, res, next) => {
 
     let sql
     if (req.body.completed) {
-        sql = `update tasks set activity_type = '${req.body.activity_type}', time = '${req.body.time}', completed = '${req.body.completed}', last_updated = '${last_updated}', ref_id = '${req.params.aid}' where id = ${req.params.aid}`
+        sql = `update tasks set activity_type = '${activity_type}', time = '${time}', completed = '${completed}', last_updated = '${last_updated}', ref_id = '${aid}' where id = ${aid}`
     } else {
-        sql = `update tasks set activity_type = '${req.body.activity_type}', time = '${
-            req.body.time
-        }', last_updated = '${timestamp()}', data = '${JSON.stringify(req.body.data)}', ref_id = '${
-            req.params.aid
-        }' where id = ${req.params.aid}`
+        sql = `update tasks set activity_type = '${activity_type}', time = '${time}', last_updated = '${timestamp()}', data = '${data}', ref_id = '${id}' where id = ${id}`
     }
     // console.log(sql)
     db.run(sql, (err, rows) => {
@@ -110,7 +114,7 @@ router.put('/:uid/tasks/:aid', validateTask, (req, res, next) => {
             log(`tasks internal error ${err}`)
             return errors.internalError(res)
         } else {
-            db.run(`update tasks set ref_id = '${this.lastID}' where id = ${req.params.aid}`, (err, rows) => {
+            db.run(`update tasks set ref_id = '${this.lastID}' where id = ${id}`, (err, rows) => {
                 // console.log('added ref id')
             })
             res.status(201).send(rows)
