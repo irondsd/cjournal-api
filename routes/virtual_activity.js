@@ -37,7 +37,11 @@ router.get('/:uid/virtual_activity', (req, res) => {
             return errors.internalError(res)
         }
         if (Array.isArray(rows)) for (el of rows) el.id = 'v' + el.id
-        if (Array.isArray(rows)) for (el of rows) el.data = JSON.parse(el.data)
+        try {
+            if (Array.isArray(rows)) for (el of rows) el.data = JSON.parse(el.data)
+        } catch (error) {
+            log(`error parsing json data from virtual activity ${error}`)
+        }
 
         return res.send(rows)
     })
@@ -68,7 +72,11 @@ router.get('/:uid/virtual_activity/:aid', (req, res) => {
         }
         if (rows.length > 0) {
             for (el of rows) el.id = 'v' + el.id
-            for (el of rows) el.data = JSON.parse(el.data)
+            try {
+                for (el of rows) el.data = JSON.parse(el.data)
+            } catch (error) {
+                log(`error parsing json data from virtual activity ${error}`)
+            }
             return res.send(rows[0])
         } else {
             log(`get virtual id not found ${req.params.aid}`)
@@ -106,14 +114,24 @@ router.put('/:uid/virtual_activity/:aid', validateVirtual, (req, res, next) => {
 })
 
 function postVirtualActivity(req, res) {
+    let users_id = req.params.uid
+    let doctor_id = req.body.doctor_id
+    let activity_type = req.body.activity_type
+    let time_started = req.body.time_started
+    let time_ended = req.body.time_ended ? req.body.time_ended : null
+    let tasks_id = req.body.tasks_id ? req.body.tasks_id : null
+    let version = req.body.version ? req.body.version : 1
+    let comment = req.body.comment ? req.body.comment : ''
+    let data = req.body.data ? req.body.data : {}
+    let last_updated = req.body.last_updated ? req.body.last_updated : timestamp()
+    let set_deleted = req.body.set_deleted ? req.body.set_deleted : 0
+
     let sql = `insert into virtual_activity(activity_id, users_id, doctor_id, activity_type, time_started, comment, data, tasks_id, time_ended, last_updated, uploaded, set_deleted) values
-                           ('${req.body.activity_id}', '${req.params.uid}', '${req.body.doctor_id}', '${
-        req.body.activity_type
-    }', '${req.body.time_started}', '${req.body.comment}', '${JSON.stringify(req.body.data)}', '${
-        req.body.tasks_id ? req.body.tasks_id : null
-    }', '${req.body.time_ended ? req.body.time_ended : null}', '${req.body.last_updated}', '${timestamp()}', '${
-        req.body.set_deleted ? req.body.set_deleted : 0
-    }')`
+                           ('${activity_id}', '${
+        req.params.uid
+    }', '${doctor_id}', '${activity_type}', '${time_started}', '${comment}', '${data}', '${tasks_id}', '${
+        time_ended ? time_ended : null
+    }', '${last_updated}', '${timestamp()}', '${set_deleted ? set_deleted : 0}')`
     db.run(sql, function(err, rows) {
         if (err) {
             log(`virtual internal error ${err}`)
@@ -132,6 +150,17 @@ function postVirtualActivity(req, res) {
 function updateVirtualActivity(req, res) {
     let id_type
     let id
+    let users_id = req.params.uid
+    let doctor_id = req.body.doctor_id
+    let activity_type = req.body.activity_type
+    let time_started = req.body.time_started
+    let time_ended = req.body.time_ended ? req.body.time_ended : null
+    let tasks_id = req.body.tasks_id ? req.body.tasks_id : null
+    let version = req.body.version ? req.body.version : 1
+    let comment = req.body.comment ? req.body.comment : ''
+    let data = req.body.data ? req.body.data : {}
+    let last_updated = req.body.last_updated ? req.body.last_updated : timestamp()
+    let set_deleted = req.body.set_deleted ? req.body.set_deleted : 0
 
     if (req.body.activity_id) {
         id = req.body.activity_id
@@ -142,22 +171,14 @@ function updateVirtualActivity(req, res) {
     }
 
     let queryPreserve = `insert into virtual_activity (activity_id, users_id, doctor_id,
-         activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, comment, data, deleted, uploaded, set_deleted) SELECT activity_id, users_id, doctor_id, activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, comment, data, 1, uploaded, set_deleted FROM virtual_activity where ${id_type} = '${id}' and doctor_id = ${req.body.doctor_id}`
+         activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, comment, data, deleted, uploaded, set_deleted) SELECT activity_id, users_id, doctor_id, activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, comment, data, 1, uploaded, set_deleted FROM virtual_activity where ${id_type} = '${id}' and doctor_id = ${doctor_id}`
     console.log(queryPreserve)
     db.run(queryPreserve, (err, rows) => {
         if (err) {
             log(`virtual internal error ${err}`)
             return errors.internalError(res)
         } else {
-            let sql = `update virtual_activity set activity_type = '${req.body.activity_type}', time_started = '${
-                req.body.time_started
-            }', time_ended = '${req.body.time_ended}', comment = '${req.body.comment}', data = '${JSON.stringify(
-                req.body.data
-            )}', last_updated = '${
-                req.params.last_updated
-            }', ref_id = '${id}', uploaded = '${timestamp()}', set_deleted = '${
-                req.body.set_deleted ? req.body.set_deleted : 0
-            }' where ${id_type} = ${id}`
+            let sql = `update virtual_activity set activity_type = '${activity_type}', time_started = '${time_started}', time_ended = '${time_ended}', comment = '${comment}', doctor_id = '${doctor_id}', data = '${data}', last_updated = '${last_updated}', ref_id = '${id}', uploaded = '${timestamp()}', set_deleted = '${set_deleted}' where ${id_type} = ${id}`
 
             // console.log(sql)
             db.run(sql, function(err, rows) {
