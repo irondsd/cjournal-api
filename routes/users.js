@@ -29,13 +29,17 @@ prescriptions on users.id = prescriptions.users_id`
             return errors.internalError(res)
         }
 
-        if (Array.isArray(rows)) {
-            for (el of rows) {
-                el.hide_elements = JSON.parse(el.hide_elements)
-                el.course_therapy = JSON.parse(el.course_therapy)
-                el.relief_of_attack = JSON.parse(el.relief_of_attack)
-                el.tests = JSON.parse(el.tests)
+        try {
+            if (Array.isArray(rows)) {
+                for (el of rows) {
+                    el.hide_elements = JSON.parse(el.hide_elements)
+                    el.course_therapy = JSON.parse(el.course_therapy)
+                    el.relief_of_attack = JSON.parse(el.relief_of_attack)
+                    el.tests = JSON.parse(el.tests)
+                }
             }
+        } catch (error) {
+            log(`error parsing JSON data of users`)
         }
 
         res.send(rows)
@@ -60,11 +64,15 @@ where users.id = ` + req.params.id
             return errors.internalError(res)
         }
         if (rows.length > 0) {
-            for (el of rows) {
-                el.hide_elements = JSON.parse(el.hide_elements)
-                el.course_therapy = JSON.parse(el.course_therapy)
-                el.relief_of_attack = JSON.parse(el.relief_of_attack)
-                el.tests = JSON.parse(el.tests)
+            try {
+                for (el of rows) {
+                    el.hide_elements = JSON.parse(el.hide_elements)
+                    el.course_therapy = JSON.parse(el.course_therapy)
+                    el.relief_of_attack = JSON.parse(el.relief_of_attack)
+                    el.tests = JSON.parse(el.tests)
+                }
+            } catch (error) {
+                log(`error parsing JSON data of user's id ${rows[0].id}`)
             }
             return res.send(rows[0])
         } else {
