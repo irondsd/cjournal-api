@@ -116,6 +116,7 @@ router.put('/:uid/virtual_activity/:aid', validateVirtual, (req, res, next) => {
 function postVirtualActivity(req, res) {
     let users_id = req.params.uid
     let doctor_id = req.body.doctor_id
+    let activity_id = req.body.activity_id ? req.body.activity_id : null
     let activity_type = req.body.activity_type
     let time_started = req.body.time_started
     let time_ended = req.body.time_ended ? req.body.time_ended : null
@@ -152,6 +153,7 @@ function updateVirtualActivity(req, res) {
     let id
     let users_id = req.params.uid
     let doctor_id = req.body.doctor_id
+    let activity_id = req.body.activity_id ? req.body.activity_id : null
     let activity_type = req.body.activity_type
     let time_started = req.body.time_started
     let time_ended = req.body.time_ended ? req.body.time_ended : null
