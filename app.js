@@ -17,6 +17,7 @@ const patients = require('./routes/patients')
 const prescriptions = require('./routes/prescriptions')
 const checkAuth = require('./middleware/checkAuth')
 const errorHandlers = require('./helpers/errorHandlers')
+const https = require('https')
 
 app.use(function(req, res, next) {
     res.header('Access-Control-Allow-Origin', '*')
@@ -24,7 +25,7 @@ app.use(function(req, res, next) {
     res.header('Access-Control-Allow-Methods', '*')
     next()
 })
-app.use(logger)
+// app.use(logger)
 app.use(bodyParser.json())
 app.use('/api/', index)
 app.use('/api/', login)
@@ -43,12 +44,13 @@ app.use((error, req, res, next) => errorHandlers(error, req, res, next))
 app.get('/api/check/', checkAuth, (req, res, next) => {
     res.send(req.decoded)
 })
+app.get('/alive', (req, res) => res.sendStatus(200))
 
 app.listen(port, () => {
     log(`Server started on port ${port}`)
 })
 
 function logger(req, res, next) {
-    log(`${req.method} ${req.url}`)
+    log(`${req.method} ${req.path}`)
     next()
 }
