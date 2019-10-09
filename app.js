@@ -35,7 +35,10 @@ app.use('/api/users/', activity)
 app.use('/api/users/', tasks)
 app.use('/api/users/', prescriptions)
 app.use('/api/users/', virtual_activity)
+
+//static
 app.use('/audios/', express.static('audios'))
+app.use('/.well-known/', express.static('.well-known'))
 
 // handle errors
 app.use((error, req, res, next) => errorHandlers(error, req, res, next))
