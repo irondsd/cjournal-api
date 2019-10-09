@@ -24,16 +24,16 @@ app.use(function(req, res, next) {
     res.header('Access-Control-Allow-Methods', '*')
     next()
 })
-
+app.use(logger)
 app.use(bodyParser.json())
 app.use('/api/', index)
+app.use('/api/', login)
+app.use('/api/users/', patients)
 app.use('/api/users/', users)
 app.use('/api/users/', activity)
 app.use('/api/users/', tasks)
 app.use('/api/users/', prescriptions)
 app.use('/api/users/', virtual_activity)
-app.use('/api/', login)
-app.use('/api/users/', patients)
 app.use('/audios/', express.static('audios'))
 
 // handle errors
@@ -47,3 +47,8 @@ app.get('/api/check/', checkAuth, (req, res, next) => {
 app.listen(port, () => {
     log(`Server started on port ${port}`)
 })
+
+function logger(req, res, next) {
+    log(`${req.method} ${req.url}`)
+    next()
+}
