@@ -18,6 +18,7 @@ const prescriptions = require('./routes/prescriptions')
 const checkAuth = require('./middleware/checkAuth')
 const errorHandlers = require('./helpers/errorHandlers')
 const https = require('https')
+const httpolyglot = require('httpolyglot')
 
 app.use(function(req, res, next) {
     res.header('Access-Control-Allow-Origin', '*')
@@ -25,6 +26,14 @@ app.use(function(req, res, next) {
     res.header('Access-Control-Allow-Methods', '*')
     next()
 })
+
+// app.use(function(req, res, next) {
+//     if (!req.secure) {
+//         res.redirect(301, 'https://' + req.hostname + `:${port}` + req.originalUrl)
+//     }
+//     next()
+// })
+
 // app.use(logger)
 app.use(bodyParser.json())
 app.use('/api/', index)
@@ -38,7 +47,6 @@ app.use('/api/users/', virtual_activity)
 
 //static
 app.use('/audios/', express.static('audios'))
-app.use('/.well-known/', express.static('.well-known'))
 
 // handle errors
 app.use((error, req, res, next) => errorHandlers(error, req, res, next))
@@ -49,9 +57,18 @@ app.get('/api/check/', checkAuth, (req, res, next) => {
 })
 app.get('/alive', (req, res) => res.sendStatus(200))
 
+const options = {
+    key: fs.readFileSync('./ssl/server.key'),
+    cert: fs.readFileSync('./ssl/server.cert')
+}
+
 app.listen(port, () => {
     log(`Server started on port ${port}`)
 })
+
+// httpolyglot.createServer(options, app).listen(port, () => {
+//     log(`Server started on port ${port}`)
+// })
 
 function logger(req, res, next) {
     log(`${req.method} ${req.path}`)

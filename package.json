@@ -8,6 +8,7 @@
     "body-parser": "^1.18.3",
     "dotenv": "^8.1.0",
     "express": "^4.16.4",
+    "httpolyglot": "^0.1.2",
     "jsonwebtoken": "^8.5.1",
     "markdown-it": "^8.4.2",
     "multer": "^1.4.2",
