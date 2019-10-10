@@ -96,7 +96,9 @@ router.post('/:uid/tasks/:tid/postpone', (req, res, next) => {
             try {
                 time = rows[0].time + parseInt(req.body.time)
                 data = JSON.parse(rows[0].data)
-                if (data && data.postponed) data.postponed = data.postponed + 1
+                if (data)
+                    if (data.postponed) data.postponed = data.postponed + 1
+                    else data.postponed = 1
                 else data = { postponed: 1 }
             } catch (error) {
                 return errors.incorrectInput(res)
