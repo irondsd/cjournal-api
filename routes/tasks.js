@@ -85,9 +85,50 @@ router.post('/:id/tasks', validateTask, (req, res, next) => {
     })
 })
 
-router.put('/:uid/tasks/:aid', validateTask, (req, res, next) => {
+router.post('/:uid/tasks/:tid/postpone', (req, res, next) => {
+    if (req.body.time) {
+        query = `select time, data from tasks where id = ${req.params.tid} and users_id = ${req.params.uid} limit 1`
+        // console.log(query)
+        db.all(query, (err, rows) => {
+            let time
+            let data
+            let last_updated = req.body.last_updated ? req.body.last_updated : timestamp()
+            try {
+                time = rows[0].time + parseInt(req.body.time)
+                data = JSON.parse(rows[0].data)
+                if (data && data.postponed) data.postponed = data.postponed + 1
+                else data = { postponed: 1 }
+            } catch (error) {
+                return errors.incorrectInput(res)
+            }
+
+            let query = `update tasks set time = ${time}, last_updated = '${last_updated}', data = '${JSON.stringify(
+                data
+            )}' where id = ${req.params.tid}`
+            if (data.postponed >= 3)
+                query = `update tasks set time = ${time}, last_updated = '${last_updated}', completed = '1', data = '${JSON.stringify(
+                    data
+                )}' where id = ${req.params.tid}`
+            console.log(query)
+            db.run(query, function(err, rows) {
+                if (err) {
+                    log(`tasks internal error ${err}`)
+                    return error.internalError()
+                } else {
+                    res.status(201).send({
+                        id: req.params.tid
+                    })
+                }
+            })
+        })
+    } else {
+        return errors.incompleteInput(res)
+    }
+})
+
+router.put('/:uid/tasks/:tid', validateTask, (req, res, next) => {
     let user_id = parseInt(req.params.uid)
-    let id = parseInt(req.params.aid)
+    let id = parseInt(req.params.tid)
     let activity_type = stringSanitizer(req.body.activity_type)
     let time = parseInt(req.body.time)
     let completed = req.body.completed ? parseInt(req.body.completed) : false
@@ -105,7 +146,7 @@ router.put('/:uid/tasks/:aid', validateTask, (req, res, next) => {
 
     let sql
     if (req.body.completed) {
-        sql = `update tasks set activity_type = '${activity_type}', time = '${time}', completed = '${completed}', last_updated = '${last_updated}', ref_id = '${aid}' where id = ${aid}`
+        sql = `update tasks set activity_type = '${activity_type}', time = '${time}', completed = '${completed}', last_updated = '${last_updated}', ref_id = '${tid}' where id = ${tid}`
     } else {
         sql = `update tasks set activity_type = '${activity_type}', time = '${time}', last_updated = '${timestamp()}', data = '${data}', ref_id = '${id}' where id = ${id}`
     }
@@ -123,12 +164,12 @@ router.put('/:uid/tasks/:aid', validateTask, (req, res, next) => {
     })
 })
 
-router.delete('/:uid/tasks/:aid', (req, res) => {
-    if (!req.params.aid) {
+router.delete('/:uid/tasks/:tid', (req, res) => {
+    if (!req.params.tid) {
         return errors.incompleteInput(res)
     }
 
-    let sql = `update tasks set deleted = '1', last_updated = '${timestamp()}' where id = '${req.params.aid}'`
+    let sql = `update tasks set deleted = '1', last_updated = '${timestamp()}' where id = '${req.params.tid}'`
     db.run(sql, (err, rows) => {
         if (err) {
             log(`delete tasks internal error ${err}`)
@@ -140,12 +181,12 @@ router.delete('/:uid/tasks/:aid', (req, res) => {
 })
 
 // undelete
-router.patch('/:uid/tasks/:aid', (req, res) => {
-    if (!req.params.aid) {
+router.patch('/:uid/tasks/:tid', (req, res) => {
+    if (!req.params.tid) {
         return errors.incompleteInput(res)
     }
 
-    let sql = `update tasks set deleted = '0', last_updated = '${timestamp()}' where id = '${req.params.aid}'`
+    let sql = `update tasks set deleted = '0', last_updated = '${timestamp()}' where id = '${req.params.tid}'`
     db.run(sql, (err, rows) => {
         if (err) {
             log(`undelete tasks internal error ${err}`)
