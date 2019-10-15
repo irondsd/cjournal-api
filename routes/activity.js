@@ -120,7 +120,7 @@ router.post('/:uid/activity', saveAudio, validateActivity, (req, res, next) => {
             data = {}
         }
 
-    if (req.file) data.audio = req.file.path
+    if (req.file) data.audio = req.file.path.replace('\\', '/')
     data = JSON.stringify(data)
 
     let sql = `insert into activity(users_id, activity_type, time_started, comment, data, tasks_id, time_ended, version, last_updated, uploaded) values 
@@ -161,7 +161,7 @@ router.put('/:uid/activity/:aid', saveAudio, validateActivity, (req, res, next) 
             data = {}
         }
 
-    if (req.file) data.audio = req.file.path
+    if (req.file) data.audio = req.file.path.replace('\\', '/')
     data = JSON.stringify(data)
 
     let queryPreserve = `insert into activity (users_id, activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, comment, data, deleted, version, uploaded) SELECT users_id, activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, comment, data, 1, version, uploaded FROM activity where id = '${req.params.aid}'`
