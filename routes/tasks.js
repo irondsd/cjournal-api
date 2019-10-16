@@ -7,6 +7,7 @@ const errors = require('../helpers/errors')
 const log = require('../helpers/logger')
 const validateTask = require('../middleware/validateTask')
 const stringSanitizer = require('../helpers/stringSanitizer')
+const intSanitizer = require('../helpers/intSanitizer')
 
 router.get('/:uid/tasks', (req, res) => {
     let timeframe = ``
@@ -65,9 +66,9 @@ router.get('/:uid/tasks/:tid', (req, res) => {
 })
 
 router.post('/:id/tasks', validateTask, (req, res, next) => {
-    let users_id = parseInt(req.params.id)
+    let users_id = intSanitizer(req.params.id)
     let activity_type = stringSanitizer(req.body.activity_type)
-    let time = parseInt(req.body.time)
+    let time = intSanitizer(req.body.time)
     let data = JSON.stringify(req.body.data)
 
     sql = `insert into tasks(users_id, activity_type, time, completed, last_updated, data) values 
@@ -94,7 +95,7 @@ router.post('/:uid/tasks/:tid/postpone', (req, res, next) => {
             let data
             let last_updated = req.body.last_updated ? req.body.last_updated : timestamp()
             try {
-                time = rows[0].time + parseInt(req.body.time)
+                time = rows[0].time + intSanitizer(req.body.time)
                 data = JSON.parse(rows[0].data)
                 if (data)
                     if (data.postponed) data.postponed = data.postponed + 1
@@ -129,11 +130,11 @@ router.post('/:uid/tasks/:tid/postpone', (req, res, next) => {
 })
 
 router.put('/:uid/tasks/:tid', validateTask, (req, res, next) => {
-    let user_id = parseInt(req.params.uid)
-    let id = parseInt(req.params.tid)
+    let user_id = intSanitizer(req.params.uid)
+    let id = intSanitizer(req.params.tid)
     let activity_type = stringSanitizer(req.body.activity_type)
-    let time = parseInt(req.body.time)
-    let completed = req.body.completed ? parseInt(req.body.completed) : false
+    let time = intSanitizer(req.body.time)
+    let completed = req.body.completed ? intSanitizer(req.body.completed) : false
     let data = req.body.data ? req.body.data : {}
 
     let queryPreserve = `insert into tasks (users_id, activity_type, time, completed, ref_id, last_updated, data, deleted) SELECT users_id, activity_type, time, completed, ref_id, ${timestamp()}, data, 1 FROM tasks where id = '${id}'`

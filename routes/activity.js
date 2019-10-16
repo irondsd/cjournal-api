@@ -9,6 +9,7 @@ const { saveAudio } = require('../middleware/saveAudio')
 const errors = require('../helpers/errors')
 const log = require('../helpers/logger')
 const stringSanitizer = require('../helpers/stringSanitizer')
+const intSanitizer = require('../helpers/intSanitizer')
 
 router.get('/:uid/activity', (req, res) => {
     let timeframe = ``
@@ -102,15 +103,15 @@ router.get('/:uid/activity/:aid', (req, res) => {
 })
 
 router.post('/:uid/activity', saveAudio, validateActivity, (req, res, next) => {
-    let users_id = parseInt(req.params.uid)
+    let users_id = intSanitizer(req.params.uid)
     let activity_type = stringSanitizer(req.body.activity_type)
-    let time_started = parseInt(req.body.time_started)
-    let time_ended = req.body.time_ended ? parseInt(req.body.time_ended) : null
-    let tasks_id = req.body.tasks_id ? parseInt(req.body.tasks_id) : null
-    let version = req.body.version ? parseInt(req.body.version) : 1
+    let time_started = intSanitizer(req.body.time_started)
+    let time_ended = req.body.time_ended ? intSanitizer(req.body.time_ended) : null
+    let tasks_id = req.body.tasks_id ? intSanitizer(req.body.tasks_id) : null
+    let version = req.body.version ? intSanitizer(req.body.version) : 1
     let comment = req.body.comment ? stringSanitizer(req.body.comment) : ''
     let data = req.body.data ? req.body.data : {}
-    let last_updated = req.body.last_updated ? parseInt(req.body.last_updated) : timestamp()
+    let last_updated = req.body.last_updated ? intSanitizer(req.body.last_updated) : timestamp()
 
     // form-data doesn't allow to send objects
     if (typeof req.body.data === 'string')
@@ -143,15 +144,15 @@ router.post('/:uid/activity', saveAudio, validateActivity, (req, res, next) => {
 })
 
 router.put('/:uid/activity/:aid', saveAudio, validateActivity, (req, res, next) => {
-    let users_id = parseInt(req.params.uid)
+    let users_id = intSanitizer(req.params.uid)
     let activity_type = stringSanitizer(req.body.activity_type)
-    let time_started = parseInt(req.body.time_started)
-    let time_ended = req.body.time_ended ? parseInt(req.body.time_ended) : null
-    let tasks_id = req.body.tasks_id ? parseInt(req.body.tasks_id) : null
-    let version = req.body.version ? parseInt(req.body.version) : 1
+    let time_started = intSanitizer(req.body.time_started)
+    let time_ended = req.body.time_ended ? intSanitizer(req.body.time_ended) : null
+    let tasks_id = req.body.tasks_id ? intSanitizer(req.body.tasks_id) : null
+    let version = req.body.version ? intSanitizer(req.body.version) : 1
     let comment = req.body.comment ? stringSanitizer(req.body.comment) : ''
     let data = req.body.data ? req.body.data : {}
-    let last_updated = req.body.last_updated ? parseInt(req.body.last_updated) : timestamp()
+    let last_updated = req.body.last_updated ? intSanitizer(req.body.last_updated) : timestamp()
 
     // form-data doesn't allow to send objects
     if (typeof req.body.data === 'string')
