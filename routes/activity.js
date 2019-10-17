@@ -110,7 +110,7 @@ router.post('/:uid/activity', saveAudio, validateActivity, (req, res, next) => {
     let tasks_id = req.body.tasks_id ? intSanitizer(req.body.tasks_id) : null
     let version = req.body.version ? intSanitizer(req.body.version) : 1
     let comment = req.body.comment ? stringSanitizer(req.body.comment) : ''
-    let data = req.body.data ? req.body.data : {}
+    let data = req.body.data ? JSON.stringify(req.body.data) : {}
     let last_updated = req.body.last_updated ? intSanitizer(req.body.last_updated) : timestamp()
 
     // form-data doesn't allow to send objects
@@ -151,7 +151,7 @@ router.put('/:uid/activity/:aid', saveAudio, validateActivity, (req, res, next) 
     let tasks_id = req.body.tasks_id ? intSanitizer(req.body.tasks_id) : null
     let version = req.body.version ? intSanitizer(req.body.version) : 1
     let comment = req.body.comment ? stringSanitizer(req.body.comment) : ''
-    let data = req.body.data ? req.body.data : {}
+    let data = req.body.data ? JSON.stringify(req.body.data) : {}
     let last_updated = req.body.last_updated ? intSanitizer(req.body.last_updated) : timestamp()
 
     // form-data doesn't allow to send objects

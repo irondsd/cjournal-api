@@ -123,7 +123,7 @@ function postVirtualActivity(req, res) {
     let tasks_id = req.body.tasks_id ? req.body.tasks_id : null
     let version = req.body.version ? req.body.version : 1
     let comment = req.body.comment ? req.body.comment : ''
-    let data = req.body.data ? req.body.data : {}
+    let data = req.body.data ? JSON.stringify(req.body.data) : {}
     let last_updated = req.body.last_updated ? req.body.last_updated : timestamp()
     let set_deleted = req.body.set_deleted ? req.body.set_deleted : 0
 
@@ -160,7 +160,7 @@ function updateVirtualActivity(req, res) {
     let tasks_id = req.body.tasks_id ? req.body.tasks_id : null
     let version = req.body.version ? req.body.version : 1
     let comment = req.body.comment ? req.body.comment : ''
-    let data = req.body.data ? req.body.data : {}
+    let data = req.body.data ? JSON.stringify(req.body.data) : {}
     let last_updated = req.body.last_updated ? req.body.last_updated : timestamp()
     let set_deleted = req.body.set_deleted ? req.body.set_deleted : 0
 
