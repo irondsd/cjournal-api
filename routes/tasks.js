@@ -149,7 +149,9 @@ router.put('/:uid/tasks/:tid', validateTask, (req, res, next) => {
 
     let sql
     if (req.body.completed) {
-        sql = `update tasks set activity_type = '${activity_type}', time = '${time}', completed = '${completed}', last_updated = '${timestamp()}', ref_id = '${tid}' where id = ${tid}`
+        sql = `update tasks set activity_type = '${activity_type}', time = '${time}', completed = '${completed}', last_updated = '${timestamp()}', ref_id = '${
+            req.params.tid
+        }' where id = ${req.params.tid}`
     } else {
         sql = `update tasks set activity_type = '${activity_type}', time = '${time}', last_updated = '${timestamp()}', data = '${data}', ref_id = '${id}' where id = ${id}`
     }
