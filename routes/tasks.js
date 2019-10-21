@@ -69,7 +69,7 @@ router.post('/:id/tasks', validateTask, (req, res, next) => {
     let users_id = intSanitizer(req.params.id)
     let activity_type = stringSanitizer(req.body.activity_type)
     let time = intSanitizer(req.body.time)
-    let data = JSON.stringify(req.body.data)
+    let data = req.body.data ? JSON.stringify(req.body.data) : '{}'
 
     sql = `insert into tasks(users_id, activity_type, time, completed, last_updated, data) values 
             ('${users_id}', '${activity_type}', '${time}', '0', '${timestamp()}', '${data}')`
@@ -135,7 +135,7 @@ router.put('/:uid/tasks/:tid', validateTask, (req, res, next) => {
     let activity_type = stringSanitizer(req.body.activity_type)
     let time = intSanitizer(req.body.time)
     let completed = req.body.completed ? intSanitizer(req.body.completed) : false
-    let data = req.body.data ? req.body.data : {}
+    let data = req.body.data ? JSON.stringify(req.body.data) : '{}'
 
     let queryPreserve = `insert into tasks (users_id, activity_type, time, completed, ref_id, last_updated, data, deleted) SELECT users_id, activity_type, time, completed, ref_id, ${timestamp()}, data, 1 FROM tasks where id = '${id}'`
     db.run(queryPreserve, (err, rows) => {
