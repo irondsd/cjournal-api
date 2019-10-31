@@ -136,8 +136,8 @@ router.post('/:uid/activity', saveAudio, validateActivity, (req, res, next) => {
             res.status(201).send({
                 id: this.lastID
             })
-            if (tasks_id && tasks_id !== null) {
-                taskMarkCompleted(tasks_id)
+            if (tasks_id && tasks_id !== null && !req.body.data.failed) {
+                taskMarkCompleted(tasks_id, this.lastID)
             }
         }
     })
@@ -189,8 +189,8 @@ router.put('/:uid/activity/:aid', saveAudio, validateActivity, (req, res, next) 
             res.status(201).send({
                 id: req.params.aid
             })
-            if (tasks_id && tasks_id !== null) {
-                taskMarkCompleted(tasks_id)
+            if (tasks_id && tasks_id !== null && !req.body.data.failed) {
+                taskMarkCompleted(tasks_id, req.params.aid)
             }
         }
     })

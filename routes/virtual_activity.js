@@ -141,8 +141,8 @@ function postVirtualActivity(req, res) {
             res.status(201).send({
                 id: this.lastID
             })
-            if (req.body.tasks_id && req.body.data.successful) {
-                taskMarkCompleted(req.body.tasks_id)
+            if (tasks_id && tasks_id !== null && !req.body.data.failed) {
+                taskMarkCompleted(req.body.tasks_id, this.lastID)
             }
         }
     })
