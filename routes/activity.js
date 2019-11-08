@@ -106,8 +106,8 @@ router.post('/:uid/activity', saveAudio, validateActivity, (req, res, next) => {
     let users_id = intSanitizer(req.params.uid)
     let activity_type = stringSanitizer(req.body.activity_type)
     let time_started = intSanitizer(req.body.time_started)
-    let time_ended = req.body.time_ended ? intSanitizer(req.body.time_ended) : null
-    let tasks_id = req.body.tasks_id ? intSanitizer(req.body.tasks_id) : null
+    let time_ended = req.body.time_ended ? `'${intSanitizer(req.body.time_ended)}'` : 'NULL'
+    let tasks_id = req.body.tasks_id ? `'${intSanitizer(req.body.tasks_id)}'` : 'NULL'
     let version = req.body.version ? intSanitizer(req.body.version) : 1
     let comment = req.body.comment ? stringSanitizer(req.body.comment) : ''
     let data = req.body.data ? req.body.data : {}
@@ -128,7 +128,7 @@ router.post('/:uid/activity', saveAudio, validateActivity, (req, res, next) => {
     data = JSON.stringify(data)
 
     let sql = `insert into activity(users_id, activity_type, time_started, comment, data, tasks_id, time_ended, version, last_updated, uploaded) values 
-            ('${users_id}', '${activity_type}', '${time_started}', '${comment}', '${data}', '${tasks_id}', '${time_ended}', '${version}', '${last_updated}', '${timestamp()}')`
+            ('${users_id}', '${activity_type}', '${time_started}', '${comment}', '${data}', ${tasks_id}, ${time_ended}, '${version}', '${last_updated}', '${timestamp()}')`
 
     // console.log(sql)
     db.run(sql, function(err, rows) {
@@ -150,8 +150,8 @@ router.put('/:uid/activity/:aid', saveAudio, validateActivity, (req, res, next) 
     let users_id = intSanitizer(req.params.uid)
     let activity_type = stringSanitizer(req.body.activity_type)
     let time_started = intSanitizer(req.body.time_started)
-    let time_ended = req.body.time_ended ? intSanitizer(req.body.time_ended) : null
-    let tasks_id = req.body.tasks_id ? intSanitizer(req.body.tasks_id) : null
+    let time_ended = req.body.time_ended ? `'${intSanitizer(req.body.time_ended)}'` : 'NULL'
+    let tasks_id = req.body.tasks_id ? `'${intSanitizer(req.body.tasks_id)}'` : 'NULL'
     let version = req.body.version ? intSanitizer(req.body.version) : 1
     let comment = req.body.comment ? stringSanitizer(req.body.comment) : ''
     let data = req.body.data ? req.body.data : {}
@@ -181,8 +181,8 @@ router.put('/:uid/activity/:aid', saveAudio, validateActivity, (req, res, next) 
         }
     })
     let sql = `update activity set activity_type = '${activity_type}', time_started = '${time_started}', 
-    time_ended = '${time_ended}', comment = '${comment}', data = '${data}', last_updated = '${last_updated}', 
-    ref_id = '${req.params.aid}', uploaded = '${timestamp()}' where id = ${req.params.aid}`
+    time_ended = ${time_ended}, comment = '${comment}', data = '${data}', last_updated = '${last_updated}', 
+    ref_id = '${req.params.aid}', uploaded = '${timestamp()}' tasks_id = ${tasks_id} where id = ${req.params.aid}`
     // console.log(queryPreserve)
     db.run(sql, function(err, rows) {
         if (err) {
