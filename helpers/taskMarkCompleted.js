@@ -5,10 +5,10 @@ const log = require('../helpers/logger')
 
 function taskMarkCompleted(tasks_id, activity_id) {
     query = `select data from tasks where id = ${tasks_id} limit 1`
-    console.log(query)
+    // console.log(query)
     db.all(query, (err, rows) => {
         if (err) console.log(err)
-
+        if (rows.length < 1) return
         let data = rows[0].data
         data = JSON.parse(data)
         data['activity_id'] = activity_id
