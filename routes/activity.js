@@ -182,7 +182,7 @@ router.put('/:uid/activity/:aid', saveAudio, validateActivity, (req, res, next) 
     })
     let sql = `update activity set activity_type = '${activity_type}', time_started = '${time_started}', 
     time_ended = ${time_ended}, comment = '${comment}', data = '${data}', last_updated = '${last_updated}', 
-    ref_id = '${req.params.aid}', uploaded = '${timestamp()}' tasks_id = ${tasks_id} where id = ${req.params.aid}`
+    ref_id = '${req.params.aid}', uploaded = '${timestamp()}', tasks_id = ${tasks_id} where id = ${req.params.aid}`
     // console.log(queryPreserve)
     db.run(sql, function(err, rows) {
         if (err) {
