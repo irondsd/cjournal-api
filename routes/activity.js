@@ -106,8 +106,8 @@ router.post('/:uid/activity', saveAudio, validateActivity, (req, res, next) => {
     let users_id = intSanitizer(req.params.uid)
     let activity_type = stringSanitizer(req.body.activity_type)
     let time_started = intSanitizer(req.body.time_started)
-    let time_ended = req.body.time_ended ? `'${intSanitizer(req.body.time_ended)}'` : 'NULL'
-    let tasks_id = req.body.tasks_id ? `'${intSanitizer(req.body.tasks_id)}'` : 'NULL'
+    let time_ended = req.body.time_ended ? intSanitizer(req.body.time_ended) : null
+    let tasks_id = req.body.tasks_id ? intSanitizer(req.body.tasks_id) : null
     let version = req.body.version ? intSanitizer(req.body.version) : 1
     let comment = req.body.comment ? stringSanitizer(req.body.comment) : ''
     let data = req.body.data ? req.body.data : {}
@@ -126,6 +126,9 @@ router.post('/:uid/activity', saveAudio, validateActivity, (req, res, next) => {
         last_updated = timestamp() // because we changed data just now.
     }
     data = JSON.stringify(data)
+
+    time_ended === null ? (time_ended = 'NULL') : (time_ended = `'${time_ended}'`)
+    tasks_id === null ? (tasks_id = 'NULL') : (tasks_id = `'${tasks_id}'`)
 
     let sql = `insert into activity(users_id, activity_type, time_started, comment, data, tasks_id, time_ended, version, last_updated, uploaded) values 
             ('${users_id}', '${activity_type}', '${time_started}', '${comment}', '${data}', ${tasks_id}, ${time_ended}, '${version}', '${last_updated}', '${timestamp()}')`
