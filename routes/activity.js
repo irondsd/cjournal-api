@@ -196,6 +196,7 @@ router.put('/:uid/activity/:aid', saveAudio, validateActivity, (req, res, next) 
                 id: req.params.aid
             })
             if (tasks_id && tasks_id !== 'NULL' && !req.body.data.failed) {
+                console.log(req.body)
                 taskMarkCompleted(tasks_id, req.params.aid)
             }
         }
