@@ -5,7 +5,7 @@ const db = new sqlite.Database('./db/trackers.db')
 const validateActivity = require('../middleware/validateActivity')
 const { timestamp } = require('../helpers/timestamp')
 const { taskMarkCompleted } = require('../helpers/taskMarkCompleted')
-const { saveAudio } = require('../middleware/saveAudio')
+const { saveFiles } = require('../middleware/saveFiles')
 const errors = require('../helpers/errors')
 const log = require('../helpers/logger')
 const stringSanitizer = require('../helpers/stringSanitizer')
@@ -102,7 +102,7 @@ router.get('/:uid/activity/:aid', (req, res) => {
     })
 })
 
-router.post('/:uid/activity', saveAudio, validateActivity, (req, res, next) => {
+router.post('/:uid/activity', saveFiles, validateActivity, (req, res, next) => {
     let users_id = intSanitizer(req.params.uid)
     let activity_type = stringSanitizer(req.body.activity_type)
     let time_started = intSanitizer(req.body.time_started)
@@ -121,9 +121,15 @@ router.post('/:uid/activity', saveAudio, validateActivity, (req, res, next) => {
             data = {}
         }
 
-    if (req.file) {
-        data.audio = req.file.path.replace('\\', '/')
+    if (req.files) {
         last_updated = timestamp() // because we changed data just now.
+
+        if (req.files.audio) {
+            data.audio = req.files.audio[0].path.replace('\\', '/')
+        }
+        if (req.files.image) {
+            data.image = req.files.image[0].path.replace('\\', '/')
+        }
     }
     data = JSON.stringify(data)
 
@@ -149,7 +155,7 @@ router.post('/:uid/activity', saveAudio, validateActivity, (req, res, next) => {
     })
 })
 
-router.put('/:uid/activity/:aid', saveAudio, validateActivity, (req, res, next) => {
+router.put('/:uid/activity/:aid', saveFiles, validateActivity, (req, res, next) => {
     let activity_type = stringSanitizer(req.body.activity_type)
     let time_started = intSanitizer(req.body.time_started)
     let time_ended = req.body.time_ended ? intSanitizer(req.body.time_ended) : null

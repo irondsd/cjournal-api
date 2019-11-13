@@ -15,10 +15,10 @@ db/trackers.db
 
 # ignore .vscode
 .vscode/ 
+.prettierrc
 
 # ignore .env
 .env
 
 #uploads
-audios/
-Icon
+uploads/
