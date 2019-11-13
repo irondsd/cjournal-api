@@ -14,16 +14,23 @@ const intSanitizer = require('../helpers/intSanitizer')
 router.get('/:uid/activity', (req, res) => {
     let timeframe = ``
     if (req.query.from) {
-        timeframe += ` and time_started > ${req.query.from} `
+        timeframe += ` and time_started >= ${req.query.from} `
+    } else if (req.query.fromchanged) {
+        timeframe += ` and last_updated >= ${req.query.fromchanged} `
     }
     if (req.query.to) {
-        timeframe += ` and time_started < ${req.query.to} `
+        timeframe += ` and last_updated <= ${req.query.to} `
+    } else if (req.query.tochanged) {
+        timeframe += ` and last_updated <= ${req.query.tochanged} `
     }
     let deleted = ` and deleted = 0`
+    let selectDeleted = ''
     if (req.query.deleted == 1) {
         deleted = ` and deleted = 1`
+        selectDeleted = ', deleted'
     } else if (req.query.deleted == 'all') {
         deleted = ''
+        selectDeleted = ', deleted'
     }
     let uploaded = ``
     if (req.query.uploaded) {
@@ -37,7 +44,7 @@ router.get('/:uid/activity', (req, res) => {
     let page = ``
 
     sql =
-        `select id, users_id, activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, comment, data${uploaded}${version} from activity where users_id = ` +
+        `select id, users_id, activity_type, time_started, time_ended, tasks_id${selectDeleted}, ref_id, last_updated, comment, data${uploaded}${version} from activity where users_id = ` +
         req.params.uid +
         timeframe +
         deleted
