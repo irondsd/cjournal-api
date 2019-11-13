@@ -46,7 +46,7 @@ app.use('/api/users/', prescriptions)
 app.use('/api/users/', virtual_activity)
 
 //static
-app.use('/audios/', express.static('audios'))
+app.use('/uploads/', express.static('uploads'))
 
 // handle errors
 app.use((error, req, res, next) => errorHandlers(error, req, res, next))
