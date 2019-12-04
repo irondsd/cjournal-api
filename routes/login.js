@@ -34,7 +34,7 @@ router.post('/qr', checkAuth, (req, res, next) => {
     if (req.body.id) id = req.body.id
 
     let query = `select 
-users.id, name, birthday, gender, email, password, device_type, last_seen, information, hide_elements, language, permissions,
+users.id, name, birthday, gender, email, password, idinv, last_seen, information, hide_elements, language, permissions,
 prescriptions.course_therapy, relief_of_attack, tests
 from users 
 inner join 
@@ -60,7 +60,10 @@ where users.id = '${id}' limit 1`
 gen_api_key = function(user) {
     // let options = { expiresIn: '365d' }
 
-    return jwt.sign({ id: user.id, permissions: user.permissions }, process.env.TOKEN_KEY)
+    return jwt.sign(
+        { id: user.id, permissions: user.permissions },
+        process.env.TOKEN_KEY,
+    )
 }
 
 response = function(user) {
@@ -71,21 +74,21 @@ response = function(user) {
         gender: user.gender,
         birthday: user.birthday,
         api_key: user.api_key,
-        device_type: user.device_type,
+        idinv: user.idinv,
         information: user.information,
         hide_elements: user.hide_elements,
         course_therapy: user.course_therapy,
         relief_of_attack: user.relief_of_attack,
         tests: user.tests,
         language: user.language,
-        permissions: user.permissions
+        permissions: user.permissions,
     }
 }
 
 generate_qr = function(req, res) {
     // information that mobile app doesn't need
     delete req.user.permissions
-    delete req.user.device_type
+    delete req.user.idinv
     delete req.user.information
     delete req.user.language
 
@@ -95,7 +98,7 @@ generate_qr = function(req, res) {
         delete req.user.course_therapy
         delete req.user.relief_of_attack
         delete req.user.tests
-        delete req.user.device_type
+        delete req.user.idinv
     }
 
     let cipherText = simpleCrypto.encrypt(response(req.user))

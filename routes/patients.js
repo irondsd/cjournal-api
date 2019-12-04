@@ -17,11 +17,11 @@ router.get('/:id/patients', (req, res) => {
         let patient_ids = [
             ...rows.map(el => {
                 return el.patient_id
-            })
+            }),
         ]
 
         query = `select 
-                users.id, name, birthday, gender, email, device_type, last_seen,
+                users.id, name, birthday, gender, email, idinv, last_seen,
                 prescriptions.course_therapy, relief_of_attack, tests
                 from users 
                 inner join 
@@ -50,11 +50,11 @@ router.get('/:id/doctors', (req, res) => {
         let doctor_ids = [
             ...rows.map(el => {
                 return el.doctor_id
-            })
+            }),
         ]
 
         query = `select 
-                id, name, birthday, gender, email, device_type, last_seen from users
+                id, name, birthday, gender, email, idinv, last_seen from users
                 where users.id in (${doctor_ids})`
         // console.log(query)
         db.all(query, (err, rows) => {
