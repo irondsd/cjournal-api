@@ -7,6 +7,8 @@ module.exports = (req, res, next) => {
         if (!validateEmail(req.body.email)) {
             errors.incorrectInput(res)
         }
+    } else {
+        errors.incompleteInput(res)
     }
     next()
 }
