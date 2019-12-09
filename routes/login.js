@@ -60,10 +60,7 @@ where users.id = '${id}' limit 1`
 gen_api_key = function(user) {
     // let options = { expiresIn: '365d' }
 
-    return jwt.sign(
-        { id: user.id, permissions: user.permissions },
-        process.env.TOKEN_KEY,
-    )
+    return jwt.sign({ id: user.id, permissions: user.permissions }, process.env.TOKEN_KEY)
 }
 
 response = function(user) {
@@ -88,6 +85,7 @@ response = function(user) {
 generate_qr = function(req, res) {
     // information that mobile app doesn't need
     delete req.user.permissions
+    delete req.user.password
     delete req.user.idinv
     delete req.user.information
     delete req.user.language
@@ -98,7 +96,10 @@ generate_qr = function(req, res) {
         delete req.user.course_therapy
         delete req.user.relief_of_attack
         delete req.user.tests
-        delete req.user.idinv
+        delete req.user.name
+        delete req.user.email
+        delete req.user.gender
+        delete req.user.birthday
     }
 
     let cipherText = simpleCrypto.encrypt(response(req.user))

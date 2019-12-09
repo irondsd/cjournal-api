@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs')
 const log = require('../helpers/logger')
 const errors = require('../helpers/errors')
 const validateEmail = require('../helpers/validateEmail')
+const objectify = require('../helpers/objectify')
 
 module.exports = (req, res, next) => {
     if (req.body.email && req.body.password) {
@@ -24,12 +25,7 @@ where users.email = '${req.body.email}' limit 1`
             if (rows[0]) {
                 hash = rows[0].password
                 if (bcrypt.compareSync(req.body.password, hash)) {
-                    for (el of rows) {
-                        el.hide_elements = JSON.parse(el.hide_elements)
-                        el.course_therapy = JSON.parse(el.course_therapy)
-                        el.relief_of_attack = JSON.parse(el.relief_of_attack)
-                        el.tests = JSON.parse(el.tests)
-                    }
+                    objectify.all(rows)
                     req.user = rows[0]
                     next()
                 } else {
