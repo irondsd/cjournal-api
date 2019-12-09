@@ -137,7 +137,7 @@ db.serialize(() => {
 
 if (populate) {
     db.run(
-        `INSERT INTO users(name, idinv, birthday, gender, last_seen, email, password, information, language) VALUES ('Alexander Feldman', '111','10.05.1957', 'male', '1550507313', 'ggn00b@mail.ru', '$2a$10$teACha.MBCW68XIqYHAZielRJa5qSbSx6DKf4ihAqTVqOgJtg3aoe', 'You are the patint of Whatever hostpital. Your doctor is Donald Trump. Wut? You crazy or what? You can contact him on the phone number +13947576392', 'ru')`,
+        `INSERT INTO users(name, idinv, birthday, gender, last_seen, email, password, information, language, hide_elements) VALUES ('Alexander Feldman', '111','10.05.1957', 'male', '1550507313', 'ggn00b@mail.ru', '$2a$10$teACha.MBCW68XIqYHAZielRJa5qSbSx6DKf4ihAqTVqOgJtg3aoe', 'You are the patint of Whatever hostpital. Your doctor is Donald Trump. Wut? You crazy or what? You can contact him on the phone number +13947576392', 'ru', '[]')`,
         err => {
             if (err) {
                 errors = true
@@ -145,7 +145,7 @@ if (populate) {
         },
     )
     db.run(
-        `INSERT INTO users(name, idinv, birthday, gender, last_seen, email, password, information, language) VALUES ('Carl Sagan', '222', '10.05.1987', 'male','1550507313', 'ggn00b@mail.ua', '$2a$10$teACha.MBCW68XIqYHAZielRJa5qSbSx6DKf4ihAqTVqOgJtg3aoe', 'You are the patint of Whatever hostpital. Your doctor is Donald Trump. Wut? You crazy or what? You can contact him on the phone number +13947576392', 'es')`,
+        `INSERT INTO users(name, idinv, birthday, gender, last_seen, email, password, information, language, hide_elements) VALUES ('Carl Sagan', '222', '10.05.1987', 'male','1550507313', 'ggn00b@mail.ua', '$2a$10$teACha.MBCW68XIqYHAZielRJa5qSbSx6DKf4ihAqTVqOgJtg3aoe', 'You are the patint of Whatever hostpital. Your doctor is Donald Trump. Wut? You crazy or what? You can contact him on the phone number +13947576392', 'es', '[]')`,
         err => {
             if (err) {
                 errors = true
@@ -153,7 +153,7 @@ if (populate) {
         },
     )
     db.run(
-        `INSERT INTO users(name, idinv, birthday, gender, last_seen, email, password, information, language, permissions) VALUES ('Max Plank', '333', '10.05.1963', 'male','1550507313', 'ggn000b@gmail.com', '$2a$10$teACha.MBCW68XIqYHAZielRJa5qSbSx6DKf4ihAqTVqOgJtg3aoe', 'You are the patint of Whatever hostpital. Your doctor is Donald Trump. Wut? You crazy or what? You can contact him on the phone number +13947576392', 'en', '3')`,
+        `INSERT INTO users(name, idinv, birthday, gender, last_seen, email, password, information, language, permissions, hide_elements) VALUES ('Max Plank', '333', '10.05.1963', 'male','1550507313', 'ggn000b@gmail.com', '$2a$10$teACha.MBCW68XIqYHAZielRJa5qSbSx6DKf4ihAqTVqOgJtg3aoe', 'You are the patint of Whatever hostpital. Your doctor is Donald Trump. Wut? You crazy or what? You can contact him on the phone number +13947576392', 'en', '3', '[]')`,
         err => {
             if (err) {
                 errors = true
@@ -203,7 +203,7 @@ if (populate) {
     )
 
     db.run(
-        `insert into tasks(users_id, activity_type, time, last_updated) values ('1', 'Walking', 1555166888, 1555241651)`,
+        `insert into tasks(users_id, activity_type, time, last_updated, data) values ('1', 'Walking', 1555166888, 1555241651, '{}')`,
         err => {
             if (err) {
                 log(err)
@@ -213,7 +213,7 @@ if (populate) {
     )
 
     db.run(
-        `insert into tasks(users_id, activity_type, time, last_updated) values ('1', 'Walking', 1555166888, 1555241651)`,
+        `insert into tasks(users_id, activity_type, time, last_updated, data) values ('1', 'Walking', 1555166888, 1555241651, '{}')`,
         err => {
             if (err) {
                 log(err)
@@ -223,7 +223,7 @@ if (populate) {
     )
 
     db.run(
-        `insert into tasks(users_id, activity_type, time, last_updated) values ('3', 'Walking', 1555166888, 1555241651)`,
+        `insert into tasks(users_id, activity_type, time, last_updated, data) values ('3', 'Walking', 1555166888, 1555241651, '{}')`,
         err => {
             if (err) {
                 log(err)
