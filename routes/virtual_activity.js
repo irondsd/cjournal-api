@@ -7,6 +7,7 @@ let { taskMarkCompleted } = require('../helpers/taskMarkCompleted')
 const errors = require('../helpers/errors')
 const log = require('../helpers/logger')
 const validateVirtual = require('../middleware/validateVirtual')
+const objectify = require('../helpers/objectify')
 
 router.get('/:uid/virtual_activity', (req, res) => {
     let timeframe = ``
@@ -37,11 +38,7 @@ router.get('/:uid/virtual_activity', (req, res) => {
             return errors.internalError(res)
         }
         if (Array.isArray(rows)) for (el of rows) el.id = 'v' + el.id
-        try {
-            if (Array.isArray(rows)) for (el of rows) el.data = JSON.parse(el.data)
-        } catch (error) {
-            log(`error parsing json data from virtual activity ${error}`)
-        }
+        objectify.dataRows(rows)
 
         return res.send(rows)
     })
@@ -62,7 +59,7 @@ router.get('/:uid/virtual_activity/:aid', (req, res) => {
 
     if (req.params.aid.includes('v'))
         query = `select id, activity_id, users_id, doctor_id, activity_type, time_started, time_ended, tasks_id, comment, data${uploaded}, set_deleted from virtual_activity where id = ${req.params.aid.substring(
-            1
+            1,
         )} and users_id = ${req.params.uid}${deleted} ${doctor_id}`
     // console.log(query)
     db.all(query, (err, rows) => {
@@ -72,11 +69,7 @@ router.get('/:uid/virtual_activity/:aid', (req, res) => {
         }
         if (rows.length > 0) {
             for (el of rows) el.id = 'v' + el.id
-            try {
-                for (el of rows) el.data = JSON.parse(el.data)
-            } catch (error) {
-                log(`error parsing json data from virtual activity ${error}`)
-            }
+            objectify.dataRows(rows)
             return res.send(rows[0])
         } else {
             log(`get virtual id not found ${req.params.aid}`)
@@ -139,7 +132,7 @@ function postVirtualActivity(req, res) {
             return errors.internalError(res)
         } else {
             res.status(201).send({
-                id: this.lastID
+                id: this.lastID,
             })
             // if (tasks_id && tasks_id !== null && !req.body.data.failed) {
             //     taskMarkCompleted(req.body.tasks_id, this.lastID)
@@ -192,7 +185,7 @@ function updateVirtualActivity(req, res) {
                         `update virtual_activity set ref_id = '${this.lastID}' where activity_id = ${id}`,
                         (err, rows) => {
                             // console.log('added ref id')
-                        }
+                        },
                     )
                     res.status(201).send({ id: req.body.activity_id })
                 }
@@ -205,7 +198,9 @@ router.delete('/:uid/virtual_activity/:aid', (req, res) => {
     let sql = `update virtual_activity set deleted = '1' where activity_id = '${req.params.aid}'`
 
     if (req.params.aid.includes('v'))
-        sql = `update virtual_activity set deleted = '1' where id = '${req.params.aid.substring(1)}'`
+        sql = `update virtual_activity set deleted = '1' where id = '${req.params.aid.substring(
+            1,
+        )}'`
     // console.log(sql)
     db.run(sql, function(err, rows) {
         if (err) {
@@ -225,7 +220,9 @@ router.patch('/:uid/virtual_activity/:aid', (req, res) => {
     let sql = `update virtual_activity set deleted = '0' where activity_id = '${req.params.aid}'`
 
     if (req.params.aid.includes('v'))
-        sql = `update virtual_activity set deleted = '0' where id = '${req.params.aid.substring(1)}'`
+        sql = `update virtual_activity set deleted = '0' where id = '${req.params.aid.substring(
+            1,
+        )}'`
     // console.log(sql)
     db.run(sql, function(err, rows) {
         if (err) {

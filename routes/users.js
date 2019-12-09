@@ -11,6 +11,7 @@ const log = require('../helpers/logger')
 const { timestamp } = require('../helpers/timestamp')
 const stringSanitizer = require('../helpers/stringSanitizer')
 const arrayStringify = require('../helpers/arrayStringify')
+const objectify = require('../helpers/objectify')
 
 // Get all users
 router.get('/', checkAuth, (req, res, next) => {
@@ -28,18 +29,7 @@ prescriptions on users.id = prescriptions.users_id`
             return errors.internalError(res)
         }
 
-        try {
-            if (Array.isArray(rows)) {
-                for (el of rows) {
-                    el.hide_elements = JSON.parse(el.hide_elements)
-                    el.course_therapy = JSON.parse(el.course_therapy)
-                    el.relief_of_attack = JSON.parse(el.relief_of_attack)
-                    el.tests = JSON.parse(el.tests)
-                }
-            }
-        } catch (error) {
-            log(`error parsing JSON data of users`)
-        }
+        objectify.all(rows)
 
         res.send(rows)
     })
@@ -63,16 +53,7 @@ where users.id = ` + req.params.id
             return errors.internalError(res)
         }
         if (rows.length > 0) {
-            try {
-                for (el of rows) {
-                    el.hide_elements = JSON.parse(el.hide_elements)
-                    el.course_therapy = JSON.parse(el.course_therapy)
-                    el.relief_of_attack = JSON.parse(el.relief_of_attack)
-                    el.tests = JSON.parse(el.tests)
-                }
-            } catch (error) {
-                log(`error parsing JSON data of user's id ${rows[0].id}`)
-            }
+            objectify.all(rows)
             return res.send(rows[0])
         } else {
             log(`get users id not found ${req.params.id}`)
@@ -90,14 +71,11 @@ router.delete('/:id', checkAuth, (req, res, next) => {
         }
         if (this.changes) {
             // so if the device was actualy deleted, we need to clear prescritions data from prescritions table as well
-            db.run(
-                'delete from prescriptions where users_id = ' + req.params.id,
-                function(err) {
-                    if (err) {
-                        log(`error delete users need inspection ${err}`)
-                    }
-                },
-            )
+            db.run('delete from prescriptions where users_id = ' + req.params.id, function(err) {
+                if (err) {
+                    log(`error delete users need inspection ${err}`)
+                }
+            })
 
             // and finally return 204
             return res.status(204).send()
@@ -118,9 +96,7 @@ router.post('/', validateNewUser, checkAuth, (req, res, next) => {
                 return errors.internalError(res)
             }
             if (rows[0][Object.keys(rows[0])[0]] === 1) {
-                log(
-                    `user ${req.decoded.id} tried to post user with email ${req.body.email}`,
-                )
+                log(`user ${req.decoded.id} tried to post user with email ${req.body.email}`)
                 return errors.userExists(res)
             } else {
                 let salt = bcrypt.genSaltSync(10)
@@ -128,19 +104,11 @@ router.post('/', validateNewUser, checkAuth, (req, res, next) => {
 
                 let name = stringSanitizer(req.body.name)
                 let email = req.body.email // already checked by the middleware
-                let birthday = req.body.birthday
-                    ? stringSanitizer(req.body.birthday)
-                    : '01.01.1970'
-                let gender = req.body.gender
-                    ? stringSanitizer(req.body.gender)
-                    : 'male'
+                let birthday = req.body.birthday ? stringSanitizer(req.body.birthday) : '01.01.1970'
+                let gender = req.body.gender ? stringSanitizer(req.body.gender) : 'male'
                 let idinv = stringSanitizer(req.body.idinv)
-                let permissions = req.body.permissions
-                    ? req.body.permissions
-                    : 1
-                let information = req.body.information
-                    ? stringSanitizer(req.body.information)
-                    : ''
+                let permissions = req.body.permissions ? req.body.permissions : 1
+                let information = req.body.information ? stringSanitizer(req.body.information) : ''
                 let hide_elements = arrayStringify(req.body.hide_elements)
                 let language = req.body.language ? req.body.language : 'en'
                 let course_therapy = arrayStringify(req.body.course_therapy)
@@ -154,9 +122,7 @@ router.post('/', validateNewUser, checkAuth, (req, res, next) => {
                         log(`post users internal error ${err}`)
                         return errors.internalError(res)
                     } else {
-                        log(
-                            `user ${req.decoded.id} posted user with email ${email}`,
-                        )
+                        log(`user ${req.decoded.id} posted user with email ${email}`)
                         let query = `insert into prescriptions(users_id, course_therapy, relief_of_attack, tests) values ('${this.lastID}', '${course_therapy}', '${relief_of_attack}', '${tests}')`
                         let id = this.lastID
                         db.run(query, function(err, rows) {
@@ -198,10 +164,7 @@ prescriptions on users.id = prescriptions.users_id where id = '${req.params.id}'
                             let hash
                             if (req.body.new_password) {
                                 let salt = bcrypt.genSaltSync(10)
-                                hash = bcrypt.hashSync(
-                                    req.body.new_password,
-                                    salt,
-                                )
+                                hash = bcrypt.hashSync(req.body.new_password, salt)
                                 password_insert = ` password = '${hash}',`
                             }
                         } else {
@@ -211,15 +174,9 @@ prescriptions on users.id = prescriptions.users_id where id = '${req.params.id}'
                     }
 
                     // prevent erasing changes
-                    let name = req.body.name
-                        ? stringSanitizer(req.body.name)
-                        : rows[0].name
-                    let idinv = req.body.idinv
-                        ? stringSanitizer(req.body.idinv)
-                        : rows[0].idinv
-                    let gender = req.body.gender
-                        ? stringSanitizer(req.body.gender)
-                        : rows[0].gender
+                    let name = req.body.name ? stringSanitizer(req.body.name) : rows[0].name
+                    let idinv = req.body.idinv ? stringSanitizer(req.body.idinv) : rows[0].idinv
+                    let gender = req.body.gender ? stringSanitizer(req.body.gender) : rows[0].gender
                     let birthday = req.body.birthday
                         ? stringSanitizer(req.body.birthday)
                         : rows[0].birthday
@@ -229,9 +186,7 @@ prescriptions on users.id = prescriptions.users_id where id = '${req.params.id}'
                     let information = req.body.information
                         ? stringSanitizer(req.body.information)
                         : rows[0].information
-                    let language = req.body.language
-                        ? req.body.language
-                        : rows[0].language
+                    let language = req.body.language ? req.body.language : rows[0].language
                     let hide_elements = arrayStringify(
                         req.body.hide_elements,
                         rows[0].hide_elements,
@@ -251,9 +206,7 @@ prescriptions on users.id = prescriptions.users_id where id = '${req.params.id}'
                     db.all(query, (err, rows) => {
                         if (err) {
                             if (err.errno === 19) {
-                                log(
-                                    `put users error email exists ${req.body.email}`,
-                                )
+                                log(`put users error email exists ${req.body.email}`)
                                 return errors.userExists(res)
                             }
                             log(`need inspection users line 187 error`)
