@@ -8,6 +8,7 @@ const log = require('../helpers/logger')
 const validateTask = require('../middleware/validateTask')
 const stringSanitizer = require('../helpers/stringSanitizer')
 const intSanitizer = require('../helpers/intSanitizer')
+const objectify = require('../helpers/objectify')
 
 router.get('/:uid/tasks', (req, res) => {
     let timeframe = ``
@@ -40,7 +41,7 @@ router.get('/:uid/tasks', (req, res) => {
             return errors.internalError(res)
         }
 
-        if (Array.isArray(rows)) for (el of rows) el.data = JSON.parse(el.data)
+        objectify.dataRows(rows)
 
         res.send(rows)
     })
@@ -56,7 +57,7 @@ router.get('/:uid/tasks/:tid', (req, res) => {
             return errors.internalError(res)
         }
         if (rows.length > 0) {
-            for (el of rows) el.data = JSON.parse(el.data)
+            objectify.dataRows(rows)
             return res.send(rows[0])
         } else {
             log(`get tasks not found ${req.params.tid}`)
@@ -80,7 +81,7 @@ router.post('/:id/tasks', validateTask, (req, res, next) => {
             return errors.internalError(res)
         } else {
             res.status(201).send({
-                id: this.lastID
+                id: this.lastID,
             })
         }
     })
@@ -106,11 +107,11 @@ router.post('/:uid/tasks/:tid/postpone', (req, res, next) => {
             }
 
             let query = `update tasks set time = ${time}, last_updated = '${last_updated}', data = '${JSON.stringify(
-                data
+                data,
             )}' where id = ${req.params.tid}`
             if (data.postponed >= 3)
                 query = `update tasks set time = ${time}, last_updated = '${last_updated}', completed = '1', data = '${JSON.stringify(
-                    data
+                    data,
                 )}' where id = ${req.params.tid}`
             console.log(query)
             db.run(query, function(err, rows) {
@@ -119,7 +120,7 @@ router.post('/:uid/tasks/:tid/postpone', (req, res, next) => {
                     return error.internalError()
                 } else {
                     res.status(201).send({
-                        id: req.params.tid
+                        id: req.params.tid,
                     })
                 }
             })
@@ -174,7 +175,9 @@ router.delete('/:uid/tasks/:tid', (req, res) => {
         return errors.incompleteInput(res)
     }
 
-    let sql = `update tasks set deleted = '1', last_updated = '${timestamp()}' where id = '${req.params.tid}'`
+    let sql = `update tasks set deleted = '1', last_updated = '${timestamp()}' where id = '${
+        req.params.tid
+    }'`
     db.run(sql, (err, rows) => {
         if (err) {
             log(`delete tasks internal error ${err}`)
@@ -191,7 +194,9 @@ router.patch('/:uid/tasks/:tid', (req, res) => {
         return errors.incompleteInput(res)
     }
 
-    let sql = `update tasks set deleted = '0', last_updated = '${timestamp()}' where id = '${req.params.tid}'`
+    let sql = `update tasks set deleted = '0', last_updated = '${timestamp()}' where id = '${
+        req.params.tid
+    }'`
     db.run(sql, (err, rows) => {
         if (err) {
             log(`undelete tasks internal error ${err}`)
