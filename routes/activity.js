@@ -10,6 +10,7 @@ const errors = require('../helpers/errors')
 const log = require('../helpers/logger')
 const stringSanitizer = require('../helpers/stringSanitizer')
 const intSanitizer = require('../helpers/intSanitizer')
+const objectify = require('../helpers/objectify')
 
 router.get('/:uid/activity', (req, res) => {
     let timeframe = ``
@@ -67,12 +68,8 @@ router.get('/:uid/activity', (req, res) => {
             log(`get all activity internal error ${err}`)
             return errors.internalError(res)
         }
-        try {
-            if (Array.isArray(rows))
-                for (el of rows) el.data = JSON.parse(el.data)
-        } catch (error) {
-            log(`error parsing json data from activity ${error}`)
-        }
+
+        objectify.dataRows(rows)
 
         return res.send(rows)
     })
@@ -100,7 +97,7 @@ router.get('/:uid/activity/idinv/:idinv', (req, res) => {
             return errors.internalError(res)
         }
 
-        if (Array.isArray(rows)) for (el of rows) el.data = JSON.parse(el.data)
+        objectify.dataRows(rows)
 
         res.send(rows)
     })
@@ -129,13 +126,7 @@ router.get('/:uid/activity/:aid', (req, res) => {
             return errors.internalError(res)
         }
         if (rows.length > 0) {
-            try {
-                for (el of rows) el.data = JSON.parse(el.data)
-            } catch (error) {
-                log(
-                    `error parsing json data from activity id ${rows[0].id}, data = ${rows[0].data}`,
-                )
-            }
+            objectify.dataRows(rows)
             return res.send(rows[0])
         } else {
             return errors.notFound(res)
@@ -147,16 +138,12 @@ router.post('/:uid/activity', saveFiles, validateActivity, (req, res, next) => {
     let users_id = intSanitizer(req.params.uid)
     let activity_type = stringSanitizer(req.body.activity_type)
     let time_started = intSanitizer(req.body.time_started)
-    let time_ended = req.body.time_ended
-        ? intSanitizer(req.body.time_ended)
-        : null
+    let time_ended = req.body.time_ended ? intSanitizer(req.body.time_ended) : null
     let tasks_id = req.body.tasks_id ? intSanitizer(req.body.tasks_id) : null
     let version = req.body.version ? intSanitizer(req.body.version) : 1
     let comment = req.body.comment ? stringSanitizer(req.body.comment) : ''
     let data = req.body.data ? req.body.data : {}
-    let last_updated = req.body.last_updated
-        ? intSanitizer(req.body.last_updated)
-        : timestamp()
+    let last_updated = req.body.last_updated ? intSanitizer(req.body.last_updated) : timestamp()
 
     // form-data doesn't allow to send objects
     if (typeof req.body.data === 'string')
@@ -178,9 +165,7 @@ router.post('/:uid/activity', saveFiles, validateActivity, (req, res, next) => {
     }
     data = JSON.stringify(data)
 
-    time_ended === null
-        ? (time_ended = 'NULL')
-        : (time_ended = `'${time_ended}'`)
+    time_ended === null ? (time_ended = 'NULL') : (time_ended = `'${time_ended}'`)
     tasks_id === null ? (tasks_id = 'NULL') : (tasks_id = `'${tasks_id}'`)
 
     let sql = `insert into activity(users_id, activity_type, time_started, comment, data, tasks_id, time_ended, version, last_updated, uploaded, idinv) values 
@@ -202,83 +187,68 @@ router.post('/:uid/activity', saveFiles, validateActivity, (req, res, next) => {
     })
 })
 
-router.put(
-    '/:uid/activity/:aid',
-    saveFiles,
-    validateActivity,
-    (req, res, next) => {
-        let activity_type = stringSanitizer(req.body.activity_type)
-        let time_started = intSanitizer(req.body.time_started)
-        let time_ended = req.body.time_ended
-            ? intSanitizer(req.body.time_ended)
-            : null
-        let tasks_id = req.body.tasks_id
-            ? intSanitizer(req.body.tasks_id)
-            : null
-        let version = req.body.version ? intSanitizer(req.body.version) : 1
-        let comment = req.body.comment ? stringSanitizer(req.body.comment) : ''
-        let data = req.body.data ? req.body.data : {}
-        let last_updated = req.body.last_updated
-            ? intSanitizer(req.body.last_updated)
-            : timestamp()
+router.put('/:uid/activity/:aid', saveFiles, validateActivity, (req, res, next) => {
+    let activity_type = stringSanitizer(req.body.activity_type)
+    let time_started = intSanitizer(req.body.time_started)
+    let time_ended = req.body.time_ended ? intSanitizer(req.body.time_ended) : null
+    let tasks_id = req.body.tasks_id ? intSanitizer(req.body.tasks_id) : null
+    let version = req.body.version ? intSanitizer(req.body.version) : 1
+    let comment = req.body.comment ? stringSanitizer(req.body.comment) : ''
+    let data = req.body.data ? req.body.data : {}
+    let last_updated = req.body.last_updated ? intSanitizer(req.body.last_updated) : timestamp()
 
-        // form-data doesn't allow to send objects
-        if (typeof req.body.data === 'string')
-            try {
-                data = JSON.parse(req.body.data)
-            } catch (error) {
-                data = {}
-            }
-
-        if (req.file) {
-            data.audio = req.file.path.replace('\\', '/')
-            last_updated = timestamp() // because we changed data just now.
+    // form-data doesn't allow to send objects
+    if (typeof req.body.data === 'string')
+        try {
+            data = JSON.parse(req.body.data)
+        } catch (error) {
+            data = {}
         }
-        data = JSON.stringify(data)
 
-        time_ended === null
-            ? (time_ended = 'NULL')
-            : (time_ended = `'${time_ended}'`)
-        tasks_id === null ? (tasks_id = 'NULL') : (tasks_id = `'${tasks_id}'`)
+    if (req.file) {
+        data.audio = req.file.path.replace('\\', '/')
+        last_updated = timestamp() // because we changed data just now.
+    }
+    data = JSON.stringify(data)
 
-        let queryPreserve = `insert into activity (users_id, activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, comment, data, deleted, version, uploaded, idinv) SELECT users_id, activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, comment, data, 1, version, uploaded, idinv FROM activity where id = '${req.params.aid}'`
-        db.run(queryPreserve, (err, rows) => {
-            if (err) {
-                log(`put preserve activity internal error ${err}`)
-                return errors.internalError(res)
-            } else {
-                // console.log('preserved row')
-            }
-        })
-        let sql = `update activity set activity_type = '${activity_type}', time_started = '${time_started}', 
+    time_ended === null ? (time_ended = 'NULL') : (time_ended = `'${time_ended}'`)
+    tasks_id === null ? (tasks_id = 'NULL') : (tasks_id = `'${tasks_id}'`)
+
+    let queryPreserve = `insert into activity (users_id, activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, comment, data, deleted, version, uploaded, idinv) SELECT users_id, activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, comment, data, 1, version, uploaded, idinv FROM activity where id = '${req.params.aid}'`
+    db.run(queryPreserve, (err, rows) => {
+        if (err) {
+            log(`put preserve activity internal error ${err}`)
+            return errors.internalError(res)
+        } else {
+            // console.log('preserved row')
+        }
+    })
+    let sql = `update activity set activity_type = '${activity_type}', time_started = '${time_started}', 
     time_ended = ${time_ended}, comment = '${comment}', data = '${data}', last_updated = '${last_updated}', 
-    ref_id = '${
+    ref_id = '${req.params.aid}', uploaded = '${timestamp()}', tasks_id = ${tasks_id} where id = ${
         req.params.aid
-    }', uploaded = '${timestamp()}', tasks_id = ${tasks_id} where id = ${
-            req.params.aid
-        }`
-        console.log(sql)
-        db.run(sql, function(err, rows) {
-            if (err) {
-                log(`put activity internal error ${err}`)
-                return errors.internalError(res)
-            } else {
-                db.run(
-                    `update activity set ref_id = '${this.lastID}' where id = ${req.params.aid}`,
-                    (err, rows) => {
-                        // console.log('added ref id')
-                    },
-                )
-                res.status(201).send({
-                    id: req.params.aid,
-                })
-                if (tasks_id && tasks_id !== 'NULL' && !req.body.data.failed) {
-                    taskMarkCompleted(tasks_id, req.params.aid)
-                }
+    }`
+    console.log(sql)
+    db.run(sql, function(err, rows) {
+        if (err) {
+            log(`put activity internal error ${err}`)
+            return errors.internalError(res)
+        } else {
+            db.run(
+                `update activity set ref_id = '${this.lastID}' where id = ${req.params.aid}`,
+                (err, rows) => {
+                    // console.log('added ref id')
+                },
+            )
+            res.status(201).send({
+                id: req.params.aid,
+            })
+            if (tasks_id && tasks_id !== 'NULL' && !req.body.data.failed) {
+                taskMarkCompleted(tasks_id, req.params.aid)
             }
-        })
-    },
-)
+        }
+    })
+})
 
 router.delete('/:uid/activity/:aid', (req, res) => {
     let sql = `update activity set deleted = '1', uploaded = '${timestamp()}' where id = '${
