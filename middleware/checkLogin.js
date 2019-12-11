@@ -3,20 +3,20 @@ const db = new sqlite.Database('./db/trackers.db')
 const bcrypt = require('bcryptjs')
 const log = require('../helpers/logger')
 const errors = require('../helpers/errors')
-const validateEmail = require('../helpers/validateEmail')
+const validateUsername = require('../helpers/validateUsername')
 const objectify = require('../helpers/objectify')
 
 module.exports = (req, res, next) => {
-    if (req.body.email && req.body.password) {
-        if (!validateEmail(req.body.email)) return errors.incorrectInput(res)
+    if (req.body.username && req.body.password) {
+        if (!validateUsername(req.body.username)) return errors.incorrectInput(res)
         let query = `select 
-users.id, name, birthday, gender, email, password, idinv, last_seen, information, hide_elements, language, permissions,
+users.id, name, birthday, gender, username, password, idinv, last_seen, information, hide_elements, language, permissions,
 prescriptions.course_therapy, relief_of_attack, tests
 from users 
 inner join 
 prescriptions on users.id = prescriptions.users_id
-where users.email = '${req.body.email}' limit 1`
-        // console.log(query)
+where users.username = '${req.body.username}' limit 1`
+        console.log(query)
         db.all(query, (err, rows) => {
             if (err) {
                 log(`check login internal error ${err}`)
@@ -29,11 +29,11 @@ where users.email = '${req.body.email}' limit 1`
                     req.user = rows[0]
                     next()
                 } else {
-                    log(`user ${req.body.email} failed login attempt`)
+                    log(`user ${req.body.username} failed login attempt`)
                     return errors.wrongPassword(res)
                 }
             } else {
-                log(`unknown user ${req.body.email} login attempt`)
+                log(`unknown user ${req.body.username} login attempt`)
                 errors.notFound(res)
             }
         })

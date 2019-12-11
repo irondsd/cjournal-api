@@ -21,7 +21,7 @@ router.get('/:id/patients', (req, res) => {
         ]
 
         query = `select 
-                users.id, name, birthday, gender, email, idinv, last_seen,
+                users.id, name, birthday, gender, username, idinv, last_seen,
                 prescriptions.course_therapy, relief_of_attack, tests
                 from users 
                 inner join 
@@ -54,7 +54,7 @@ router.get('/:id/doctors', (req, res) => {
         ]
 
         query = `select 
-                id, name, birthday, gender, email, idinv, last_seen from users
+                id, name, birthday, gender, username, idinv, last_seen from users
                 where users.id in (${doctor_ids})`
         // console.log(query)
         db.all(query, (err, rows) => {

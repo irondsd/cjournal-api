@@ -1,5 +1,5 @@
 const errors = require('../helpers/errors')
-const validateEmail = require('../helpers/validateEmail')
+const validateUsername = require('../helpers/validateUsername')
 
 module.exports = (req, res, next) => {
     let errors = []
@@ -9,11 +9,11 @@ module.exports = (req, res, next) => {
     if (req.body.name && req.body.name.length < 3) {
         errors.push('name must be at least 3 characters long')
     }
-    if (!req.body.email) {
-        errors.push('email must be specified')
+    if (!req.body.username) {
+        errors.push('username must be specified')
     } else {
-        if (!validateEmail(req.body.email)) {
-            errors.push('email is invalid')
+        if (!validateUsername(req.body.username)) {
+            errors.push('username is invalid')
         }
     }
     if (!req.body.password) {

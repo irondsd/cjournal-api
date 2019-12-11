@@ -1,10 +1,10 @@
 const errors = require('../helpers/errors')
 const log = require('../helpers/logger')
-const validateEmail = require('../helpers/validateEmail')
+const validateUsername = require('../helpers/validateUsername')
 
 module.exports = (req, res, next) => {
-    if (req.body.email) {
-        if (!validateEmail(req.body.email)) {
+    if (req.body.username) {
+        if (!validateUsername(req.body.username)) {
             errors.incorrectInput(res)
         }
     } else {

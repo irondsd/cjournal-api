@@ -15,7 +15,7 @@ exports.notFound = function notFound(res) {
 }
 
 exports.userExists = function userExists(res) {
-    res.status(409).send({ error: 'user with email is already registered' })
+    res.status(409).send({ error: 'user with username is already registered' })
 }
 
 exports.wrongPassword = function wrongPassword(res) {

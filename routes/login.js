@@ -34,7 +34,7 @@ router.post('/qr', checkAuth, (req, res, next) => {
     if (req.body.id) id = req.body.id
 
     let query = `select 
-users.id, name, birthday, gender, email, password, idinv, last_seen, information, hide_elements, language, permissions,
+users.id, name, birthday, gender, username, password, idinv, last_seen, information, hide_elements, language, permissions,
 prescriptions.course_therapy, relief_of_attack, tests
 from users 
 inner join 
@@ -67,7 +67,7 @@ response = function(user) {
     return {
         id: user.id,
         name: user.name,
-        email: user.email,
+        username: user.username,
         gender: user.gender,
         birthday: user.birthday,
         api_key: user.api_key,
@@ -97,7 +97,7 @@ generate_qr = function(req, res) {
         delete req.user.relief_of_attack
         delete req.user.tests
         delete req.user.name
-        delete req.user.email
+        delete req.user.username
         delete req.user.gender
         delete req.user.birthday
     }

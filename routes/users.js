@@ -17,7 +17,7 @@ const objectify = require('../helpers/objectify')
 router.get('/', checkAuth, (req, res, next) => {
     log(`user ${req.decoded.id} requested all users list`)
     let query = `select 
-users.id, name, birthday, gender, email, idinv, last_seen, information, hide_elements, language, permissions,
+users.id, name, birthday, gender, username, idinv, last_seen, information, hide_elements, language, permissions,
 prescriptions.course_therapy, relief_of_attack, tests
 from users 
 inner join 
@@ -40,7 +40,7 @@ router.get('/:id', checkAuth, (req, res, next) => {
     log(`user ${req.decoded.id} requested user ${req.params.id}`)
     let query =
         `select 
-users.id, name, birthday, gender, email, idinv, last_seen, information, hide_elements, language, permissions,
+users.id, name, birthday, gender, username, idinv, last_seen, information, hide_elements, language, permissions,
 prescriptions.course_therapy, relief_of_attack, tests
 from users 
 inner join 
@@ -89,21 +89,21 @@ router.delete('/:id', checkAuth, (req, res, next) => {
 // Add user
 router.post('/', validateNewUser, checkAuth, (req, res, next) => {
     db.all(
-        `select exists (select 1 from users where email = '${req.body.email}' limit 1)`,
+        `select exists (select 1 from users where username = '${req.body.username}' limit 1)`,
         function(err, rows) {
             if (err) {
                 log(`users internal error ${err}`)
                 return errors.internalError(res)
             }
             if (rows[0][Object.keys(rows[0])[0]] === 1) {
-                log(`user ${req.decoded.id} tried to post user with email ${req.body.email}`)
+                log(`user ${req.decoded.id} tried to post user with username ${req.body.username}`)
                 return errors.userExists(res)
             } else {
                 let salt = bcrypt.genSaltSync(10)
                 let hash = bcrypt.hashSync(req.body.password, salt)
 
                 let name = stringSanitizer(req.body.name)
-                let email = req.body.email // already checked by the middleware
+                let username = req.body.username // already checked by the middleware
                 let birthday = req.body.birthday ? stringSanitizer(req.body.birthday) : '01.01.1970'
                 let gender = req.body.gender ? stringSanitizer(req.body.gender) : 'male'
                 let idinv = stringSanitizer(req.body.idinv)
@@ -115,14 +115,14 @@ router.post('/', validateNewUser, checkAuth, (req, res, next) => {
                 let relief_of_attack = arrayStringify(req.body.relief_of_attack)
                 let tests = arrayStringify(req.body.tests)
 
-                let query = `INSERT INTO users(name, birthday, gender, email, password, idinv, last_seen, information, hide_elements, language, permissions) VALUES ('${name}', '${birthday}', '${gender}', '${email}', '${hash}', '${idinv}', '${timestamp()}', '${information}', '${hide_elements}', '${language}', '${permissions}')`
+                let query = `INSERT INTO users(name, birthday, gender, username, password, idinv, last_seen, information, hide_elements, language, permissions) VALUES ('${name}', '${birthday}', '${gender}', '${username}', '${hash}', '${idinv}', '${timestamp()}', '${information}', '${hide_elements}', '${language}', '${permissions}')`
                 console.log(query)
                 db.run(query, function(err, rows) {
                     if (err) {
                         log(`post users internal error ${err}`)
                         return errors.internalError(res)
                     } else {
-                        log(`user ${req.decoded.id} posted user with email ${email}`)
+                        log(`user ${req.decoded.id} posted user with username ${username}`)
                         let query = `insert into prescriptions(users_id, course_therapy, relief_of_attack, tests) values ('${this.lastID}', '${course_therapy}', '${relief_of_attack}', '${tests}')`
                         let id = this.lastID
                         db.run(query, function(err, rows) {
@@ -201,12 +201,12 @@ prescriptions on users.id = prescriptions.users_id where id = '${req.params.id}'
                     )
                     let tests = arrayStringify(req.body.tests, rows[0].tests)
 
-                    let query = `update users set name = '${name}', birthday = '${birthday}', gender = '${gender}', email = '${req.body.email}', ${password_insert} idinv = '${idinv}', last_seen = '${current_time}', information = '${information}', hide_elements = '${hide_elements}', language = '${language}', permissions= '${permissions}' where id = ${req.params.id}`
+                    let query = `update users set name = '${name}', birthday = '${birthday}', gender = '${gender}', username = '${req.body.username}', ${password_insert} idinv = '${idinv}', last_seen = '${current_time}', information = '${information}', hide_elements = '${hide_elements}', language = '${language}', permissions= '${permissions}' where id = ${req.params.id}`
                     // console.log(query)
                     db.all(query, (err, rows) => {
                         if (err) {
                             if (err.errno === 19) {
-                                log(`put users error email exists ${req.body.email}`)
+                                log(`put users error username exists ${req.body.username}`)
                                 return errors.userExists(res)
                             }
                             log(`need inspection users line 187 error`)
