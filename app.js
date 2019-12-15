@@ -34,7 +34,7 @@ app.use(function(req, res, next) {
 //     next()
 // })
 
-// app.use(logger)
+app.use(logger)
 app.use(bodyParser.json())
 app.use('/api/', index)
 app.use('/api/', login)
@@ -59,18 +59,31 @@ app.get('/alive', (req, res) => res.sendStatus(200))
 
 const options = {
     key: fs.readFileSync('./ssl/server.key'),
-    cert: fs.readFileSync('./ssl/server.cert')
+    cert: fs.readFileSync('./ssl/server.cert'),
 }
 
 app.listen(port, () => {
-    log(`Server started on port ${port}`)
+    log.info(`Server started on port ${port}`)
 })
 
 // httpolyglot.createServer(options, app).listen(port, () => {
-//     log(`Server started on port ${port}`)
+//     log.info(`Server started on port ${port}`)
 // })
-
 function logger(req, res, next) {
-    log(`${req.method} ${req.path}`)
+    var user_ip
+
+    if (req.headers['cf-connecting-ip'] && req.headers['cf-connecting-ip'].split(', ').length) {
+        let first = req.headers['cf-connecting-ip'].split(', ')
+        user_ip = first[0]
+    } else {
+        let user_ip =
+            req.headers['x-forwarded-for'] ||
+            req.headers['x-real-ip'] ||
+            req.connection.remoteAddress ||
+            req.socket.remoteAddress ||
+            req.connection.socket.remoteAddress
+    }
+
+    log.info(`${user_ip} | ${req.method} | ${req.path}`)
     next()
 }
