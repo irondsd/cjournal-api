@@ -31,7 +31,7 @@ router.get('/:uid/virtual_activity', (req, res) => {
         deleted +
         doctor_id
 
-    // log.debug(sql)
+    log.debug(sql)
     db.all(sql, function(err, rows) {
         if (err) {
             log.error(`virtual internal error ${err}`)
@@ -61,7 +61,7 @@ router.get('/:uid/virtual_activity/:aid', (req, res) => {
         query = `select id, activity_id, users_id, doctor_id, activity_type, time_started, time_ended, tasks_id, comment, data${uploaded}, set_deleted from virtual_activity where id = ${req.params.aid.substring(
             1,
         )} and users_id = ${req.params.uid}${deleted} ${doctor_id}`
-    // log.debug(query)
+    log.debug(query)
     db.all(query, (err, rows) => {
         if (err) {
             log.error(`virtual internal error ${err}`)
@@ -175,7 +175,7 @@ function updateVirtualActivity(req, res) {
         } else {
             let sql = `update virtual_activity set activity_type = '${activity_type}', time_started = '${time_started}', time_ended = ${time_ended}, comment = '${comment}', doctor_id = '${doctor_id}', data = '${data}', last_updated = '${last_updated}', ref_id = '${id}', uploaded = '${timestamp()}', set_deleted = '${set_deleted}' where ${id_type} = ${id}`
 
-            // log.debug(sql)
+            log.debug(sql)
             db.run(sql, function(err, rows) {
                 if (err) {
                     log.error(`put virtual internal error ${err}`)
@@ -201,7 +201,7 @@ router.delete('/:uid/virtual_activity/:aid', (req, res) => {
         sql = `update virtual_activity set deleted = '1' where id = '${req.params.aid.substring(
             1,
         )}'`
-    // log.debug(sql)
+    log.debug(sql)
     db.run(sql, function(err, rows) {
         if (err) {
             log.error(`virtual internal error ${err}`)
@@ -223,7 +223,7 @@ router.patch('/:uid/virtual_activity/:aid', (req, res) => {
         sql = `update virtual_activity set deleted = '0' where id = '${req.params.aid.substring(
             1,
         )}'`
-    // log.debug(sql)
+    log.debug(sql)
     db.run(sql, function(err, rows) {
         if (err) {
             log.error(`virtual internal error ${err}`)

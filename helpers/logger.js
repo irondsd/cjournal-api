@@ -4,7 +4,7 @@ function log(type, message, silent = true) {
     var timestamp = new Date()
     if (!silent) console.log(message)
     fs.appendFile(
-        'debug.log',
+        `${type}.log`,
         `${type} : ${timestamp.toString().slice(4, 24)} : ${message}\n`,
         function(err) {
             if (err) console.log(`logger error need inspection ${err}`)

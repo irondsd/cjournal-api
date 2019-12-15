@@ -204,7 +204,7 @@ prescriptions on users.id = prescriptions.users_id where id = '${req.params.id}'
                     let tests = arrayStringify(req.body.tests, rows[0].tests)
 
                     let query = `update users set name = '${name}', birthday = '${birthday}', gender = '${gender}', username = '${req.body.username}', ${password_insert} idinv = '${idinv}', last_seen = '${current_time}', information = '${information}', hide_elements = '${hide_elements}', language = '${language}', permissions= '${permissions}' where id = ${req.params.id}`
-                    // log.debug(query)
+                    log.debug(query)
                     db.all(query, (err, rows) => {
                         if (err) {
                             if (err.errno === 19) {

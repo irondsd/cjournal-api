@@ -10,7 +10,7 @@ const objectify = require('../helpers/objectify')
 
 router.get('/:id/prescriptions', (req, res) => {
     query = 'select * from prescriptions where users_id = ' + req.params.id
-    // log.debug(query)
+    log.debug(query)
     db.all(query, (err, rows) => {
         if (err) {
             log.error(`prescriptions internal error ${err}`)
@@ -28,7 +28,7 @@ router.post('/:id/prescriptions', checkAuth, (req, res, next) => {
 
     query = `insert into prescriptions(users_id, course_therapy, relief_of_attack, tests) values 
             ('${req.params.id}', '${course_therapy}', '${relief_of_attack}', '${tests}')`
-    // log.debug(query)
+    log.debug(query)
     db.run(query, function(err, rows) {
         if (err) {
             log.error(`prescriptions internal error ${err}`)
@@ -46,7 +46,7 @@ router.put('/:id/prescriptions/', checkAuth, (req, res, next) => {
     let tests = arrayStringify(req.body.tests)
 
     query = `update prescriptions set course_therapy = '${course_therapy}', relief_of_attack = '${relief_of_attack}', tests = '${tests}' where users_id = '${req.params.id}'`
-    // log.debug(query)
+    log.debug(query)
     db.run(query, function(err, rows) {
         if (err) {
             log.error(`prescriptions internal error ${err}`)
