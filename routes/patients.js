@@ -7,10 +7,10 @@ const log = require('../helpers/logger')
 
 router.get('/:id/patients', (req, res) => {
     query = 'select distinct * from doctor where doctor_id = ' + req.params.id
-    // console.log(query)
+    log.debug(query)
     db.all(query, (err, rows) => {
         if (err) {
-            log(`patients internal error ${err}`)
+            log.error(`patients internal error ${err}`)
             return errors.internalError(res)
         }
 
@@ -26,10 +26,10 @@ router.get('/:id/patients', (req, res) => {
                 from users 
                 inner join 
                 prescriptions on users.id = prescriptions.users_id where users.id in (${patient_ids})`
-        // console.log(query)
+        log.debug(query)
         db.all(query, (err, rows) => {
             if (err) {
-                log(`patients internal error ${err}`)
+                log.error(`patients internal error ${err}`)
                 return errors.internalError(res)
             }
 
@@ -40,10 +40,10 @@ router.get('/:id/patients', (req, res) => {
 
 router.get('/:id/doctors', (req, res) => {
     query = 'select distinct * from doctor where patient_id = ' + req.params.id
-    // console.log(query)
+    log.debug(query)
     db.all(query, (err, rows) => {
         if (err) {
-            log(`patients internal error ${err}`)
+            log.error(`patients internal error ${err}`)
             return errors.internalError(res)
         }
 
@@ -56,10 +56,10 @@ router.get('/:id/doctors', (req, res) => {
         query = `select 
                 id, name, birthday, gender, username, idinv, last_seen from users
                 where users.id in (${doctor_ids})`
-        // console.log(query)
+        log.debug(query)
         db.all(query, (err, rows) => {
             if (err) {
-                log(`patients internal error ${err}`)
+                log.error(`patients internal error ${err}`)
                 return errors.internalError(res)
             }
 
@@ -84,10 +84,10 @@ router.post('/:id/patients', (req, res) => {
 
     query = `insert into doctor(doctor_id, patient_id) values
             ${values}`
-    // console.log(query)
+    log.debug(query)
     db.run(query, function(err, rows) {
         if (err) {
-            log(`patients internal error ${err}`)
+            log.error(`patients internal error ${err}`)
             return errors.internalError(res)
         } else {
             res.status(201).send()
@@ -114,10 +114,10 @@ router.delete('/:id/patients', (req, res) => {
     }
 
     let sql = `delete from doctor where doctor_id = '${req.params.id}' and${patients}`
-    // console.log(sql)
+    log.debug(sql)
     db.run(sql, (err, rows) => {
         if (err) {
-            log(`patients internal error ${err}`)
+            log.error(`patients internal error ${err}`)
             return errors.internalError(res)
         } else {
             res.status(204).send(rows)

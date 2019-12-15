@@ -16,7 +16,7 @@ module.exports = (req, res, next) => {
         updateLastSeen(decoded.id)
         next()
     } catch (error) {
-        log(`unsuccessful api key decode ${api_key}`)
+        log.info(`unsuccessful api key decode ${api_key}`)
         errors.unauthorized(res)
     }
 }

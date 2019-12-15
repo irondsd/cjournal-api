@@ -5,7 +5,7 @@ module.exports = (req, res, next) => {
     if (req.body.activity_type && req.body.time) {
         next()
     } else {
-        log(`task is not validated`)
+        log.info(`task is not validated, ${JSON.stringify(req.body)}`)
         errors.incompleteInput(res)
     }
 }

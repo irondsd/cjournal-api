@@ -34,10 +34,10 @@ router.get('/:uid/tasks', (req, res) => {
         deleted
 
     // sql = 'select * from tasks where users_id = ' + req.params.uid + ' ' + timeframe + completed
-    // console.log(sql)
+    // log.debug(sql)
     db.all(sql, (err, rows) => {
         if (err) {
-            log(`tasks internal error ${err}`)
+            log.error(`tasks internal error ${err}`)
             return errors.internalError(res)
         }
 
@@ -50,17 +50,17 @@ router.get('/:uid/tasks', (req, res) => {
 router.get('/:uid/tasks/:tid', (req, res) => {
     query = `select id, users_id, activity_type, time, last_updated, ref_id, completed, deleted, data from tasks where id = ${req.params.tid} and users_id = ${req.params.uid}`
 
-    // console.log(query)
+    log.debug(query)
     db.all(query, (err, rows) => {
         if (err) {
-            log(`tasks internal error ${err}`)
+            log.error(`tasks internal error ${err}`)
             return errors.internalError(res)
         }
         if (rows.length > 0) {
             objectify.dataRows(rows)
             return res.send(rows[0])
         } else {
-            log(`get tasks not found ${req.params.tid}`)
+            log.info(`get tasks not found ${req.params.tid}`)
             return errors.notFound(res)
         }
     })
@@ -74,10 +74,10 @@ router.post('/:id/tasks', validateTask, (req, res, next) => {
 
     sql = `insert into tasks(users_id, activity_type, time, completed, last_updated, data) values 
             ('${users_id}', '${activity_type}', '${time}', '0', '${timestamp()}', '${data}')`
-    // console.log(sql)
+    // log.debug(sql)
     db.run(sql, function(err, rows) {
         if (err) {
-            log(`tasks internal error ${err}`)
+            log.error(`tasks internal error ${err}`)
             return errors.internalError(res)
         } else {
             res.status(201).send({
@@ -90,7 +90,7 @@ router.post('/:id/tasks', validateTask, (req, res, next) => {
 router.post('/:uid/tasks/:tid/postpone', (req, res, next) => {
     if (req.body.time) {
         query = `select time, data from tasks where id = ${req.params.tid} and users_id = ${req.params.uid} limit 1`
-        // console.log(query)
+        // log.debug(query)
         db.all(query, (err, rows) => {
             let time
             let data
@@ -113,10 +113,10 @@ router.post('/:uid/tasks/:tid/postpone', (req, res, next) => {
                 query = `update tasks set time = ${time}, last_updated = '${last_updated}', completed = '1', data = '${JSON.stringify(
                     data,
                 )}' where id = ${req.params.tid}`
-            console.log(query)
+            log.debug(query)
             db.run(query, function(err, rows) {
                 if (err) {
-                    log(`tasks internal error ${err}`)
+                    log.error(`tasks internal error ${err}`)
                     return error.internalError()
                 } else {
                     res.status(201).send({
@@ -139,12 +139,13 @@ router.put('/:uid/tasks/:tid', validateTask, (req, res, next) => {
     let data = req.body.data ? JSON.stringify(req.body.data) : '{}'
 
     let queryPreserve = `insert into tasks (users_id, activity_type, time, completed, ref_id, last_updated, data, deleted) SELECT users_id, activity_type, time, completed, ref_id, ${timestamp()}, data, 1 FROM tasks where id = '${id}'`
+    log.debug(queryPreserve)
     db.run(queryPreserve, (err, rows) => {
         if (err) {
-            log(`tasks internal error ${err}`)
+            log.error(`tasks internal error ${err}`)
             return errors.internalError(res)
         } else {
-            // console.log('preserved row')
+            log.debug('preserved row')
         }
     })
 
@@ -156,14 +157,14 @@ router.put('/:uid/tasks/:tid', validateTask, (req, res, next) => {
     } else {
         sql = `update tasks set activity_type = '${activity_type}', time = '${time}', last_updated = '${timestamp()}', data = '${data}', ref_id = '${id}' where id = ${id}`
     }
-    // console.log(sql)
+    log.debug(sql)
     db.run(sql, (err, rows) => {
         if (err) {
-            log(`tasks internal error ${err}`)
+            log.error(`tasks internal error ${err}`)
             return errors.internalError(res)
         } else {
             db.run(`update tasks set ref_id = '${this.lastID}' where id = ${id}`, (err, rows) => {
-                // console.log('added ref id')
+                // log.info('added ref id')
             })
             res.status(201).send(rows)
         }
@@ -180,7 +181,7 @@ router.delete('/:uid/tasks/:tid', (req, res) => {
     }'`
     db.run(sql, (err, rows) => {
         if (err) {
-            log(`delete tasks internal error ${err}`)
+            log.error(`delete tasks internal error ${err}`)
             return errors.internalError(res)
         } else {
             res.status(204).send(rows)
@@ -199,7 +200,7 @@ router.patch('/:uid/tasks/:tid', (req, res) => {
     }'`
     db.run(sql, (err, rows) => {
         if (err) {
-            log(`undelete tasks internal error ${err}`)
+            log.error(`undelete tasks internal error ${err}`)
             return errors.internalError(res)
         } else {
             res.status(204).send(rows)

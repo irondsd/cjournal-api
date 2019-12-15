@@ -5,9 +5,9 @@ const log = require('../helpers/logger')
 
 function taskMarkCompleted(tasks_id, activity_id) {
     query = `select data from tasks where id = ${tasks_id} limit 1`
-    // console.log(query)
+    log.debug(query)
     db.all(query, (err, rows) => {
-        if (err) console.log(err)
+        if (err) log.error(err)
         if (rows.length < 1) return
         let data = rows[0].data
         data = JSON.parse(data)
@@ -15,14 +15,15 @@ function taskMarkCompleted(tasks_id, activity_id) {
         data = JSON.stringify(data)
 
         query = `update tasks set completed = '1', last_updated = '${timestamp()}', data = '${data}' where id = ${tasks_id}`
+        log.debug(query)
         db.run(query, function(err) {
             if (err) {
-                log(`internal error task mark completed need inspection ${err}`)
+                log.error(`internal error task mark completed need inspection ${err}`)
             }
             if (this.changes) {
-                log(`marked task ${tasks_id} as completed`)
+                log.info(`marked task ${tasks_id} as completed`)
             } else {
-                log(`task mark completed unchanged may need inspection`)
+                log.error(`task mark completed unchanged may need inspection`)
             }
         })
     })

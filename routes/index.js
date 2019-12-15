@@ -9,7 +9,7 @@ const errors = require('../helpers/errors')
 router.get('/', (req, res) => {
     fs.readFile('README.md', 'utf8', function(err, contents) {
         if (err) {
-            log(`can't read README.md`)
+            log.error(`can't read README.md`)
             errors.internalError(res)
         } else {
             res.send(md.render(contents))

@@ -10,10 +10,10 @@ const objectify = require('../helpers/objectify')
 
 router.get('/:id/prescriptions', (req, res) => {
     query = 'select * from prescriptions where users_id = ' + req.params.id
-    // console.log(query)
+    // log.debug(query)
     db.all(query, (err, rows) => {
         if (err) {
-            log(`prescriptions internal error ${err}`)
+            log.error(`prescriptions internal error ${err}`)
             errors.internalError(res)
         }
         objectify.all(rows)
@@ -28,13 +28,13 @@ router.post('/:id/prescriptions', checkAuth, (req, res, next) => {
 
     query = `insert into prescriptions(users_id, course_therapy, relief_of_attack, tests) values 
             ('${req.params.id}', '${course_therapy}', '${relief_of_attack}', '${tests}')`
-    // console.log(query)
+    // log.debug(query)
     db.run(query, function(err, rows) {
         if (err) {
-            log(`prescriptions internal error ${err}`)
+            log.error(`prescriptions internal error ${err}`)
             errors.internalError(res)
         } else {
-            log(`user ${req.decoded.id} updated prescriptions for user ${req.params.id}`)
+            log.info(`user ${req.decoded.id} posted prescriptions for user ${req.params.id}`)
             res.status(201).send()
         }
     })
@@ -46,13 +46,13 @@ router.put('/:id/prescriptions/', checkAuth, (req, res, next) => {
     let tests = arrayStringify(req.body.tests)
 
     query = `update prescriptions set course_therapy = '${course_therapy}', relief_of_attack = '${relief_of_attack}', tests = '${tests}' where users_id = '${req.params.id}'`
-    // console.log(query)
+    // log.debug(query)
     db.run(query, function(err, rows) {
         if (err) {
-            log(`prescriptions internal error ${err}`)
+            log.error(`prescriptions internal error ${err}`)
             errors.internalError(res)
         } else {
-            log(`user ${req.decoded.id} updated prescriptions for user ${req.params.id}`)
+            log.info(`user ${req.decoded.id} updated prescriptions for user ${req.params.id}`)
             res.status(201).send()
         }
     })

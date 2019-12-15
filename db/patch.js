@@ -10,7 +10,7 @@ db.serialize(() => {
 
         err => {
             if (err) {
-                console.log(err)
+                log.error(err)
             }
         },
     )
@@ -20,7 +20,7 @@ db.serialize(() => {
 
         err => {
             if (err) {
-                console.log(err)
+                log.error(err)
             }
         },
     )
@@ -30,7 +30,7 @@ db.serialize(() => {
 
         err => {
             if (err) {
-                console.log(err)
+                log.error(err)
             }
         },
     )
@@ -40,7 +40,7 @@ db.serialize(() => {
 
         err => {
             if (err) {
-                console.log(err)
+                log.error(err)
             }
         },
     )

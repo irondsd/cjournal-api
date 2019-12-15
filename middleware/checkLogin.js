@@ -16,10 +16,10 @@ from users
 inner join 
 prescriptions on users.id = prescriptions.users_id
 where users.username = '${req.body.username}' limit 1`
-        console.log(query)
+        log.debug(query)
         db.all(query, (err, rows) => {
             if (err) {
-                log(`check login internal error ${err}`)
+                log.error(`check login internal error ${err}`)
                 return errors.internalError(res)
             }
             if (rows[0]) {
@@ -29,16 +29,16 @@ where users.username = '${req.body.username}' limit 1`
                     req.user = rows[0]
                     next()
                 } else {
-                    log(`user ${req.body.username} failed login attempt`)
+                    log.info(`user ${req.body.username} failed login attempt`)
                     return errors.wrongPassword(res)
                 }
             } else {
-                log(`unknown user ${req.body.username} login attempt`)
+                log.info(`unknown user ${req.body.username} login attempt`)
                 errors.notFound(res)
             }
         })
     } else {
-        log(`failed login attempt incomplete input`)
+        log.info(`failed login attempt incomplete input`)
         errors.incompleteInput(res)
     }
 }

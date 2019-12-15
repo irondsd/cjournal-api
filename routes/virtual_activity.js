@@ -31,10 +31,10 @@ router.get('/:uid/virtual_activity', (req, res) => {
         deleted +
         doctor_id
 
-    // console.log(sql)
+    // log.debug(sql)
     db.all(sql, function(err, rows) {
         if (err) {
-            log(`virtual internal error ${err}`)
+            log.error(`virtual internal error ${err}`)
             return errors.internalError(res)
         }
         if (Array.isArray(rows)) for (el of rows) el.id = 'v' + el.id
@@ -61,10 +61,10 @@ router.get('/:uid/virtual_activity/:aid', (req, res) => {
         query = `select id, activity_id, users_id, doctor_id, activity_type, time_started, time_ended, tasks_id, comment, data${uploaded}, set_deleted from virtual_activity where id = ${req.params.aid.substring(
             1,
         )} and users_id = ${req.params.uid}${deleted} ${doctor_id}`
-    // console.log(query)
+    // log.debug(query)
     db.all(query, (err, rows) => {
         if (err) {
-            log(`virtual internal error ${err}`)
+            log.error(`virtual internal error ${err}`)
             return errors.internalError(res)
         }
         if (rows.length > 0) {
@@ -72,7 +72,7 @@ router.get('/:uid/virtual_activity/:aid', (req, res) => {
             objectify.dataRows(rows)
             return res.send(rows[0])
         } else {
-            log(`get virtual id not found ${req.params.aid}`)
+            log.info(`get virtual id not found ${req.params.aid}`)
             return errors.notFound(res)
         }
     })
@@ -83,10 +83,10 @@ router.post('/:uid/virtual_activity', validateVirtual, (req, res, next) => {
 
     if (req.body.activity_id) {
         let check = `select id from virtual_activity where activity_id = '${req.body.activity_id}' and doctor_id = '${req.body.doctor_id}' and deleted = '0'`
-        // console.log(check)
+        log.debug(check)
         db.all(check, function(err, rows) {
             if (err) {
-                log(`virtual internal error ${err}`)
+                log.error(`virtual internal error ${err}`)
                 return errors.internalError(res)
             }
             if (rows[0]) {
@@ -128,7 +128,7 @@ function postVirtualActivity(req, res) {
     }')`
     db.run(sql, function(err, rows) {
         if (err) {
-            log(`virtual internal error ${err}`)
+            log.error(`virtual internal error ${err}`)
             return errors.internalError(res)
         } else {
             res.status(201).send({
@@ -167,24 +167,24 @@ function updateVirtualActivity(req, res) {
 
     let queryPreserve = `insert into virtual_activity (activity_id, users_id, doctor_id,
          activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, comment, data, deleted, uploaded, set_deleted) SELECT activity_id, users_id, doctor_id, activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, comment, data, 1, uploaded, set_deleted FROM virtual_activity where ${id_type} = ${id} and doctor_id = ${doctor_id}`
-    console.log(queryPreserve)
+    log.debug(queryPreserve)
     db.run(queryPreserve, (err, rows) => {
         if (err) {
-            log(`virtual internal error ${err}`)
+            log.error(`virtual internal error ${err}`)
             return errors.internalError(res)
         } else {
             let sql = `update virtual_activity set activity_type = '${activity_type}', time_started = '${time_started}', time_ended = ${time_ended}, comment = '${comment}', doctor_id = '${doctor_id}', data = '${data}', last_updated = '${last_updated}', ref_id = '${id}', uploaded = '${timestamp()}', set_deleted = '${set_deleted}' where ${id_type} = ${id}`
 
-            // console.log(sql)
+            // log.debug(sql)
             db.run(sql, function(err, rows) {
                 if (err) {
-                    log(`put virtual internal error ${err}`)
+                    log.error(`put virtual internal error ${err}`)
                     return errors.internalError(res)
                 } else {
                     db.run(
                         `update virtual_activity set ref_id = '${this.lastID}' where activity_id = ${id}`,
                         (err, rows) => {
-                            // console.log('added ref id')
+                            // log.info('added ref id')
                         },
                     )
                     res.status(201).send({ id: req.body.activity_id })
@@ -201,16 +201,16 @@ router.delete('/:uid/virtual_activity/:aid', (req, res) => {
         sql = `update virtual_activity set deleted = '1' where id = '${req.params.aid.substring(
             1,
         )}'`
-    // console.log(sql)
+    // log.debug(sql)
     db.run(sql, function(err, rows) {
         if (err) {
-            log(`virtual internal error ${err}`)
+            log.error(`virtual internal error ${err}`)
             return errors.internalError(res)
         }
         if (this.changes) {
             res.status(200).send()
         } else {
-            log(`delete virtual id not found ${req.params.id}`)
+            log.info(`delete virtual id not found ${req.params.id}`)
             return errors.notFound(res)
         }
     })
@@ -223,16 +223,16 @@ router.patch('/:uid/virtual_activity/:aid', (req, res) => {
         sql = `update virtual_activity set deleted = '0' where id = '${req.params.aid.substring(
             1,
         )}'`
-    // console.log(sql)
+    // log.debug(sql)
     db.run(sql, function(err, rows) {
         if (err) {
-            log(`virtual internal error ${err}`)
+            log.error(`virtual internal error ${err}`)
             return errors.internalError(res)
         }
         if (this.changes) {
             res.status(200).send()
         } else {
-            log(`delete virtual id not found ${req.params.id}`)
+            log.info(`delete virtual id not found ${req.params.id}`)
             return errors.notFound(res)
         }
     })

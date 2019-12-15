@@ -7,12 +7,12 @@ function updateLastSeen(id) {
     let query = `update users set last_seen = '${timestamp()}' where id = ${id}`
     db.run(query, function(err) {
         if (err) {
-            log(`internal error update last seen need inspection ${err}`)
+            log.error(`internal error update last seen need inspection ${err}`)
         }
         if (this.changes) {
-            // log(`updated user ${id} last seen`)
+            // log.info(`updated user ${id} last seen`)
         } else {
-            log(`error updating user ${id} last seen`)
+            log.error(`error updating user ${id} last seen`)
         }
     })
 }

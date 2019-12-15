@@ -13,7 +13,7 @@ exports.all = function all(rows) {
         }
     } else {
         // there's misuse of this function
-        log('need inspection objectify.js was used incorrectly')
+        log.error('need inspection objectify.js was used incorrectly')
     }
 
     return rows
@@ -26,12 +26,12 @@ exports.dataRows = function dataRows(rows) {
                 el.data = JSON.parse(el.data)
             } catch (error) {
                 // failed
-                log('data parse failed')
+                log.error(`data parse failed, ${error}`)
             }
         }
     } else {
         // there's misuse of this function
-        log('need inspection objectify.js was used incorrectly')
+        log.error('need inspection objectify.js was used incorrectly')
     }
 
     return rows

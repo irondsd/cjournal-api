@@ -184,7 +184,7 @@ if (populate) {
         )}'))`,
         err => {
             if (err) {
-                log(err)
+                log.error(err)
                 errors = true
             }
         },
@@ -196,7 +196,7 @@ if (populate) {
         )}'))`,
         err => {
             if (err) {
-                log(err)
+                log.error(err)
                 errors = true
             }
         },
@@ -206,7 +206,7 @@ if (populate) {
         `insert into tasks(users_id, activity_type, time, last_updated, data) values ('1', 'Walking', 1555166888, 1555241651, '{}')`,
         err => {
             if (err) {
-                log(err)
+                log.error(err)
                 errors = true
             }
         },
@@ -216,7 +216,7 @@ if (populate) {
         `insert into tasks(users_id, activity_type, time, last_updated, data) values ('1', 'Walking', 1555166888, 1555241651, '{}')`,
         err => {
             if (err) {
-                log(err)
+                log.error(err)
                 errors = true
             }
         },
@@ -226,7 +226,7 @@ if (populate) {
         `insert into tasks(users_id, activity_type, time, last_updated, data) values ('3', 'Walking', 1555166888, 1555241651, '{}')`,
         err => {
             if (err) {
-                log(err)
+                log.error(err)
                 errors = true
             }
         },
@@ -236,7 +236,7 @@ if (populate) {
         `insert into prescriptions(users_id, course_therapy, relief_of_attack, tests) values ('1', '["Acebutolol", "Atenolol"]', '["Bisoprolol", "Betaxolol"]', '["Nadolol", "Propranolol"]')`,
         err => {
             if (err) {
-                log(err)
+                log.error(err)
                 errors = true
             }
         },
@@ -246,7 +246,7 @@ if (populate) {
         `insert into prescriptions(users_id, course_therapy, relief_of_attack, tests) values ('2', '["Acebutolol", "Atenolol"]', '["Bisoprolol", "Betaxolol"]', '["Nadolol", "Propranolol"]')`,
         err => {
             if (err) {
-                log(err)
+                log.error(err)
                 errors = true
             }
         },
@@ -256,7 +256,7 @@ if (populate) {
         `insert into prescriptions(users_id, course_therapy, relief_of_attack, tests) values ('3', '["Acebutolol", "Atenolol"]', '["Bisoprolol", "Betaxolol"]', '["Nadolol", "Propranolol"]')`,
         err => {
             if (err) {
-                log(err)
+                log.error(err)
                 errors = true
             }
         },
@@ -265,18 +265,18 @@ if (populate) {
     if (errors === false) {
         //let's now make sure the records are there
         db.each(`SELECT * FROM users`, (err, records) => {
-            console.log(records)
+            log.info(records)
         })
 
         db.each(`select * from activity`, (err, records) => {
-            console.log(records)
+            log.info(records)
         })
 
         db.each(`select * from tasks`, (err, records) => {
-            console.log(records)
+            log.info(records)
         })
 
-        log(`Sucessfully created the database`)
+        log.info(`Sucessfully created the database`)
     }
 }
 

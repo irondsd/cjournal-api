@@ -13,7 +13,7 @@ const errors = require('../helpers/errors')
 const log = require('../helpers/logger')
 
 router.post('/login', checkLogin, (req, res, next) => {
-    log(`user ${req.user.id} is successfully logged in`)
+    log.info(`user ${req.user.id} is successfully logged in`)
     let api_key = gen_api_key(req.user)
     req.user.api_key = api_key
 
@@ -24,7 +24,7 @@ router.post('/loginqr', checkLogin, (req, res, next) => {
     let api_key = gen_api_key(req.user)
     req.user.api_key = api_key
 
-    log(`user ${req.user.id} generated qr for himself`)
+    log.info(`user ${req.user.id} generated qr for himself`)
     generate_qr(req, res)
 })
 
@@ -42,16 +42,16 @@ prescriptions on users.id = prescriptions.users_id
 where users.id = '${id}' limit 1`
     db.all(query, (err, rows) => {
         if (err) {
-            log(`login internal error ${err}`)
+            log.error(`login internal error ${err}`)
             return errors.internalError(res)
         }
         if (rows[0]) {
-            log(`user ${req.decoded.id} generated qr for user ${rows[0].id}`)
+            log.info(`user ${req.decoded.id} generated qr for user ${rows[0].id}`)
             req.user = rows[0]
             req.user.api_key = gen_api_key(req.user)
             generate_qr(req, res)
         } else {
-            log(`qr user not found ${id}`)
+            log.info(`qr user not found ${id}`)
             return errors.notFound(res)
         }
     })
@@ -103,7 +103,7 @@ generate_qr = function(req, res) {
     }
 
     let cipherText = simpleCrypto.encrypt(response(req.user))
-    // console.log(simpleCrypto.decrypt(cipherText))
+    log.info(`qr gen ${simpleCrypto.decrypt(cipherText)}`)
     QRCode.toDataURL(cipherText, function(err, url) {
         res.send({ qr: url })
     })
