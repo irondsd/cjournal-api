@@ -1,8 +1,25 @@
-module.exports = function log(message) {
+const fs = require('fs')
+
+function log(type, message, silent = true) {
     var timestamp = new Date()
-    console.log(message)
-    const fs = require('fs')
-    fs.appendFile('debug.log', timestamp.toString().slice(4, 24) + ' : ' + message + '\n', function(err) {
-        if (err) console.log(`logger error need inspection ${err}`)
-    })
+    if (!silent) console.log(message)
+    fs.appendFile(
+        'debug.log',
+        `${type} : ${timestamp.toString().slice(4, 24)} : ${message}\n`,
+        function(err) {
+            if (err) console.log(`logger error need inspection ${err}`)
+        },
+    )
+}
+
+exports.debug = function debug(message) {
+    log('DEBUG', message)
+}
+
+exports.info = function info(message) {
+    log('INFO', message)
+}
+
+exports.error = function error(message) {
+    log('ERROR', message, false)
 }
