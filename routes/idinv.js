@@ -30,37 +30,43 @@ prescriptions on users.id = prescriptions.users_id where users.idinv = '${req.pa
 })
 
 router.get('/:idinv/activity', (req, res) => {
-    query = `select * from activity where idinv = '${req.params.idinv}'`
+    query = `select * from activity where idinv = '${req.params.idinv}' and deleted = '0'`
     log.debug(query)
     db.all(query, (err, rows) => {
         if (err) {
             log.error(`idinv internal error ${err}`)
             return errors.internalError(res)
         } else {
-            if (rows.length > 0) {
-                objectify.data(rows)
-                res.send(rows[0])
-            } else {
-                errors.notFound(res)
-            }
+            if (rows.length > 0) objectify.dataRows(rows)
+            res.send(rows[0])
+        }
+    })
+})
+
+router.get('/:idinv/virtual_activity', (req, res) => {
+    query = `select * from virtual_activity where idinv = '${req.params.idinv}' and deleted = '0'`
+    log.debug(query)
+    db.all(query, (err, rows) => {
+        if (err) {
+            log.error(`idinv internal error ${err}`)
+            return errors.internalError(res)
+        } else {
+            if (rows.length > 0) objectify.dataRows(rows)
+            res.send(rows[0])
         }
     })
 })
 
 router.get('/:idinv/tasks', (req, res) => {
-    query = `select * from tasks where idinv = '${req.params.idinv}'`
+    query = `select * from tasks where idinv = '${req.params.idinv}' and deleted = '0'`
     log.debug(query)
     db.all(query, (err, rows) => {
         if (err) {
             log.error(`idinv internal error ${err}`)
             return errors.internalError(res)
         } else {
-            if (rows.length > 0) {
-                objectify.data(rows)
-                res.send(rows[0])
-            } else {
-                errors.notFound(res)
-            }
+            if (rows.length > 0) objectify.dataRows(rows)
+            res.send(rows[0])
         }
     })
 })
