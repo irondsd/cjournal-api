@@ -19,6 +19,7 @@ const checkAuth = require('./middleware/checkAuth')
 const errorHandlers = require('./helpers/errorHandlers')
 const https = require('https')
 const httpolyglot = require('httpolyglot')
+const idinv = require('./routes/idinv')
 
 app.use(function(req, res, next) {
     res.header('Access-Control-Allow-Origin', '*')
@@ -44,6 +45,7 @@ app.use('/api/users/', activity)
 app.use('/api/users/', tasks)
 app.use('/api/users/', prescriptions)
 app.use('/api/users/', virtual_activity)
+app.use('/api/idinv/', idinv)
 
 //static
 app.use('/uploads/', express.static('uploads'))
