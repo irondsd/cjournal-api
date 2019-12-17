@@ -27,8 +27,17 @@ router.get('/:uid/tasks', (req, res) => {
         deleted += '0'
     }
 
+    let completed = `and completed = `
+    if (req.query.completed == 1) {
+        completed += `${req.query.completed}`
+    } else if (req.query.completed == 'all') {
+        completed = ''
+    } else {
+        completed += '0'
+    }
+
     sql =
-        'select id, users_id, activity_type, time, ref_id, completed, data, last_updated from tasks where users_id = ' +
+        'select id, users_id, activity_type, time, ref_id, completed, idinv, data, last_updated from tasks where users_id = ' +
         req.params.uid +
         timeframe +
         deleted
@@ -72,8 +81,8 @@ router.post('/:id/tasks', validateTask, (req, res, next) => {
     let time = intSanitizer(req.body.time)
     let data = req.body.data ? JSON.stringify(req.body.data) : '{}'
 
-    sql = `insert into tasks(users_id, activity_type, time, completed, last_updated, data) values 
-            ('${users_id}', '${activity_type}', '${time}', '0', '${timestamp()}', '${data}')`
+    sql = `insert into tasks(users_id, activity_type, time, completed, last_updated, data, idinv) values 
+            ('${users_id}', '${activity_type}', '${time}', '0', '${timestamp()}', '${data}', (select idinv from users where id = '${users_id}'))`
     log.debug(sql)
     db.run(sql, function(err, rows) {
         if (err) {
@@ -87,48 +96,48 @@ router.post('/:id/tasks', validateTask, (req, res, next) => {
     })
 })
 
-router.post('/:uid/tasks/:tid/postpone', (req, res, next) => {
-    if (req.body.time) {
-        query = `select time, data from tasks where id = ${req.params.tid} and users_id = ${req.params.uid} limit 1`
-        log.debug(query)
-        db.all(query, (err, rows) => {
-            let time
-            let data
-            let last_updated = req.body.last_updated ? req.body.last_updated : timestamp()
-            try {
-                time = rows[0].time + intSanitizer(req.body.time)
-                data = JSON.parse(rows[0].data)
-                if (data)
-                    if (data.postponed) data.postponed = data.postponed + 1
-                    else data.postponed = 1
-                else data = { postponed: 1 }
-            } catch (error) {
-                return errors.incorrectInput(res)
-            }
+// router.post('/:uid/tasks/:tid/postpone', (req, res, next) => {
+//     if (req.body.time) {
+//         query = `select time, data from tasks where id = ${req.params.tid} and users_id = ${req.params.uid} limit 1`
+//         log.debug(query)
+//         db.all(query, (err, rows) => {
+//             let time
+//             let data
+//             let last_updated = req.body.last_updated ? req.body.last_updated : timestamp()
+//             try {
+//                 time = rows[0].time + intSanitizer(req.body.time)
+//                 data = JSON.parse(rows[0].data)
+//                 if (data)
+//                     if (data.postponed) data.postponed = data.postponed + 1
+//                     else data.postponed = 1
+//                 else data = { postponed: 1 }
+//             } catch (error) {
+//                 return errors.incorrectInput(res)
+//             }
 
-            let query = `update tasks set time = ${time}, last_updated = '${last_updated}', data = '${JSON.stringify(
-                data,
-            )}' where id = ${req.params.tid}`
-            if (data.postponed >= 3)
-                query = `update tasks set time = ${time}, last_updated = '${last_updated}', completed = '1', data = '${JSON.stringify(
-                    data,
-                )}' where id = ${req.params.tid}`
-            log.debug(query)
-            db.run(query, function(err, rows) {
-                if (err) {
-                    log.error(`tasks internal error ${err}`)
-                    return error.internalError()
-                } else {
-                    res.status(201).send({
-                        id: req.params.tid,
-                    })
-                }
-            })
-        })
-    } else {
-        return errors.incompleteInput(res)
-    }
-})
+//             let query = `update tasks set time = ${time}, last_updated = '${last_updated}', data = '${JSON.stringify(
+//                 data,
+//             )}' where id = ${req.params.tid}`
+//             if (data.postponed >= 3)
+//                 query = `update tasks set time = ${time}, last_updated = '${last_updated}', completed = '1', data = '${JSON.stringify(
+//                     data,
+//                 )}' where id = ${req.params.tid}`
+//             log.debug(query)
+//             db.run(query, function(err, rows) {
+//                 if (err) {
+//                     log.error(`tasks internal error ${err}`)
+//                     return error.internalError()
+//                 } else {
+//                     res.status(201).send({
+//                         id: req.params.tid,
+//                     })
+//                 }
+//             })
+//         })
+//     } else {
+//         return errors.incompleteInput(res)
+//     }
+// })
 
 router.put('/:uid/tasks/:tid', validateTask, (req, res, next) => {
     let user_id = intSanitizer(req.params.uid)
@@ -138,7 +147,7 @@ router.put('/:uid/tasks/:tid', validateTask, (req, res, next) => {
     let completed = req.body.completed ? intSanitizer(req.body.completed) : false
     let data = req.body.data ? JSON.stringify(req.body.data) : '{}'
 
-    let queryPreserve = `insert into tasks (users_id, activity_type, time, completed, ref_id, last_updated, data, deleted) SELECT users_id, activity_type, time, completed, ref_id, ${timestamp()}, data, 1 FROM tasks where id = '${id}'`
+    let queryPreserve = `insert into tasks (users_id, activity_type, time, completed, ref_id, last_updated, data, deleted, idinv) SELECT users_id, activity_type, time, completed, ref_id, ${timestamp()}, data, 1, idinv FROM tasks where id = '${id}'`
     log.debug(queryPreserve)
     db.run(queryPreserve, (err, rows) => {
         if (err) {
