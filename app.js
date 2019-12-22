@@ -28,6 +28,7 @@ app.use(function(req, res, next) {
     next()
 })
 
+// always redirecting to https
 // app.use(function(req, res, next) {
 //     if (!req.secure) {
 //         res.redirect(301, 'https://' + req.hostname + `:${port}` + req.originalUrl)
@@ -53,24 +54,22 @@ app.use('/uploads/', express.static('uploads'))
 // handle errors
 app.use((error, req, res, next) => errorHandlers(error, req, res, next))
 
-// just for testing, will be removed later
-app.get('/api/check/', checkAuth, (req, res, next) => {
-    res.send(req.decoded)
-})
+// alive check
 app.get('/alive', (req, res) => res.sendStatus(200))
-
-const options = {
-    key: fs.readFileSync('./ssl/server.key'),
-    cert: fs.readFileSync('./ssl/server.cert'),
-}
 
 app.listen(port, () => {
     log.info(`Server started on port ${port}`)
 })
 
+// const options = {
+//     key: fs.readFileSync('./ssl/server.key'),
+//     cert: fs.readFileSync('./ssl/server.cert'),
+// }
+
 // httpolyglot.createServer(options, app).listen(port, () => {
 //     log.info(`Server started on port ${port}`)
 // })
+
 function logger(req, res, next) {
     var user_ip
 
