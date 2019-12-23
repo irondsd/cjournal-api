@@ -1,6 +1,6 @@
 const log = require('../helpers/logger')
 const sqlite = require('sqlite3')
-const db = new sqlite.Database('trackers.db')
+const db = new sqlite.Database('./db/trackers.db')
 let populate = true // add sample values to the db
 let errors = false
 
@@ -8,13 +8,10 @@ db.serialize(() => {
     db.run(
         `create table if not exists users (
                 id integer primary key, 
-                name text, 
+                username text not null unique, 
+                access_token text, 
+                refresh_token text,
                 idinv text, 
-                gender text,
-                birthday text,
-                username text unique,
-                password text,
-                information text,
                 hide_elements text,
                 language text,
                 permissions integer not null default '1',
@@ -22,6 +19,7 @@ db.serialize(() => {
 
         err => {
             if (err) {
+                console.log(err)
                 errors = true
             }
         },
@@ -137,7 +135,7 @@ db.serialize(() => {
 
 if (populate) {
     db.run(
-        `INSERT INTO users(name, idinv, birthday, gender, last_seen, username, password, information, language, hide_elements) VALUES ('Alexander Feldman', '111','10.05.1957', 'male', '1550507313', 'ggn00b', '$2a$10$teACha.MBCW68XIqYHAZielRJa5qSbSx6DKf4ihAqTVqOgJtg3aoe', 'You are the patint of Whatever hostpital. Your doctor is Donald Trump. Wut? You crazy or what? You can contact him on the phone number +13947576392', 'ru', '[]')`,
+        `INSERT INTO users(username, access_token, refresh_token, idinv, last_seen, language, permissions, hide_elements) VALUES ('ggn00b', 'eyJhbGciOiJSUzI1NiIsImtpZCI6IkRldmVsb3BtZW50IiwidHlwIjoiYXQrand0In0.eyJuYmYiOjE1NzcxMDUwNDEsImV4cCI6MTU3NzEwODY0MSwiaXNzIjoiaHR0cDovLzIxNy4xOTcuMjM2LjI0Mjo3MDUwIiwiYXVkIjoiSW5jYXJ0SWRlbnRpdHlTZXJ2ZXJBUEkiLCJjbGllbnRfaWQiOiJBcGlDbGllbnQiLCJzdWIiOiI2ZmUzMTZmOC1iMmQ2LTRmNjQtOWNkNi02ZTg4MmFlMGNiYWEiLCJhdXRoX3RpbWUiOjE1NzcxMDUwNDEsImlkcCI6ImxvY2FsIiwic2NvcGUiOlsib3BlbmlkIiwicHJvZmlsZSIsIkluY2FydElkZW50aXR5U2VydmVyQVBJIiwib2ZmbGluZV9hY2Nlc3MiXSwiYW1yIjpbInB3ZCJdfQ.Hf7ZM0khC1psOt-5w1L4ITcap_Zxir5EQNsyvtZwHrYoHlsXYqVdi-qIS7662gWCoJrZPEiiNn4UBO_jWsPbaU_8gQIt2QhceRV9mLjMunKygprmEzhYGUAcir3vo2dUDQMBe1fKalaKexY8d6gVYI9WZ6M4IsbIV2Ce-pToGuYF2bTA262FBz_3o7enAvAXRWFRLuX-qFAfCVSLggDIEsAaru-zUxdzDqGuU0smdUATyEHaRWN_P0ycX2IQW_0UkpbmHSNW7GXtWcC5vGURQqEQxpEf_N4QImqt2TNLp2Xlg-VNDjRO-SWgWl41edLpDblYxg0E3JXL2JFmLR7Aiw', 'm3key_QmJ8LdEEjBJnoREhjDD6bPmjD1OIAsLnJTOw0', '004_443_531_582_521', '1577104953', 'ru', '3', '[]')`,
         err => {
             if (err) {
                 errors = true
@@ -145,7 +143,7 @@ if (populate) {
         },
     )
     db.run(
-        `INSERT INTO users(name, idinv, birthday, gender, last_seen, username, password, information, language, hide_elements) VALUES ('Carl Sagan', '222', '10.05.1987', 'male','1550507313', 'lolwut', '$2a$10$teACha.MBCW68XIqYHAZielRJa5qSbSx6DKf4ihAqTVqOgJtg3aoe', 'You are the patint of Whatever hostpital. Your doctor is Donald Trump. Wut? You crazy or what? You can contact him on the phone number +13947576392', 'es', '[]')`,
+        `INSERT INTO users(username, access_token, refresh_token, idinv, last_seen, language, permissions, hide_elements) VALUES ('proplayuser', 'eyJhbGciOiJSUzI1NiIsImtpZCI6IkRldmVsb3BtZW50IiwidHlwIjoiYXQrand0In0.eyJuYmYiOjE1NzcxMDUwNDEsImV4cCI6MTU3NzEwODY0MSwiaXNzIjoiaHR0cDovLzIxNy4xOTcuMjM2LjI0Mjo3MDUwIiwiYXVkIjoiSW5jYXJ0SWRlbnRpdHlTZXJ2ZXJBUEkiLCJjbGllbnRfaWQiOiJBcGlDbGllbnQiLCJzdWIiOiI2ZmUzMTZmOC1iMmQ2LTRmNjQtOWNkNi02ZTg4MmFlMGNiYWEiLCJhdXRoX3RpbWUiOjE1NzcxMDUwNDEsImlkcCI6ImxvY2FsIiwic2NvcGUiOlsib3BlbmlkIiwicHJvZmlsZSIsIkluY2FydElkZW50aXR5U2VydmVyQVBJIiwib2ZmbGluZV9hY2Nlc3MiXSwiYW1yIjpbInB3ZCJdfQ.Hf7ZM0khC1psOt-5w1L4ITcap_Zxir5EQNsyvtZwHrYoHlsXYqVdi-qIS7662gWCoJrZPEiiNn4UBO_jWsPbaU_8gQIt2QhceRV9mLjMunKygprmEzhYGUAcir3vo2dUDQMBe1fKalaKexY8d6gVYI9WZ6M4IsbIV2Ce-pToGuYF2bTA262FBz_3o7enAvAXRWFRLuX-qFAfCVSLggDIEsAaru-zUxdzDqGuU0smdUATyEHaRWN_P0ycX2IQW_0UkpbmHSNW7GXtWcC5vGURQqEQxpEf_N4QImqt2TNLp2Xlg-VNDjRO-SWgWl41edLpDblYxg0E3JXL2JFmLR7Aiw', 'm3key_QmJ8LdEEjBJnoREhjDD6bPmjD1OIAsLnJTOw0', '004_443_531_582_832', '1577104953', 'ru', '3', '[]')`,
         err => {
             if (err) {
                 errors = true
@@ -153,7 +151,7 @@ if (populate) {
         },
     )
     db.run(
-        `INSERT INTO users(name, idinv, birthday, gender, last_seen, username, password, information, language, permissions, hide_elements) VALUES ('Max Plank', '333', '10.05.1963', 'male','1550507313', 'ggn000b', '$2a$10$teACha.MBCW68XIqYHAZielRJa5qSbSx6DKf4ihAqTVqOgJtg3aoe', 'You are the patint of Whatever hostpital. Your doctor is Donald Trump. Wut? You crazy or what? You can contact him on the phone number +13947576392', 'en', '3', '[]')`,
+        `INSERT INTO users(username, access_token, refresh_token, idinv, last_seen, language, permissions, hide_elements) VALUES ('ggn000b', 'eyJhbGciOiJSUzI1NiIsImtpZCI6IkRldmVsb3BtZW50IiwidHlwIjoiYXQrand0In0.eyJuYmYiOjE1NzcxMDUwNDEsImV4cCI6MTU3NzEwODY0MSwiaXNzIjoiaHR0cDovLzIxNy4xOTcuMjM2LjI0Mjo3MDUwIiwiYXVkIjoiSW5jYXJ0SWRlbnRpdHlTZXJ2ZXJBUEkiLCJjbGllbnRfaWQiOiJBcGlDbGllbnQiLCJzdWIiOiI2ZmUzMTZmOC1iMmQ2LTRmNjQtOWNkNi02ZTg4MmFlMGNiYWEiLCJhdXRoX3RpbWUiOjE1NzcxMDUwNDEsImlkcCI6ImxvY2FsIiwic2NvcGUiOlsib3BlbmlkIiwicHJvZmlsZSIsIkluY2FydElkZW50aXR5U2VydmVyQVBJIiwib2ZmbGluZV9hY2Nlc3MiXSwiYW1yIjpbInB3ZCJdfQ.Hf7ZM0khC1psOt-5w1L4ITcap_Zxir5EQNsyvtZwHrYoHlsXYqVdi-qIS7662gWCoJrZPEiiNn4UBO_jWsPbaU_8gQIt2QhceRV9mLjMunKygprmEzhYGUAcir3vo2dUDQMBe1fKalaKexY8d6gVYI9WZ6M4IsbIV2Ce-pToGuYF2bTA262FBz_3o7enAvAXRWFRLuX-qFAfCVSLggDIEsAaru-zUxdzDqGuU0smdUATyEHaRWN_P0ycX2IQW_0UkpbmHSNW7GXtWcC5vGURQqEQxpEf_N4QImqt2TNLp2Xlg-VNDjRO-SWgWl41edLpDblYxg0E3JXL2JFmLR7Aiw', 'm3key_QmJ8LdEEjBJnoREhjDD6bPmjD1OIAsLnJTOw0', '004_443_531_582_929', '1577104953', 'ru', '3', '[]')`,
         err => {
             if (err) {
                 errors = true
@@ -265,16 +263,16 @@ if (populate) {
     if (errors === false) {
         //let's now make sure the records are there
         db.each(`SELECT * FROM users`, (err, records) => {
-            log.info(records)
+            log.info(JSON.stringify(records))
         })
 
-        db.each(`select * from activity`, (err, records) => {
-            log.info(records)
-        })
+        // db.each(`select * from activity`, (err, records) => {
+        //     log.info(records)
+        // })
 
-        db.each(`select * from tasks`, (err, records) => {
-            log.info(records)
-        })
+        // db.each(`select * from tasks`, (err, records) => {
+        //     log.info(records)
+        // })
 
         log.info(`Sucessfully created the database`)
     }
