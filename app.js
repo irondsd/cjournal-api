@@ -12,7 +12,7 @@ const auth = require('./routes/auth')
 const activity = require('./routes/activity')
 const virtual_activity = require('./routes/virtual_activity')
 const bodyParser = require('body-parser')
-const login = require('./routes/login')
+// const login = require('./routes/login')
 const tasks = require('./routes/tasks')
 const patients = require('./routes/patients')
 const prescriptions = require('./routes/prescriptions')
@@ -21,7 +21,6 @@ const errorHandlers = require('./helpers/errorHandlers')
 const https = require('https')
 const httpolyglot = require('httpolyglot')
 const idinv = require('./routes/idinv')
-const signin = require('./routes/signin')
 
 app.use(function(req, res, next) {
     res.header('Access-Control-Allow-Origin', '*')
@@ -30,7 +29,7 @@ app.use(function(req, res, next) {
     next()
 })
 
-// always redirecting to https
+// always redirect to https
 // app.use(function(req, res, next) {
 //     if (!req.secure) {
 //         res.redirect(301, 'https://' + req.hostname + `:${port}` + req.originalUrl)
@@ -41,9 +40,8 @@ app.use(function(req, res, next) {
 app.use(logger)
 app.use(bodyParser.json())
 app.use('/api/', index)
-app.use('/api/', login)
+// app.use('/api/', login)
 app.use('/api/', auth)
-app.use('/api/', signin)
 app.use('/api/users/', patients)
 app.use('/api/users/', users)
 app.use('/api/users/', activity)
