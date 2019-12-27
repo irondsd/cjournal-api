@@ -2,21 +2,46 @@ const jwt = require('jsonwebtoken')
 const { updateLastSeen } = require('../helpers/updateLastSeen')
 const errors = require('../helpers/errors')
 const log = require('../helpers/logger')
+const fetch = require('node-fetch')
+const userFindOrCreate = require('../helpers/userFindOrCreate')
+require('dotenv').config()
 
 module.exports = (req, res, next) => {
-    let api_key = req.query.api_key
+    let token = req.query.token
 
     if (req.headers.authorization)
         if (req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bearer')
-            api_key = req.headers.authorization.split(' ')[1]
+            token = req.headers.authorization.split(' ')[1]
 
-    try {
-        const decoded = jwt.verify(api_key, process.env.TOKEN_KEY)
-        req.decoded = decoded
-        updateLastSeen(decoded.id)
-        next()
-    } catch (error) {
-        log.info(`unsuccessful api key decode ${api_key}`)
-        errors.unauthorized(res)
-    }
+    let url = `http://217.197.236.242:7050/connect/userinfo`
+
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            Authorization: 'Bearer ' + token,
+        },
+    })
+        .then(response => response.json())
+        .then(response => {
+            // req.user = {
+            //     sub: response.sub,
+            //     name: response.name,
+            //     // add other stuff
+            // }
+            userFindOrCreate(response.sub, response.name)
+                .then(res => {
+                    req.user = {
+                        id: res,
+                        sub: response.sub,
+                        name: response.name,
+                    }
+                    next()
+                })
+                .catch(err => {
+                    console.log('err', err)
+                })
+        })
+        .catch(err => {
+            errors.unauthorized(res)
+        })
 }
