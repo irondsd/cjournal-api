@@ -7,7 +7,6 @@ npm-debug.log
 yarn-error.log
 
 # ignore all logs
-debug.log
 *.log
 
 # ignore db
