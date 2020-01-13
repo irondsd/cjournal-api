@@ -13,11 +13,11 @@ function log(type, message, silent = true) {
 }
 
 exports.debug = function debug(message) {
-    log('DEBUG', message)
+    log('DEBUG', message, false)
 }
 
 exports.info = function info(message) {
-    log('INFO', message)
+    log('INFO', message, false)
 }
 
 exports.error = function error(message) {
