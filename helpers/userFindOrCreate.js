@@ -22,9 +22,8 @@ module.exports = async (sub, name) => {
                     query = `insert into prescriptions(users_id) values('${this.lastID}')`
                     db.run(query, function(err) {
                         if (err) reject(err)
+                        resolve(id)
                     })
-
-                    resolve(id)
                 })
             } else {
                 // there's user with this sub

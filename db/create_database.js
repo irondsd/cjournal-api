@@ -9,7 +9,7 @@ db.serialize(() => {
                 id integer primary key, 
                 sub text not null unique,
                 username text not null, 
-                idinv text, 
+                idinv text default '', 
                 hide_elements text default '[]',
                 language text default 'ru',
                 permissions integer not null default '1',

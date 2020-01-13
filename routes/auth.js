@@ -11,7 +11,7 @@ require('dotenv').config()
 
 router.post('/login', checkAuth, (req, res, next) => {
     let query =
-        `select * from users inner join 
+        `select * from users inner join
             prescriptions on users.id = prescriptions.users_id
             where users.id = ` + req.user.id
     log.debug(query)
