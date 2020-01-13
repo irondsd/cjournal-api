@@ -73,20 +73,18 @@ app.listen(port, () => {
 // })
 
 function logger(req, res, next) {
-    var user_ip
-
-    if (req.headers['cf-connecting-ip'] && req.headers['cf-connecting-ip'].split(', ').length) {
-        let first = req.headers['cf-connecting-ip'].split(', ')
-        user_ip = first[0]
-    } else {
-        let user_ip =
-            req.headers['x-forwarded-for'] ||
-            req.headers['x-real-ip'] ||
-            req.connection.remoteAddress ||
-            req.socket.remoteAddress ||
-            req.connection.socket.remoteAddress
-    }
-
-    log.info(`${user_ip} | ${req.method} | ${req.path}`)
+    // var user_ip
+    // if (req.headers['cf-connecting-ip'] && req.headers['cf-connecting-ip'].split(', ').length) {
+    //     let first = req.headers['cf-connecting-ip'].split(', ')
+    //     user_ip = first[0]
+    // } else {
+    //     let user_ip =
+    //         req.headers['x-forwarded-for'] ||
+    //         req.headers['x-real-ip'] ||
+    //         req.connection.remoteAddress ||
+    //         req.socket.remoteAddress ||
+    //         req.connection.socket.remoteAddress
+    // }
+    // log.info(`${user_ip} | ${req.method} | ${req.path}`)
     next()
 }
