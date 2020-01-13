@@ -23,18 +23,14 @@ module.exports = (req, res, next) => {
     })
         .then(response => response.json())
         .then(response => {
-            // req.user = {
-            //     sub: response.sub,
-            //     name: response.name,
-            //     // add other stuff
-            // }
             userFindOrCreate(response.sub, response.name)
                 .then(res => {
                     req.user = {
                         id: res,
                         sub: response.sub,
-                        name: response.name,
+                        username: response.name,
                     }
+                    updateLastSeen(res)
                     next()
                 })
                 .catch(err => {
