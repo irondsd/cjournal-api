@@ -36,15 +36,31 @@ prescriptions on users.id = prescriptions.users_id`
 
 // Get information about the user with specific id
 router.get('/:id', checkAuth, (req, res, next) => {
-    // log.info(`user ${req.decoded.id} requested user ${req.params.id}`)
-    let query =
-        `select 
+    let query = `select 
 *
 from users 
 inner join 
 prescriptions on users.id = prescriptions.users_id
-where users.id = ` + req.params.id
+where users.id = '${req.params.id}'`
     log.debug(query)
+    db.all(query, (err, rows) => {
+        if (err) {
+            log.error(`users internal error ${err}`)
+            return errors.internalError(res)
+        }
+        if (rows.length > 0) {
+            objectify.all(rows)
+            return res.send(rows[0])
+        } else {
+            log.info(`get users id not found ${req.params.id}`)
+            return errors.notFound(res)
+        }
+    })
+})
+
+router.get('/sub/:sub', checkAuth, (req, res, next) => {
+    let query = `select * from users where sub = '${req.params.sub}'`
+
     db.all(query, (err, rows) => {
         if (err) {
             log.error(`users internal error ${err}`)
