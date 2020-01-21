@@ -20,4 +20,4 @@ db/trackers.db
 # .env
 
 #uploads
-uploads/
+uploads/*
