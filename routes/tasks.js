@@ -27,7 +27,7 @@ router.get('/:uid/tasks', (req, res) => {
         deleted += '0'
     }
 
-    let completed = `and completed = `
+    let completed = ` and completed = `
     if (req.query.completed == 1) {
         completed += `${req.query.completed}`
     } else if (req.query.completed == 'all') {
@@ -40,9 +40,10 @@ router.get('/:uid/tasks', (req, res) => {
         'select id, users_id, activity_type, time, ref_id, completed, idinv, data, last_updated from tasks where users_id = ' +
         req.params.uid +
         timeframe +
-        deleted
+        deleted +
+        completed
 
-    sql = 'select * from tasks where users_id = ' + req.params.uid + ' ' + timeframe + completed
+    // sql = 'select * from tasks where users_id = ' + req.params.uid + ' ' + timeframe + completed
     log.debug(sql)
     db.all(sql, (err, rows) => {
         if (err) {
