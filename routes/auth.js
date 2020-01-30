@@ -7,6 +7,8 @@ const log = require('../helpers/logger')
 const fetch = require('node-fetch')
 const checkAuth = require('../middleware/checkAuth')
 const objectify = require('../helpers/objectify')
+const passport = require('passport')
+const passportSetup = require('../config/oauth')
 require('dotenv').config()
 
 router.post('/login', checkAuth, (req, res, next) => {
@@ -30,5 +32,17 @@ router.post('/login', checkAuth, (req, res, next) => {
         }
     })
 })
+
+router.get('/oauth', passport.authenticate('openidconnect'))
+
+router.get(
+    '/oauth/callback',
+    passport.authenticate('openidconnect', { failureRedirect: 'http://192.168.4.140:7050/' }),
+    function(req, res) {
+        // Successful authentication, redirect home.
+
+        res.redirect('/api/')
+    },
+)
 
 module.exports = router
