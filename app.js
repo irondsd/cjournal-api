@@ -31,16 +31,16 @@ app.use(function(req, res, next) {
     next()
 })
 
-app.use(
-    session({
-        secret: 'Clymene',
-        resave: false,
-        saveUninitialized: true,
-    }),
-)
+// app.use(
+//     session({
+//         secret: 'Clymene',
+//         resave: false,
+//         saveUninitialized: true,
+//     }),
+// )
 
-app.use(passport.initialize())
-app.use(passport.session())
+// app.use(passport.initialize())
+// app.use(passport.session())
 
 // always redirect to https
 // app.use(function(req, res, next) {
