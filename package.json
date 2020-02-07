@@ -6,6 +6,7 @@
     "dependencies": {
         "bcryptjs": "^2.4.3",
         "body-parser": "^1.18.3",
+        "cors": "^2.8.5",
         "dotenv": "^8.1.0",
         "express": "^4.16.4",
         "httpolyglot": "^0.1.2",

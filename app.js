@@ -23,13 +23,10 @@ const httpolyglot = require('httpolyglot')
 const idinv = require('./routes/idinv')
 const session = require('express-session')
 const passport = require('passport')
+const cors = require('cors')
 
-app.use(function(req, res, next) {
-    res.header('Access-Control-Allow-Origin', '*')
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept')
-    res.header('Access-Control-Allow-Methods', '*')
-    next()
-})
+app.use(cors())
+app.options('*', cors())
 
 // app.use(
 //     session({
