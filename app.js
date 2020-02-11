@@ -21,23 +21,10 @@ const errorHandlers = require('./helpers/errorHandlers')
 const https = require('https')
 const httpolyglot = require('httpolyglot')
 const idinv = require('./routes/idinv')
-const session = require('express-session')
-const passport = require('passport')
 const cors = require('cors')
 
 app.use(cors())
 app.options('*', cors())
-
-// app.use(
-//     session({
-//         secret: 'Clymene',
-//         resave: false,
-//         saveUninitialized: true,
-//     }),
-// )
-
-// app.use(passport.initialize())
-// app.use(passport.session())
 
 // always redirect to https
 // app.use(function(req, res, next) {
