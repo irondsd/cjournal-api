@@ -13,8 +13,8 @@ module.exports = (req, res, next) => {
         if (req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bearer')
             token = req.headers.authorization.split(' ')[1]
 
-    let url = `http://217.197.236.242:7050/connect/userinfo`
-
+    let url = process.env.IDENTITY
+    console.log(url)
     fetch(url, {
         method: 'POST',
         headers: {
