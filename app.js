@@ -12,9 +12,7 @@ const auth = require('./routes/auth')
 const activity = require('./routes/activity')
 const virtual_activity = require('./routes/virtual_activity')
 const bodyParser = require('body-parser')
-// const login = require('./routes/login')
 const tasks = require('./routes/tasks')
-const patients = require('./routes/patients')
 const prescriptions = require('./routes/prescriptions')
 const checkAuth = require('./middleware/checkAuth')
 const errorHandlers = require('./helpers/errorHandlers')
@@ -37,9 +35,7 @@ app.options('*', cors())
 app.use(logger)
 app.use(bodyParser.json())
 app.use('/api/', index)
-// app.use('/api/', login)
 app.use('/api/', auth)
-app.use('/api/users/', patients)
 app.use('/api/users/', users)
 app.use('/api/users/', activity)
 app.use('/api/users/', tasks)
@@ -70,18 +66,13 @@ app.listen(port, () => {
 // })
 
 function logger(req, res, next) {
-    // var user_ip
-    // if (req.headers['cf-connecting-ip'] && req.headers['cf-connecting-ip'].split(', ').length) {
-    //     let first = req.headers['cf-connecting-ip'].split(', ')
-    //     user_ip = first[0]
-    // } else {
-    //     let user_ip =
-    //         req.headers['x-forwarded-for'] ||
-    //         req.headers['x-real-ip'] ||
-    //         req.connection.remoteAddress ||
-    //         req.socket.remoteAddress ||
-    //         req.connection.socket.remoteAddress
-    // }
-    // log.info(`${user_ip} | ${req.method} | ${req.path}`)
+    let user_ip =
+        req.headers['x-forwarded-for'] ||
+        req.headers['x-real-ip'] ||
+        req.connection.remoteAddress ||
+        req.socket.remoteAddress ||
+        req.connection.socket.remoteAddress
+
+    log.info(`${user_ip} | ${req.method} | ${req.path}`)
     next()
 }
