@@ -12,7 +12,6 @@ db.serialize(() => {
                 idinv text default '', 
                 hide_elements text default '[]',
                 language text default 'ru',
-                permissions integer not null default '1',
                 last_seen datetime)`,
 
         err => {
