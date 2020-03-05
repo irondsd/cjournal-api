@@ -155,13 +155,8 @@ router.post('/:uid/activity', saveFiles, validateActivity, (req, res, next) => {
 
     if (req.files) {
         last_updated = timestamp() // because we changed data just now.
-
-        if (req.files.audio) {
-            data.audio = req.files.audio[0].path.replace('\\', '/')
-        }
-        if (req.files.image) {
-            data.image = req.files.image[0].path.replace('\\', '/')
-        }
+        if (req.files.audio) data.audio = req.files.audio[0].path.replace('\\', '/')
+        if (req.files.image) data.image = req.files.image[0].path.replace('\\', '/')
     }
     data = JSON.stringify(data)
 
@@ -206,8 +201,9 @@ router.put('/:uid/activity/:aid', saveFiles, validateActivity, (req, res, next) 
         }
 
     if (req.file) {
-        data.audio = req.file.path.replace('\\', '/')
         last_updated = timestamp() // because we changed data just now.
+        if (req.files.audio) data.audio = req.files.audio[0].path.replace('\\', '/')
+        if (req.files.image) data.image = req.files.image[0].path.replace('\\', '/')
     }
     data = JSON.stringify(data)
 
