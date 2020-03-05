@@ -200,7 +200,7 @@ router.put('/:uid/activity/:aid', saveFiles, validateActivity, (req, res, next) 
             data = {}
         }
 
-    if (req.file) {
+    if (req.files) {
         last_updated = timestamp() // because we changed data just now.
         if (req.files.audio) data.audio = req.files.audio[0].path.replace('\\', '/')
         if (req.files.image) data.image = req.files.image[0].path.replace('\\', '/')

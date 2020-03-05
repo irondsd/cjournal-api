@@ -17,7 +17,7 @@ exports.debug = function debug(message) {
 }
 
 exports.info = function info(message) {
-    log('INFO', message, false)
+    log('INFO', message, true)
 }
 
 exports.error = function error(message) {
