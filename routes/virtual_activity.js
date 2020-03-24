@@ -25,7 +25,7 @@ router.get('/:uid/virtual_activity', (req, res) => {
     if (req.query.doctor_id) doctor_id = ` and doctor_id = ${req.query.doctor_id}`
 
     sql =
-        `select id, activity_id, users_id, doctor_id, activity_type, time_started, time_ended, tasks_id, set_deleted, comment, data${uploaded} from virtual_activity where users_id = ` +
+        `select id, activity_id, users_id, doctor_id, activity_type, idinv, time_started, time_ended, tasks_id, set_deleted, comment, data${uploaded} from virtual_activity where users_id = ` +
         req.params.uid +
         timeframe +
         deleted +
@@ -120,12 +120,12 @@ function postVirtualActivity(req, res) {
     let last_updated = req.body.last_updated ? req.body.last_updated : timestamp()
     let set_deleted = req.body.set_deleted ? req.body.set_deleted : 0
 
-    let sql = `insert into virtual_activity(activity_id, users_id, doctor_id, activity_type, time_started, comment, data, tasks_id, time_ended, last_updated, uploaded, set_deleted) values
+    let sql = `insert into virtual_activity(activity_id, users_id, doctor_id, activity_type, time_started, comment, data, tasks_id, time_ended, last_updated, uploaded, set_deleted, idinv) values
                            (${activity_id}, '${
         req.params.uid
     }', '${doctor_id}', '${activity_type}', '${time_started}', '${comment}', '${data}', ${tasks_id}, ${time_ended}, '${last_updated}', '${timestamp()}', '${
         set_deleted ? set_deleted : 0
-    }')`
+    }', (select idinv from users where id = '${users_id}'))`
     db.run(sql, function(err, rows) {
         if (err) {
             log.error(`virtual internal error ${err}`)
@@ -166,7 +166,7 @@ function updateVirtualActivity(req, res) {
     }
 
     let queryPreserve = `insert into virtual_activity (activity_id, users_id, doctor_id,
-         activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, comment, data, deleted, uploaded, set_deleted) SELECT activity_id, users_id, doctor_id, activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, comment, data, 1, uploaded, set_deleted FROM virtual_activity where ${id_type} = ${id} and doctor_id = ${doctor_id}`
+         activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, comment, data, deleted, uploaded, set_deleted, idinv) SELECT activity_id, users_id, doctor_id, activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, comment, data, 1, uploaded, set_deleted, idinv FROM virtual_activity where ${id_type} = ${id} and doctor_id = ${doctor_id}`
     log.debug(queryPreserve)
     db.run(queryPreserve, (err, rows) => {
         if (err) {
