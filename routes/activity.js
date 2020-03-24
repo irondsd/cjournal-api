@@ -44,11 +44,8 @@ router.get('/:uid/activity', (req, res) => {
 
     let page = ``
 
-    let idinv = ``
-    if ('idinv' in req.query) idinv = `, idinv`
-
     sql =
-        `select id, users_id, activity_type, time_started, time_ended, tasks_id${selectDeleted}${idinv}, ref_id, last_updated, comment, data${uploaded}${version} from activity where users_id = ` +
+        `select id, users_id, activity_type, time_started, time_ended, tasks_id${selectDeleted}, idinv, ref_id, last_updated, comment, data${uploaded}${version} from activity where users_id = ` +
         req.params.uid +
         timeframe +
         deleted
