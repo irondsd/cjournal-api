@@ -38,7 +38,7 @@ router.get('/:idinv/activity', (req, res) => {
             return errors.internalError(res)
         } else {
             if (rows.length > 0) objectify.dataRows(rows)
-            res.send(rows[0])
+            res.send(rows)
         }
     })
 })
@@ -52,7 +52,7 @@ router.get('/:idinv/virtual_activity', (req, res) => {
             return errors.internalError(res)
         } else {
             if (rows.length > 0) objectify.dataRows(rows)
-            res.send(rows[0])
+            res.send(rows)
         }
     })
 })
@@ -66,7 +66,7 @@ router.get('/:idinv/tasks', (req, res) => {
             return errors.internalError(res)
         } else {
             if (rows.length > 0) objectify.dataRows(rows)
-            res.send(rows[0])
+            res.send(rows)
         }
     })
 })
