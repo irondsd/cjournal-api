@@ -22,14 +22,13 @@ db.serialize(() => {
         },
     )
 
-    // TODO: idinv?
-
     db.run(
         `create table if not exists activity (
         id integer primary key,
         users_id integer not null,
         activity_type text not null,
         time_started datetime not null,
+        utc_offset integer,
         time_ended datetime,
         tasks_id integer,
         idinv text,
@@ -109,6 +108,7 @@ db.serialize(() => {
         doctor_id integer not null,
         activity_type text,
         time_started datetime,
+        utc_offset integer,
         time_ended datetime,
         tasks_id integer,
         idinv text,
