@@ -8,6 +8,7 @@ const errors = require('../helpers/errors')
 const log = require('../helpers/logger')
 const validateVirtual = require('../middleware/validateVirtual')
 const objectify = require('../helpers/objectify')
+const intSanitizer = require('../helpers/intSanitizer')
 
 router.get('/:uid/virtual_activity', (req, res) => {
     let timeframe = ``
@@ -25,14 +26,14 @@ router.get('/:uid/virtual_activity', (req, res) => {
     if (req.query.doctor_id) doctor_id = ` and doctor_id = ${req.query.doctor_id}`
 
     sql =
-        `select id, activity_id, users_id, doctor_id, activity_type, idinv, time_started, time_ended, tasks_id, set_deleted, comment, data${uploaded} from virtual_activity where users_id = ` +
+        `select id, activity_id, users_id, doctor_id, activity_type, idinv, time_started, time_ended, utc_offset, tasks_id, set_deleted, comment, data${uploaded} from virtual_activity where users_id = ` +
         req.params.uid +
         timeframe +
         deleted +
         doctor_id
 
     log.debug(sql)
-    db.all(sql, function(err, rows) {
+    db.all(sql, function (err, rows) {
         if (err) {
             log.error(`virtual internal error ${err}`)
             return errors.internalError(res)
@@ -55,10 +56,10 @@ router.get('/:uid/virtual_activity/:aid', (req, res) => {
     let doctor_id = ``
     if (req.query.doctor_id) doctor_id = `and doctor_id = ${req.query.doctor_id}`
 
-    let query = `select id, activity_id, users_id, doctor_id, activity_type, time_started, time_ended, tasks_id, comment, data${uploaded}, set_deleted from virtual_activity where activity_id = ${req.params.aid} and users_id = ${req.params.uid}${deleted} ${doctor_id}`
+    let query = `select id, activity_id, users_id, doctor_id, activity_type, time_started, time_ended, utc_offset, tasks_id, comment, data${uploaded}, set_deleted from virtual_activity where activity_id = ${req.params.aid} and users_id = ${req.params.uid}${deleted} ${doctor_id}`
 
     if (req.params.aid.includes('v'))
-        query = `select id, activity_id, users_id, doctor_id, activity_type, time_started, time_ended, tasks_id, comment, data${uploaded}, set_deleted from virtual_activity where id = ${req.params.aid.substring(
+        query = `select id, activity_id, users_id, doctor_id, activity_type, time_started, time_ended, utc_offset, tasks_id, comment, data${uploaded}, set_deleted from virtual_activity where id = ${req.params.aid.substring(
             1,
         )} and users_id = ${req.params.uid}${deleted} ${doctor_id}`
     log.debug(query)
@@ -84,7 +85,7 @@ router.post('/:uid/virtual_activity', validateVirtual, (req, res, next) => {
     if (req.body.activity_id) {
         let check = `select id from virtual_activity where activity_id = '${req.body.activity_id}' and doctor_id = '${req.body.doctor_id}' and deleted = '0'`
         log.debug(check)
-        db.all(check, function(err, rows) {
+        db.all(check, function (err, rows) {
             if (err) {
                 log.error(`virtual internal error ${err}`)
                 return errors.internalError(res)
@@ -113,6 +114,7 @@ function postVirtualActivity(req, res) {
     let activity_type = req.body.activity_type
     let time_started = req.body.time_started
     let time_ended = req.body.time_ended ? `'${req.body.time_ended}'` : 'NULL'
+    let utc_offset = req.body.utc_offset ? intSanitizer(req.body.utc_offset) : 'NULL'
     let tasks_id = req.body.tasks_id ? `'${req.body.tasks_id}'` : 'NULL'
     let version = req.body.version ? req.body.version : 1
     let comment = req.body.comment ? req.body.comment : ''
@@ -120,13 +122,13 @@ function postVirtualActivity(req, res) {
     let last_updated = req.body.last_updated ? req.body.last_updated : timestamp()
     let set_deleted = req.body.set_deleted ? req.body.set_deleted : 0
 
-    let sql = `insert into virtual_activity(activity_id, users_id, doctor_id, activity_type, time_started, comment, data, tasks_id, time_ended, last_updated, uploaded, set_deleted, idinv) values
+    let sql = `insert into virtual_activity(activity_id, users_id, doctor_id, activity_type, time_started, utc_offset, comment, data, tasks_id, time_ended, last_updated, uploaded, set_deleted, idinv) values
                            (${activity_id}, '${
         req.params.uid
-    }', '${doctor_id}', '${activity_type}', '${time_started}', '${comment}', '${data}', ${tasks_id}, ${time_ended}, '${last_updated}', '${timestamp()}', '${
+    }', '${doctor_id}', '${activity_type}', '${time_started}', ${utc_offset}, '${comment}', '${data}', ${tasks_id}, ${time_ended}, '${last_updated}', '${timestamp()}', '${
         set_deleted ? set_deleted : 0
     }', (select idinv from users where id = '${users_id}'))`
-    db.run(sql, function(err, rows) {
+    db.run(sql, function (err, rows) {
         if (err) {
             log.error(`virtual internal error ${err}`)
             return errors.internalError(res)
@@ -150,6 +152,7 @@ function updateVirtualActivity(req, res) {
     let activity_type = req.body.activity_type
     let time_started = req.body.time_started
     let time_ended = req.body.time_ended ? `'${req.body.time_ended}'` : 'NULL'
+    let utc_offset = req.body.utc_offset ? intSanitizer(req.body.utc_offset) : 'NULL'
     let tasks_id = req.body.tasks_id ? `'${req.body.tasks_id}'` : 'NULL'
     let version = req.body.version ? req.body.version : 1
     let comment = req.body.comment ? req.body.comment : ''
@@ -166,17 +169,17 @@ function updateVirtualActivity(req, res) {
     }
 
     let queryPreserve = `insert into virtual_activity (activity_id, users_id, doctor_id,
-         activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, comment, data, deleted, uploaded, set_deleted, idinv) SELECT activity_id, users_id, doctor_id, activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, comment, data, 1, uploaded, set_deleted, idinv FROM virtual_activity where ${id_type} = ${id} and doctor_id = ${doctor_id}`
+         activity_type, time_started, time_ended, utc_offset, tasks_id, ref_id, last_updated, comment, data, deleted, uploaded, set_deleted, idinv) SELECT activity_id, users_id, doctor_id, activity_type, time_started, time_ended, utc_offset, tasks_id, ref_id, last_updated, comment, data, 1, uploaded, set_deleted, idinv FROM virtual_activity where ${id_type} = ${id} and doctor_id = ${doctor_id}`
     log.debug(queryPreserve)
     db.run(queryPreserve, (err, rows) => {
         if (err) {
             log.error(`virtual internal error ${err}`)
             return errors.internalError(res)
         } else {
-            let sql = `update virtual_activity set activity_type = '${activity_type}', time_started = '${time_started}', time_ended = ${time_ended}, comment = '${comment}', doctor_id = '${doctor_id}', data = '${data}', last_updated = '${last_updated}', ref_id = '${id}', uploaded = '${timestamp()}', set_deleted = '${set_deleted}' where ${id_type} = ${id}`
+            let sql = `update virtual_activity set activity_type = '${activity_type}', time_started = '${time_started}', time_ended = ${time_ended}, utc_offset = ${utc_offset}, comment = '${comment}', doctor_id = '${doctor_id}', data = '${data}', last_updated = '${last_updated}', ref_id = '${id}', uploaded = '${timestamp()}', set_deleted = '${set_deleted}' where ${id_type} = ${id}`
 
             log.debug(sql)
-            db.run(sql, function(err, rows) {
+            db.run(sql, function (err, rows) {
                 if (err) {
                     log.error(`put virtual internal error ${err}`)
                     return errors.internalError(res)
@@ -202,7 +205,7 @@ router.delete('/:uid/virtual_activity/:aid', (req, res) => {
             1,
         )}'`
     log.debug(sql)
-    db.run(sql, function(err, rows) {
+    db.run(sql, function (err, rows) {
         if (err) {
             log.error(`virtual internal error ${err}`)
             return errors.internalError(res)
@@ -224,7 +227,7 @@ router.patch('/:uid/virtual_activity/:aid', (req, res) => {
             1,
         )}'`
     log.debug(sql)
-    db.run(sql, function(err, rows) {
+    db.run(sql, function (err, rows) {
         if (err) {
             log.error(`virtual internal error ${err}`)
             return errors.internalError(res)

@@ -45,7 +45,7 @@ router.get('/:uid/activity', (req, res) => {
     let page = ``
 
     sql =
-        `select id, users_id, activity_type, time_started, time_ended, tasks_id${selectDeleted}, idinv, ref_id, last_updated, comment, data${uploaded}${version} from activity where users_id = ` +
+        `select id, users_id, activity_type, time_started, time_ended, utc_offset, tasks_id${selectDeleted}, idinv, ref_id, last_updated, comment, data${uploaded}${version} from activity where users_id = ` +
         req.params.uid +
         timeframe +
         deleted
@@ -53,14 +53,14 @@ router.get('/:uid/activity', (req, res) => {
         let page = 0
         if (req.query.page) page = req.query.page * req.query.limit
         sql =
-            `select id, users_id, activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, comment, data${uploaded}${version} from activity where users_id = ` +
+            `select id, users_id, activity_type, time_started, time_ended, utc_offset, tasks_id, ref_id, last_updated, comment, data${uploaded}${version} from activity where users_id = ` +
             req.params.uid +
             timeframe +
             deleted +
             ` order by time_started desc limit ${page}, ${req.query.limit}`
     }
     log.debug(sql)
-    db.all(sql, function(err, rows) {
+    db.all(sql, function (err, rows) {
         if (err) {
             log.error(`get all activity internal error ${err}`)
             return errors.internalError(res)
@@ -84,7 +84,7 @@ router.get('/:uid/activity/idinv/:idinv', (req, res) => {
     }
 
     let query =
-        `select id, activity_type, time_started, time_ended, tasks_id, comment, data, idinv from activity where idinv = '${req.params.idinv}'` +
+        `select id, activity_type, time_started, time_ended, utc_offset, tasks_id, comment, data, idinv from activity where idinv = '${req.params.idinv}'` +
         deleted
 
     log.debug(query)
@@ -115,7 +115,7 @@ router.get('/:uid/activity/:aid', (req, res) => {
     } else if (req.query.deleted == 'all') {
         deleted = ''
     }
-    query = `select id, users_id, activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, comment, data${uploaded}${version} from activity where id = ${req.params.aid} and users_id = ${req.params.uid}${deleted}`
+    query = `select id, users_id, activity_type, time_started, time_ended, utc_offset, tasks_id, ref_id, last_updated, comment, data${uploaded}${version} from activity where id = ${req.params.aid} and users_id = ${req.params.uid}${deleted}`
 
     db.all(query, (err, rows) => {
         if (err) {
@@ -135,6 +135,7 @@ router.post('/:uid/activity', saveFiles, validateActivity, (req, res, next) => {
     let users_id = intSanitizer(req.params.uid)
     let activity_type = stringSanitizer(req.body.activity_type)
     let time_started = intSanitizer(req.body.time_started)
+    let utc_offset = req.body.utc_offset ? intSanitizer(req.body.utc_offset) : null
     let time_ended = req.body.time_ended ? intSanitizer(req.body.time_ended) : null
     let tasks_id = req.body.tasks_id ? intSanitizer(req.body.tasks_id) : null
     let version = req.body.version ? intSanitizer(req.body.version) : 1
@@ -158,13 +159,14 @@ router.post('/:uid/activity', saveFiles, validateActivity, (req, res, next) => {
     data = JSON.stringify(data)
 
     time_ended === null ? (time_ended = 'NULL') : (time_ended = `'${time_ended}'`)
+    utc_offset === null ? (utc_offset = 'NULL') : (utc_offset = `'${utc_offset}'`)
     tasks_id === null ? (tasks_id = 'NULL') : (tasks_id = `'${tasks_id}'`)
 
-    let sql = `insert into activity(users_id, activity_type, time_started, comment, data, tasks_id, time_ended, version, last_updated, uploaded, idinv) values 
-            ('${users_id}', '${activity_type}', '${time_started}', '${comment}', '${data}', ${tasks_id}, ${time_ended}, '${version}', '${last_updated}', '${timestamp()}', (select idinv from users where id = '${users_id}'))`
+    let sql = `insert into activity(users_id, activity_type, time_started, utc_offset, comment, data, tasks_id, time_ended, version, last_updated, uploaded, idinv) values 
+            ('${users_id}', '${activity_type}', '${time_started}', ${utc_offset}, '${comment}', '${data}', ${tasks_id}, ${time_ended}, '${version}', '${last_updated}', '${timestamp()}', (select idinv from users where id = '${users_id}'))`
 
     log.debug(sql)
-    db.run(sql, function(err, rows) {
+    db.run(sql, function (err, rows) {
         if (err) {
             log.error(`post activity internal error ${err}`)
             return errors.internalError(res)
@@ -183,6 +185,7 @@ router.put('/:uid/activity/:aid', saveFiles, validateActivity, (req, res, next) 
     let activity_type = stringSanitizer(req.body.activity_type)
     let time_started = intSanitizer(req.body.time_started)
     let time_ended = req.body.time_ended ? intSanitizer(req.body.time_ended) : null
+    let utc_offset = req.body.utc_offset ? intSanitizer(req.body.utc_offset) : null
     let tasks_id = req.body.tasks_id ? intSanitizer(req.body.tasks_id) : null
     let version = req.body.version ? intSanitizer(req.body.version) : 1
     let comment = req.body.comment ? stringSanitizer(req.body.comment) : ''
@@ -205,9 +208,10 @@ router.put('/:uid/activity/:aid', saveFiles, validateActivity, (req, res, next) 
     data = JSON.stringify(data)
 
     time_ended === null ? (time_ended = 'NULL') : (time_ended = `'${time_ended}'`)
+    utc_offset === null ? (utc_offset = 'NULL') : (utc_offset = `'${utc_offset}'`)
     tasks_id === null ? (tasks_id = 'NULL') : (tasks_id = `'${tasks_id}'`)
 
-    let queryPreserve = `insert into activity (users_id, activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, comment, data, deleted, version, uploaded, idinv) SELECT users_id, activity_type, time_started, time_ended, tasks_id, ref_id, last_updated, comment, data, 1, version, uploaded, idinv FROM activity where id = '${req.params.aid}'`
+    let queryPreserve = `insert into activity (users_id, activity_type, time_started, time_ended, utc_offset, tasks_id, ref_id, last_updated, comment, data, deleted, version, uploaded, idinv) SELECT users_id, activity_type, time_started, time_ended, utc_offset, tasks_id, ref_id, last_updated, comment, data, 1, version, uploaded, idinv FROM activity where id = '${req.params.aid}'`
     log.debug(queryPreserve)
     db.run(queryPreserve, (err, rows) => {
         if (err) {
@@ -218,12 +222,12 @@ router.put('/:uid/activity/:aid', saveFiles, validateActivity, (req, res, next) 
         }
     })
     let sql = `update activity set activity_type = '${activity_type}', time_started = '${time_started}', 
-    time_ended = ${time_ended}, comment = '${comment}', data = '${data}', last_updated = '${last_updated}', 
+    time_ended = ${time_ended}, utc_offset = ${utc_offset}, comment = '${comment}', data = '${data}', last_updated = '${last_updated}', 
     ref_id = '${req.params.aid}', uploaded = '${timestamp()}', tasks_id = ${tasks_id} where id = ${
         req.params.aid
     }`
     log.debug(sql)
-    db.run(sql, function(err, rows) {
+    db.run(sql, function (err, rows) {
         if (err) {
             log.error(`put activity internal error ${err}`)
             return errors.internalError(res)
@@ -248,7 +252,7 @@ router.delete('/:uid/activity/:aid', (req, res) => {
     let sql = `update activity set deleted = '1', uploaded = '${timestamp()}' where id = '${
         req.params.aid
     }'`
-    db.run(sql, function(err, rows) {
+    db.run(sql, function (err, rows) {
         if (err) {
             log.error(`delete activity internal error ${err}`)
             return errors.internalError(res)
@@ -267,7 +271,7 @@ router.patch('/:uid/activity/:aid', (req, res) => {
         req.params.aid
     }'`
     log.debug(sql)
-    db.run(sql, function(err, rows) {
+    db.run(sql, function (err, rows) {
         if (err) {
             log.error(`undelete activity internal error ${err}`)
             return errors.internalError(res)
