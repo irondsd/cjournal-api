@@ -33,16 +33,4 @@ router.post('/login', checkAuth, (req, res, next) => {
     })
 })
 
-// router.get('/oauth', passport.authenticate('openidconnect'))
-
-// router.get(
-//     '/oauth/callback',
-//     passport.authenticate('openidconnect', { failureRedirect: 'http://192.168.4.140:7050/' }),
-//     function(req, res) {
-//         // Successful authentication, redirect home.
-
-//         res.redirect('/api/')
-//     },
-// )
-
 module.exports = router
