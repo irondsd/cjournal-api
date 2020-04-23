@@ -119,8 +119,9 @@ router.get('/:uid/activity/:aid', (req, res) => {
     }
 
     let id = intSanitizer(req.params.uid)
+    let aid = intSanitizer(req.params.aid)
 
-    query = `select id, users_id, activity_type, time_started, time_ended, utc_offset, tasks_id, ref_id, last_updated, comment, data${uploaded}${version} from activity where id = ${req.params.aid} and users_id = ${id}${deleted}`
+    query = `select id, users_id, activity_type, time_started, time_ended, utc_offset, tasks_id, ref_id, last_updated, comment, data${uploaded}${version} from activity where id = ${aid} and users_id = ${id}${deleted}`
 
     db.all(query, (err, rows) => {
         if (err) {
@@ -196,7 +197,7 @@ router.put('/:uid/activity/:aid', saveFiles, validateActivity, (req, res, next) 
     let comment = req.body.comment ? stringSanitizer(req.body.comment) : ''
     let data = req.body.data ? req.body.data : {}
     let last_updated = req.body.last_updated ? intSanitizer(req.body.last_updated) : timestamp()
-
+    let aid = intSanitizer(req.params.aid)
     // form-data doesn't allow to send objects
     if (typeof req.body.data === 'string')
         try {
@@ -216,7 +217,7 @@ router.put('/:uid/activity/:aid', saveFiles, validateActivity, (req, res, next) 
     utc_offset === null ? (utc_offset = 'NULL') : (utc_offset = `'${utc_offset}'`)
     tasks_id === null ? (tasks_id = 'NULL') : (tasks_id = `'${tasks_id}'`)
 
-    let queryPreserve = `insert into activity (users_id, activity_type, time_started, time_ended, utc_offset, tasks_id, ref_id, last_updated, comment, data, deleted, version, uploaded, idinv) SELECT users_id, activity_type, time_started, time_ended, utc_offset, tasks_id, ref_id, last_updated, comment, data, 1, version, uploaded, idinv FROM activity where id = '${req.params.aid}'`
+    let queryPreserve = `insert into activity (users_id, activity_type, time_started, time_ended, utc_offset, tasks_id, ref_id, last_updated, comment, data, deleted, version, uploaded, idinv) SELECT users_id, activity_type, time_started, time_ended, utc_offset, tasks_id, ref_id, last_updated, comment, data, 1, version, uploaded, idinv FROM activity where id = '${aid}'`
     log.debug(queryPreserve)
     db.run(queryPreserve, (err, rows) => {
         if (err) {
@@ -228,9 +229,7 @@ router.put('/:uid/activity/:aid', saveFiles, validateActivity, (req, res, next) 
     })
     let sql = `update activity set activity_type = '${activity_type}', time_started = '${time_started}', 
     time_ended = ${time_ended}, utc_offset = ${utc_offset}, comment = '${comment}', data = '${data}', last_updated = '${last_updated}', 
-    ref_id = '${req.params.aid}', uploaded = '${timestamp()}', tasks_id = ${tasks_id} where id = ${
-        req.params.aid
-    }`
+    ref_id = '${aid}', uploaded = '${timestamp()}', tasks_id = ${tasks_id} where id = ${aid}`
     log.debug(sql)
     db.run(sql, function (err, rows) {
         if (err) {
@@ -238,25 +237,24 @@ router.put('/:uid/activity/:aid', saveFiles, validateActivity, (req, res, next) 
             return errors.internalError(res)
         } else {
             db.run(
-                `update activity set ref_id = '${this.lastID}' where id = ${req.params.aid}`,
+                `update activity set ref_id = '${this.lastID}' where id = ${aid}`,
                 (err, rows) => {
                     // log.info('added ref id')
                 },
             )
             res.status(201).send({
-                id: req.params.aid,
+                id: aid,
             })
             if (tasks_id && tasks_id !== 'NULL' && !req.body.data.failed) {
-                taskMarkCompleted(tasks_id, req.params.aid)
+                taskMarkCompleted(tasks_id, aid)
             }
         }
     })
 })
 
 router.delete('/:uid/activity/:aid', (req, res) => {
-    let sql = `update activity set deleted = '1', uploaded = '${timestamp()}' where id = '${
-        req.params.aid
-    }'`
+    let aid = intSanitizer(req.params.aid)
+    let sql = `update activity set deleted = '1', uploaded = '${timestamp()}' where id = '${aid}'`
     db.run(sql, function (err, rows) {
         if (err) {
             log.error(`delete activity internal error ${err}`)
@@ -272,9 +270,8 @@ router.delete('/:uid/activity/:aid', (req, res) => {
 
 // undelete
 router.patch('/:uid/activity/:aid', (req, res) => {
-    let sql = `update activity set deleted = '0', uploaded = '${timestamp()}' where id = '${
-        req.params.aid
-    }'`
+    let aid = intSanitizer(req.params.aid)
+    let sql = `update activity set deleted = '0', uploaded = '${timestamp()}' where id = '${aid}'`
     log.debug(sql)
     db.run(sql, function (err, rows) {
         if (err) {
@@ -288,8 +285,5 @@ router.patch('/:uid/activity/:aid', (req, res) => {
         }
     })
 })
-
-// Put request is to add the data and can be done only by the user. No doctor or admin can change the original information
-// All the changes should be made in virtual activity
 
 module.exports = router

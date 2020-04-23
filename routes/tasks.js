@@ -61,7 +61,9 @@ router.get('/:uid/tasks', (req, res) => {
 
 router.get('/:uid/tasks/:tid', (req, res) => {
     let id = intSanitizer(req.params.uid)
-    query = `select id, users_id, activity_type, time, last_updated, ref_id, completed, deleted, data from tasks where id = ${req.params.tid} and users_id = ${id}`
+    let tid = intSanitizer(req.params.tid)
+    query = `select id, users_id, activity_type, time, last_updated, ref_id, completed, deleted, data from tasks where 
+    id = ${tid} and users_id = ${id}`
 
     log.debug(query)
     db.all(query, (err, rows) => {
@@ -73,7 +75,7 @@ router.get('/:uid/tasks/:tid', (req, res) => {
             objectify.dataRows(rows)
             return res.send(rows[0])
         } else {
-            log.info(`get tasks not found ${req.params.tid}`)
+            log.info(`get tasks not found ${tid}`)
             return errors.notFound(res)
         }
     })
@@ -121,9 +123,7 @@ router.put('/:uid/tasks/:tid', validateTask, (req, res, next) => {
 
     let sql
     if (req.body.completed) {
-        sql = `update tasks set activity_type = '${activity_type}', time = '${time}', completed = '${completed}', last_updated = '${timestamp()}', ref_id = '${
-            req.params.tid
-        }' where id = ${req.params.tid}`
+        sql = `update tasks set activity_type = '${activity_type}', time = '${time}', completed = '${completed}', last_updated = '${timestamp()}', ref_id = '${id}' where id = ${id}`
     } else {
         sql = `update tasks set activity_type = '${activity_type}', time = '${time}', last_updated = '${timestamp()}', data = '${data}', ref_id = '${id}' where id = ${id}`
     }
@@ -145,10 +145,8 @@ router.delete('/:uid/tasks/:tid', (req, res) => {
     if (!req.params.tid) {
         return errors.incompleteInput(res)
     }
-
-    let sql = `update tasks set deleted = '1', last_updated = '${timestamp()}' where id = '${
-        req.params.tid
-    }'`
+    let tid = intSanitizer(req.params.tid)
+    let sql = `update tasks set deleted = '1', last_updated = '${timestamp()}' where id = '${tid}'`
     db.run(sql, (err, rows) => {
         if (err) {
             log.error(`delete tasks internal error ${err}`)
@@ -164,10 +162,8 @@ router.patch('/:uid/tasks/:tid', (req, res) => {
     if (!req.params.tid) {
         return errors.incompleteInput(res)
     }
-
-    let sql = `update tasks set deleted = '0', last_updated = '${timestamp()}' where id = '${
-        req.params.tid
-    }'`
+    let tid = intSanitizer(req.params.tid)
+    let sql = `update tasks set deleted = '0', last_updated = '${timestamp()}' where id = '${tid}'`
     db.run(sql, (err, rows) => {
         if (err) {
             log.error(`undelete tasks internal error ${err}`)
