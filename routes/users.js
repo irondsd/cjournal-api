@@ -10,17 +10,15 @@ const errors = require('../helpers/errors')
 const log = require('../helpers/logger')
 const { timestamp } = require('../helpers/timestamp')
 const stringSanitizer = require('../helpers/stringSanitizer')
+const intSanitizer = require('../helpers/intSanitizer')
 const arrayStringify = require('../helpers/arrayStringify')
 const objectify = require('../helpers/objectify')
 
 // Get all users
 router.get('/', checkAuth, (req, res, next) => {
     // log.info(`user ${req.decoded.id} requested all users list`)
-    let query = `select 
-*
-from users 
-inner join 
-prescriptions on users.id = prescriptions.users_id`
+    let query = `select * from users inner join 
+            prescriptions on users.id = prescriptions.users_id`
     log.debug(query)
     db.all(query, (err, rows) => {
         if (err) {
@@ -96,10 +94,9 @@ prescriptions on users.id = prescriptions.users_id where id = '${req.params.id}'
                     rows[0].relief_of_attack,
                 )
                 let tests = arrayStringify(req.body.tests, rows[0].tests)
+                let id = intSanitizer(req.params.uid)
 
-                let query = `update users set idinv = '${idinv}', last_seen = '${timestamp()}', hide_elements = '${hide_elements}', language = '${language}' where id = ${
-                    req.params.id
-                }`
+                let query = `update users set idinv = '${idinv}', last_seen = '${timestamp()}', hide_elements = '${hide_elements}', language = '${language}' where id = ${id}`
                 log.debug(query)
                 db.all(query, (err, rows) => {
                     if (err) {
@@ -107,9 +104,9 @@ prescriptions on users.id = prescriptions.users_id where id = '${req.params.id}'
                         return errors.internalError(res)
                     } else {
                         // edit prescriptions
-                        let query = `update prescriptions set course_therapy = '${course_therapy}', relief_of_attack = '${relief_of_attack}', tests = '${tests}' where users_id = ${req.params.id}`
+                        let query = `update prescriptions set course_therapy = '${course_therapy}', relief_of_attack = '${relief_of_attack}', tests = '${tests}' where users_id = ${id}`
                         let id = this.lastID
-                        db.run(query, function(err, rows) {
+                        db.run(query, function (err, rows) {
                             if (err) {
                                 log.error(`users internal error ${err}`)
                                 return errors.internalError(res)

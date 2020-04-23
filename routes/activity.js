@@ -44,9 +44,11 @@ router.get('/:uid/activity', (req, res) => {
 
     let page = ``
 
+    let id = intSanitizer(req.params.uid)
+
     sql =
         `select id, users_id, activity_type, time_started, time_ended, utc_offset, tasks_id${selectDeleted}, idinv, ref_id, last_updated, comment, data${uploaded}${version} from activity where users_id = ` +
-        req.params.uid +
+        id +
         timeframe +
         deleted
     if (req.query.limit) {
@@ -54,7 +56,7 @@ router.get('/:uid/activity', (req, res) => {
         if (req.query.page) page = req.query.page * req.query.limit
         sql =
             `select id, users_id, activity_type, time_started, time_ended, utc_offset, tasks_id, ref_id, last_updated, comment, data${uploaded}${version} from activity where users_id = ` +
-            req.params.uid +
+            id +
             timeframe +
             deleted +
             ` order by time_started desc limit ${page}, ${req.query.limit}`
@@ -115,7 +117,10 @@ router.get('/:uid/activity/:aid', (req, res) => {
     } else if (req.query.deleted == 'all') {
         deleted = ''
     }
-    query = `select id, users_id, activity_type, time_started, time_ended, utc_offset, tasks_id, ref_id, last_updated, comment, data${uploaded}${version} from activity where id = ${req.params.aid} and users_id = ${req.params.uid}${deleted}`
+
+    let id = intSanitizer(req.params.uid)
+
+    query = `select id, users_id, activity_type, time_started, time_ended, utc_offset, tasks_id, ref_id, last_updated, comment, data${uploaded}${version} from activity where id = ${req.params.aid} and users_id = ${id}${deleted}`
 
     db.all(query, (err, rows) => {
         if (err) {

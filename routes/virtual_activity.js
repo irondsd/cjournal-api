@@ -24,10 +24,10 @@ router.get('/:uid/virtual_activity', (req, res) => {
 
     let doctor_id = ``
     if (req.query.doctor_id) doctor_id = ` and doctor_id = ${req.query.doctor_id}`
-
+    let id = intSanitizer(req.params.uid)
     sql =
         `select id, activity_id, users_id, doctor_id, activity_type, idinv, time_started, time_ended, utc_offset, tasks_id, set_deleted, comment, data${uploaded} from virtual_activity where users_id = ` +
-        req.params.uid +
+        id +
         timeframe +
         deleted +
         doctor_id
@@ -56,12 +56,14 @@ router.get('/:uid/virtual_activity/:aid', (req, res) => {
     let doctor_id = ``
     if (req.query.doctor_id) doctor_id = `and doctor_id = ${req.query.doctor_id}`
 
-    let query = `select id, activity_id, users_id, doctor_id, activity_type, time_started, time_ended, utc_offset, tasks_id, comment, data${uploaded}, set_deleted from virtual_activity where activity_id = ${req.params.aid} and users_id = ${req.params.uid}${deleted} ${doctor_id}`
+    let id = intSanitizer(req.params.uid)
+
+    let query = `select id, activity_id, users_id, doctor_id, activity_type, time_started, time_ended, utc_offset, tasks_id, comment, data${uploaded}, set_deleted from virtual_activity where activity_id = ${req.params.aid} and users_id = ${id}${deleted} ${doctor_id}`
 
     if (req.params.aid.includes('v'))
         query = `select id, activity_id, users_id, doctor_id, activity_type, time_started, time_ended, utc_offset, tasks_id, comment, data${uploaded}, set_deleted from virtual_activity where id = ${req.params.aid.substring(
             1,
-        )} and users_id = ${req.params.uid}${deleted} ${doctor_id}`
+        )} and users_id = ${id}${deleted} ${doctor_id}`
     log.debug(query)
     db.all(query, (err, rows) => {
         if (err) {
@@ -136,9 +138,6 @@ function postVirtualActivity(req, res) {
             res.status(201).send({
                 id: this.lastID,
             })
-            // if (tasks_id && tasks_id !== null && !req.body.data.failed) {
-            //     taskMarkCompleted(req.body.tasks_id, this.lastID)
-            // }
         }
     })
 }
