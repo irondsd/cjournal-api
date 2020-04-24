@@ -56,15 +56,6 @@ app.listen(port, () => {
     log.info(`Server started on port ${port}`)
 })
 
-// const options = {
-//     key: fs.readFileSync('./ssl/server.key'),
-//     cert: fs.readFileSync('./ssl/server.cert'),
-// }
-
-// httpolyglot.createServer(options, app).listen(port, () => {
-//     log.info(`Server started on port ${port}`)
-// })
-
 function logger(req, res, next) {
     let user_ip =
         req.headers['x-forwarded-for'] ||

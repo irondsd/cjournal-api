@@ -1,4 +1,3 @@
-const jwt = require('jsonwebtoken')
 const { updateLastSeen } = require('../helpers/updateLastSeen')
 const errors = require('../helpers/errors')
 const log = require('../helpers/logger')
