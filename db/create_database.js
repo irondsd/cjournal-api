@@ -24,7 +24,7 @@ db.serialize(() => {
 
     db.run(
         `create table if not exists activity (
-        id integer primary key,
+        id string not null,
         users_id integer not null,
         activity_type text not null,
         time_started datetime not null,
@@ -65,20 +65,6 @@ db.serialize(() => {
     )
 
     db.run(
-        `create table if not exists doctor (
-        patient_id integer not null,
-        doctor_id integer not null,
-        foreign key (patient_id) references users(id)
-        foreign key (doctor_id) references users(id)
-    )`,
-        err => {
-            if (err) {
-                errors = true
-            }
-        },
-    )
-
-    db.run(
         `create table if not exists tasks (
         id integer primary key,
         users_id integer not null,
@@ -102,8 +88,8 @@ db.serialize(() => {
 
     db.run(
         `create table if not exists virtual_activity (
-        id integer primary key,
-        activity_id integer,
+        id string not null,
+        activity_id string,
         users_id integer not null,
         doctor_id integer not null,
         activity_type text,
@@ -121,8 +107,7 @@ db.serialize(() => {
         deleted bool default false,
         foreign key (users_id) references users(id),
         foreign key (doctor_id) references users(id),
-        foreign key (tasks_id) references tasks(id),
-        foreign key (activity_id) references activity(id)
+        foreign key (tasks_id) references tasks(id)
     )`,
         err => {
             if (err) {
