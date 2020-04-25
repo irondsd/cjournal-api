@@ -73,9 +73,10 @@ router.get('/sub/:sub', checkAuth, (req, res, next) => {
 
 // Update user
 router.put('/:id', checkAuth, (req, res, next) => {
+    let id = intSanitizer(req.params.uid)
     db.all(
         `select * from users inner join
-prescriptions on users.id = prescriptions.users_id where id = '${req.params.id}' limit 1`,
+            prescriptions on users.id = prescriptions.users_id where id = '${id}' limit 1`,
         (err, rows) => {
             if (err) {
                 log.error(`users internal error ${err}`)
@@ -91,9 +92,8 @@ prescriptions on users.id = prescriptions.users_id where id = '${req.params.id}'
                     rows[0].relief_of_attack,
                 )
                 let tests = arrayStringify(req.body.tests, rows[0].tests)
-                let id = intSanitizer(req.params.uid)
 
-                let query = `update users set idinv = '${idinv}', last_seen = '${timestamp()}', hide_elements = '${hide_elements}', language = '${language}' where id = ${id}`
+                let query = `update users set idinv = '${idinv}', last_seen = '${timestamp()}', hide_elements = '${hide_elements}', language = '${language}' where id = '${id}'`
                 log.debug(query)
                 db.all(query, (err, rows) => {
                     if (err) {
@@ -101,7 +101,7 @@ prescriptions on users.id = prescriptions.users_id where id = '${req.params.id}'
                         return errors.internalError(res)
                     } else {
                         // edit prescriptions
-                        let query = `update prescriptions set course_therapy = '${course_therapy}', relief_of_attack = '${relief_of_attack}', tests = '${tests}' where users_id = ${id}`
+                        let query = `update prescriptions set course_therapy = '${course_therapy}', relief_of_attack = '${relief_of_attack}', tests = '${tests}' where users_id = '${id}'`
                         let id = this.lastID
                         db.run(query, function (err, rows) {
                             if (err) {
