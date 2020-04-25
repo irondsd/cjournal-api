@@ -150,11 +150,9 @@ router.post('/:uid/activity', saveFiles, validateActivity, (req, res, next) => {
             log.error(`post activity internal error ${err}`)
             return errors.internalError(res)
         } else {
-            res.status(201).send({
-                id: this.lastID,
-            })
-            if (tasks_id && tasks_id !== 'NULL' && !req.body.data.failed) {
-                taskMarkCompleted(tasks_id, this.lastID)
+            res.status(201).send()
+            if (tasks_id && tasks_id !== 'NULL') {
+                taskMarkCompleted(tasks_id, aid)
             }
         }
     })
@@ -209,16 +207,10 @@ router.put('/:uid/activity/:aid', saveFiles, validateActivity, (req, res, next) 
             log.error(`put activity internal error ${err}`)
             return errors.internalError(res)
         } else {
-            db.run(
-                `update activity set ref_id = '${this.lastID}' where id = ${aid}`,
-                (err, rows) => {
-                    // log.info('added ref id')
-                },
-            )
             res.status(201).send({
                 id: aid,
             })
-            if (tasks_id && tasks_id !== 'NULL' && !req.body.data.failed) {
+            if (tasks_id && tasks_id !== 'NULL') {
                 taskMarkCompleted(tasks_id, aid)
             }
         }
