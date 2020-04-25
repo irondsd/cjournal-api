@@ -113,7 +113,7 @@ router.post('/:uid/activity', saveFiles, validateActivity, (req, res, next) => {
     let aid = stringSanitizer(req.body.id)
     let query = `select activity_type from activity where id = '${aid}' limit 1`
 
-    db.get(sql, function (err, rows) {
+    db.get(query, function (err, rows) {
         if (rows) {
             return res.status(208).send()
         }
@@ -148,11 +148,11 @@ router.post('/:uid/activity', saveFiles, validateActivity, (req, res, next) => {
         utc_offset === null ? (utc_offset = 'NULL') : (utc_offset = `'${utc_offset}'`)
         tasks_id === null ? (tasks_id = 'NULL') : (tasks_id = `'${tasks_id}'`)
 
-        let sql = `insert into activity(id, users_id, activity_type, time_started, utc_offset, comment, data, tasks_id, time_ended, version, last_updated, uploaded, idinv) values
+        query = `insert into activity(id, users_id, activity_type, time_started, utc_offset, comment, data, tasks_id, time_ended, version, last_updated, uploaded, idinv) values
             ('${aid}', '${users_id}', '${activity_type}', '${time_started}', ${utc_offset}, '${comment}', '${data}', ${tasks_id}, ${time_ended}, '${version}', '${last_updated}', '${timestamp()}', (select idinv from users where id = '${users_id}'))`
 
-        log.debug(sql)
-        db.run(sql, function (err, rows) {
+        log.debug(query)
+        db.run(query, function (err, rows) {
             if (err) {
                 log.error(`post activity internal error ${err}`)
                 return errors.internalError(res)
