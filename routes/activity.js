@@ -111,50 +111,58 @@ router.get('/:uid/activity/:aid', (req, res) => {
 
 router.post('/:uid/activity', saveFiles, validateActivity, (req, res, next) => {
     let aid = stringSanitizer(req.body.id)
-    let users_id = intSanitizer(req.params.uid)
-    let activity_type = stringSanitizer(req.body.activity_type)
-    let time_started = intSanitizer(req.body.time_started)
-    let utc_offset = req.body.utc_offset ? intSanitizer(req.body.utc_offset) : null
-    let time_ended = req.body.time_ended ? intSanitizer(req.body.time_ended) : null
-    let tasks_id = req.body.tasks_id ? intSanitizer(req.body.tasks_id) : null
-    let version = req.body.version ? intSanitizer(req.body.version) : 1
-    let comment = req.body.comment ? stringSanitizer(req.body.comment) : ''
-    let data = req.body.data ? req.body.data : {}
-    let last_updated = req.body.last_updated ? intSanitizer(req.body.last_updated) : timestamp()
+    let query = `select activity_type from activity where id = '${aid}' limit 1`
 
-    // form-data doesn't allow to send objects
-    if (typeof req.body.data === 'string')
-        try {
-            data = JSON.parse(req.body.data)
-        } catch (error) {
-            data = {}
+    db.get(sql, function (err, rows) {
+        if (rows) {
+            return res.status(208).send()
         }
 
-    if (req.files) {
-        last_updated = timestamp() // because we changed data just now.
-        if (req.files.audio) data.audio = req.files.audio[0].path.replace('\\', '/')
-        if (req.files.image) data.image = req.files.image[0].path.replace('\\', '/')
-    }
-    data = JSON.stringify(data)
+        let users_id = intSanitizer(req.params.uid)
+        let activity_type = stringSanitizer(req.body.activity_type)
+        let time_started = intSanitizer(req.body.time_started)
+        let utc_offset = req.body.utc_offset ? intSanitizer(req.body.utc_offset) : null
+        let time_ended = req.body.time_ended ? intSanitizer(req.body.time_ended) : null
+        let tasks_id = req.body.tasks_id ? intSanitizer(req.body.tasks_id) : null
+        let version = req.body.version ? intSanitizer(req.body.version) : 1
+        let comment = req.body.comment ? stringSanitizer(req.body.comment) : ''
+        let data = req.body.data ? req.body.data : {}
+        let last_updated = req.body.last_updated ? intSanitizer(req.body.last_updated) : timestamp()
 
-    time_ended === null ? (time_ended = 'NULL') : (time_ended = `'${time_ended}'`)
-    utc_offset === null ? (utc_offset = 'NULL') : (utc_offset = `'${utc_offset}'`)
-    tasks_id === null ? (tasks_id = 'NULL') : (tasks_id = `'${tasks_id}'`)
+        // form-data doesn't allow to send objects
+        if (typeof req.body.data === 'string')
+            try {
+                data = JSON.parse(req.body.data)
+            } catch (error) {
+                data = {}
+            }
 
-    let sql = `insert into activity(id, users_id, activity_type, time_started, utc_offset, comment, data, tasks_id, time_ended, version, last_updated, uploaded, idinv) values 
+        if (req.files) {
+            last_updated = timestamp() // because we changed data just now.
+            if (req.files.audio) data.audio = req.files.audio[0].path.replace('\\', '/')
+            if (req.files.image) data.image = req.files.image[0].path.replace('\\', '/')
+        }
+        data = JSON.stringify(data)
+
+        time_ended === null ? (time_ended = 'NULL') : (time_ended = `'${time_ended}'`)
+        utc_offset === null ? (utc_offset = 'NULL') : (utc_offset = `'${utc_offset}'`)
+        tasks_id === null ? (tasks_id = 'NULL') : (tasks_id = `'${tasks_id}'`)
+
+        let sql = `insert into activity(id, users_id, activity_type, time_started, utc_offset, comment, data, tasks_id, time_ended, version, last_updated, uploaded, idinv) values
             ('${aid}', '${users_id}', '${activity_type}', '${time_started}', ${utc_offset}, '${comment}', '${data}', ${tasks_id}, ${time_ended}, '${version}', '${last_updated}', '${timestamp()}', (select idinv from users where id = '${users_id}'))`
 
-    log.debug(sql)
-    db.run(sql, function (err, rows) {
-        if (err) {
-            log.error(`post activity internal error ${err}`)
-            return errors.internalError(res)
-        } else {
-            res.status(201).send()
-            if (tasks_id && tasks_id !== 'NULL') {
-                taskMarkCompleted(tasks_id, aid)
+        log.debug(sql)
+        db.run(sql, function (err, rows) {
+            if (err) {
+                log.error(`post activity internal error ${err}`)
+                return errors.internalError(res)
+            } else {
+                res.status(201).send()
+                if (tasks_id && tasks_id !== 'NULL') {
+                    taskMarkCompleted(tasks_id, aid)
+                }
             }
-        }
+        })
     })
 })
 
@@ -223,24 +231,6 @@ router.delete('/:uid/activity/:aid', (req, res) => {
     db.run(sql, function (err, rows) {
         if (err) {
             log.error(`delete activity internal error ${err}`)
-            return errors.internalError(res)
-        }
-        if (this.changes) {
-            res.status(200).send()
-        } else {
-            errors.notFound(res)
-        }
-    })
-})
-
-// undelete
-router.patch('/:uid/activity/:aid', (req, res) => {
-    let aid = stringSanitizer(req.params.aid)
-    let sql = `update activity set deleted = '0', uploaded = '${timestamp()}' where id = '${aid}'`
-    log.debug(sql)
-    db.run(sql, function (err, rows) {
-        if (err) {
-            log.error(`undelete activity internal error ${err}`)
             return errors.internalError(res)
         }
         if (this.changes) {
