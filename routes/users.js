@@ -118,4 +118,25 @@ router.put('/:id', checkAuth, (req, res, next) => {
     )
 })
 
+// purge user
+router.post('/:id/purge', checkAuth, (req, res, next) => {
+    let query = `delete from activity where users_id = '${req.params.id}'`
+    let query2 = `delete from tasks where users_id = '${req.params.id}'`
+    log.debug(query, query2)
+    db.all(query, (err, rows) => {
+        if (err) {
+            log.error(`users internal error ${err}`)
+            return errors.internalError(res)
+        }
+
+        db.all(query2, (err, rows) => {
+            if (err) {
+                log.error(`users internal error ${err}`)
+                return errors.internalError(res)
+            }
+            return res.status(204).send()
+        })
+    })
+})
+
 module.exports = router
