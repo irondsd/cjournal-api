@@ -78,7 +78,7 @@ router.put('/:id', checkAuth, (req, res, next) => {
         `select * from users inner join
             prescriptions on users.id = prescriptions.users_id where id = '${id}' limit 1`,
         (err, rows) => {
-            if (err) {
+            if (err && rows[0]) {
                 log.error(`users internal error ${err}`)
                 return errors.internalError(res)
             } else {
