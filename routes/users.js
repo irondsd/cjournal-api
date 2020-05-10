@@ -72,50 +72,48 @@ router.get('/sub/:sub', checkAuth, (req, res, next) => {
 })
 
 // Update user
-router.put('/:id', checkAuth, (req, res, next) => {
+router.put('/:uid', checkAuth, (req, res, next) => {
     let id = intSanitizer(req.params.uid)
-    db.all(
-        `select * from users inner join
-            prescriptions on users.id = prescriptions.users_id where id = '${id}' limit 1`,
-        (err, rows) => {
-            if (err && rows[0]) {
-                log.error(`users internal error ${err}`)
-                return errors.internalError(res)
-            } else {
-                // prevent erasing changes
-                let idinv = req.body.idinv ? stringSanitizer(req.body.idinv) : rows[0].idinv
-                let language = req.body.language ? req.body.language : rows[0].language
-                let hide_elements = arrayStringify(req.body.hide_elements, rows[0].hide_elements)
-                let course_therapy = arrayStringify(req.body.course_therapy, rows[0].course_therapy)
-                let relief_of_attack = arrayStringify(
-                    req.body.relief_of_attack,
-                    rows[0].relief_of_attack,
-                )
-                let tests = arrayStringify(req.body.tests, rows[0].tests)
+    let query = `select * from users inner join
+            prescriptions on users.id = prescriptions.users_id where id = '${id}' limit 1`
+    log.debug(query)
+    db.all(query, (err, rows) => {
+        if (err || !rows[0]) {
+            log.error(`users internal error ${err}`)
+            return errors.internalError(res)
+        } else {
+            // prevent erasing changes
+            let idinv = req.body.idinv ? stringSanitizer(req.body.idinv) : rows[0].idinv
+            let language = req.body.language ? req.body.language : rows[0].language
+            let hide_elements = arrayStringify(req.body.hide_elements, rows[0].hide_elements)
+            let course_therapy = arrayStringify(req.body.course_therapy, rows[0].course_therapy)
+            let relief_of_attack = arrayStringify(
+                req.body.relief_of_attack,
+                rows[0].relief_of_attack,
+            )
+            let tests = arrayStringify(req.body.tests, rows[0].tests)
 
-                let query = `update users set idinv = '${idinv}', last_seen = '${timestamp()}', hide_elements = '${hide_elements}', language = '${language}' where id = '${id}'`
-                log.debug(query)
-                db.all(query, (err, rows) => {
-                    if (err) {
-                        log.error(`need inspection users line 90 error`)
-                        return errors.internalError(res)
-                    } else {
-                        // edit prescriptions
-                        let query = `update prescriptions set course_therapy = '${course_therapy}', relief_of_attack = '${relief_of_attack}', tests = '${tests}' where users_id = '${id}'`
-                        let id = this.lastID
-                        db.run(query, function (err, rows) {
-                            if (err) {
-                                log.error(`users internal error ${err}`)
-                                return errors.internalError(res)
-                            } else {
-                                res.status(201).send(rows)
-                            }
-                        })
-                    }
-                })
-            }
-        },
-    )
+            let query = `update users set idinv = '${idinv}', last_seen = '${timestamp()}', hide_elements = '${hide_elements}', language = '${language}' where id = '${id}'`
+            log.debug(query)
+            db.all(query, (err, rows) => {
+                if (err) {
+                    log.error(`need inspection users line 90 error`)
+                    return errors.internalError(res)
+                } else {
+                    // edit prescriptions
+                    let query = `update prescriptions set course_therapy = '${course_therapy}', relief_of_attack = '${relief_of_attack}', tests = '${tests}' where users_id = '${id}'`
+                    db.run(query, function (err, rows) {
+                        if (err) {
+                            log.error(`users internal error ${err}`)
+                            return errors.internalError(res)
+                        } else {
+                            res.status(201).send(rows)
+                        }
+                    })
+                }
+            })
+        }
+    })
 })
 
 // purge user
