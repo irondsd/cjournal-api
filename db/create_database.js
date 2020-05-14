@@ -89,7 +89,6 @@ db.serialize(() => {
     db.run(
         `create table if not exists virtual_activity (
         id string not null,
-        activity_id string,
         users_id integer not null,
         doctor_id integer not null,
         activity_type text,
