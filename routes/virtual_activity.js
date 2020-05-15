@@ -57,7 +57,7 @@ router.get('/:uid/virtual_activity/:aid', (req, res) => {
 
     let id = intSanitizer(req.params.uid)
 
-    let query = `select id, users_id, doctor_id, activity_type, time_started, time_ended, utc_offset, tasks_id, comment, data${uploaded}, set_deleted from virtual_activity where users_id = ${id}${deleted} ${doctor_id}`
+    let query = `select id, users_id, doctor_id, activity_type, time_started, time_ended, utc_offset, tasks_id, comment, data${uploaded}, set_deleted from virtual_activity where users_id = ${id}${deleted} ${doctor_id} and id = '${req.params.aid}'`
 
     log.debug(query)
     db.all(query, (err, rows) => {
