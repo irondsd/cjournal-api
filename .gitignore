@@ -21,3 +21,7 @@ db/trackers.db
 
 #uploads
 uploads/*
+
+#converter
+cjconverter/*
+output/*

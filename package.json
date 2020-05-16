@@ -8,6 +8,7 @@
         "cors": "^2.8.5",
         "dotenv": "^8.1.0",
         "express": "^4.16.4",
+        "file-saver": "^2.0.2",
         "httpolyglot": "^0.1.2",
         "markdown-it": "^8.4.2",
         "multer": "^1.4.2",
