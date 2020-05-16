@@ -22,10 +22,6 @@ router.post('/acn', (req, res) => {
             }
             // res.send(stdout)
             if (stdout.includes('finished')) {
-                // res.send('success')
-                // sendFile(, res)
-                console.log(stdout)
-
                 let re = /generated file: (.+acn)/gm
                 let filename = re.exec(stdout)[1]
 
