@@ -3,8 +3,6 @@ const router = express.Router()
 const fs = require('fs')
 const errors = require('../helpers/errors')
 const { exec } = require('child_process')
-const JSZip = require('jszip')
-const zip = new JSZip()
 FileSaver = require('file-saver')
 
 router.post('/acn', (req, res) => {
