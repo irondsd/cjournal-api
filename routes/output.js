@@ -10,7 +10,7 @@ router.post('/acn', (req, res) => {
 
     try {
         exec(
-            `python3 cjconverter/run.py -id ${req.body.id} -t ${req.body.token}`,
+            `${process.env.PYTHON} cjconverter/run.py -id ${req.body.id} -t ${req.body.token} -zip`,
             (error, stdout, stderr) => {
                 if (error) {
                     console.log(`error: ${error.message}`)
@@ -22,11 +22,7 @@ router.post('/acn', (req, res) => {
                 }
                 // res.send(stdout)
                 if (stdout.includes('finished')) {
-                    let re = /generated file: (.+acn)/gm
-                    let filename = re.exec(stdout)[1]
-
-                    if (filename) sendFile(filename, res)
-                    else res.status(400).send()
+                    sendFile('archive.zip', res)
                 }
             },
         )
