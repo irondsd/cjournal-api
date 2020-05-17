@@ -10,7 +10,7 @@ router.post('/acn', (req, res) => {
 
     try {
         exec(
-            `${process.env.PYTHON} cjconverter/run.py -id ${req.body.id} -t ${
+            `${process.env.PYTHON} ${process.env.CJCONVERTER_PATH} -id ${req.body.id} -t ${
                 req.headers.authorization.split(' ')[1]
             } -zip`,
             (error, stdout, stderr) => {
