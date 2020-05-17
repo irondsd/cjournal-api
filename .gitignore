@@ -16,12 +16,12 @@ db/trackers.db
 .vscode/ 
 .prettierrc
 
-# ignore .env
-# .env
+ignore .env
+.env
 
 #uploads
 uploads/*
 
 #converter
-cjconverter/*
-output/*
+cjconverter/
+output/
