@@ -22,9 +22,11 @@ router.post('/acn', (req, res) => {
                     console.log(`stderr: ${stderr}`)
                     return
                 }
-                // res.send(stdout)
+
                 if (stdout.includes('finished')) {
-                    sendFile('archive.zip', res)
+                    let re = /generated (.+zip)/gm
+                    let file = re.exec(stdout)[1]
+                    sendFile(file, res)
                 }
             },
         )
@@ -34,7 +36,7 @@ router.post('/acn', (req, res) => {
 })
 
 const sendFile = (filename, res) => {
-    const filePath = './output/' + filename // or any file format
+    const filePath = './' + filename // or any file format
 
     // Check if file specified by the filePath exists
     fs.exists(filePath, function (exists) {
