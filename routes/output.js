@@ -4,6 +4,7 @@ const fs = require('fs')
 const errors = require('../helpers/errors')
 const { exec } = require('child_process')
 FileSaver = require('file-saver')
+const log = require('../helpers/logger')
 
 router.post('/acn', (req, res) => {
     if (!req.body.id) return errors.incompleteInput(res)
@@ -57,7 +58,11 @@ const sendFile = (filename, res) => {
             }, 30000)
 
             stream.on('finish', function () {
-                fs.unlinkSync(filePath)
+                fs.unlink(filePath, err => {
+                    if (err) {
+                        log.error('output cleanup delete file error', err)
+                    }
+                })
                 clearTimeout(timeoutId)
             })
         } else {
