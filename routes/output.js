@@ -47,7 +47,19 @@ const sendFile = (filename, res) => {
                 'Content-Type': 'application/octet-stream',
                 'Content-Disposition': 'attachment; filename=' + filename,
             })
-            fs.createReadStream(filePath).pipe(res)
+
+            //cleanup
+            let stream = fs.createReadStream(filePath).pipe(res)
+
+            let timeoutId = setTimeout(() => {
+                fs.unlinkSync(filePath)
+                if (!res.finished) res.end()
+            }, 30000)
+
+            stream.on('finish', function () {
+                fs.unlinkSync(filePath)
+                clearTimeout(timeoutId)
+            })
         } else {
             res.writeHead(400, { 'Content-Type': 'text/plain' })
             res.end('ERROR File does not exist')
