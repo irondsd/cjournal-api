@@ -7,11 +7,7 @@ const log = require('../helpers/logger')
 const objectify = require('../helpers/objectify')
 
 router.get('/:idinv/user', (req, res) => {
-    query = `select 
-users.id, name, birthday, gender, username, idinv, last_seen, information, hide_elements, language, permissions,
-prescriptions.course_therapy, relief_of_attack, tests
-from users 
-inner join 
+    query = `select * from users inner join 
 prescriptions on users.id = prescriptions.users_id where users.idinv = '${req.params.idinv}'`
     log.debug(query)
     db.all(query, (err, rows) => {
@@ -30,7 +26,7 @@ prescriptions on users.id = prescriptions.users_id where users.idinv = '${req.pa
 })
 
 router.get('/:idinv/activity', (req, res) => {
-    query = `select * from activity where idinv = '${req.params.idinv}' and deleted = '0'`
+    query = `select id, users_id, activity_type, time_started, utc_offset, time_ended, tasks_id, idinv, last_updated, comment, data from activity where idinv = '${req.params.idinv}' and deleted = '0'`
     log.debug(query)
     db.all(query, (err, rows) => {
         if (err) {
@@ -44,7 +40,7 @@ router.get('/:idinv/activity', (req, res) => {
 })
 
 router.get('/:idinv/virtual_activity', (req, res) => {
-    query = `select * from virtual_activity where idinv = '${req.params.idinv}' and deleted = '0'`
+    query = `select id, users_id, doctor_id, activity_type, time_started, utc_offset, time_ended, tasks_id, idinv, last_updated, comment, data, set_deleted from virtual_activity where idinv = '${req.params.idinv}' and deleted = '0'`
     log.debug(query)
     db.all(query, (err, rows) => {
         if (err) {
@@ -70,8 +66,5 @@ router.get('/:idinv/tasks', (req, res) => {
         }
     })
 })
-
-// post activity ?
-// post tasks ?
 
 module.exports = router
