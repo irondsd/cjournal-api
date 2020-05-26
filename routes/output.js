@@ -7,30 +7,32 @@ FileSaver = require('file-saver')
 const log = require('../helpers/logger')
 
 router.post('/acn', (req, res) => {
-    if (!req.body.id) return errors.incompleteInput(res)
+    if (!req.body.id || !req.body.idinv) return errors.incompleteInput(res)
+
+    let modifier = `-id ${req.body.id}`
+    if (req.body.idinv) modifier = `-idinv ${req.body.idinv}`
+
+    let command = `${process.env.PYTHON} ${process.env.CJCONVERTER_PATH} ${modifier} -t ${
+        req.headers.authorization.split(' ')[1]
+    } -zip`
 
     try {
-        exec(
-            `${process.env.PYTHON} ${process.env.CJCONVERTER_PATH} -id ${req.body.id} -t ${
-                req.headers.authorization.split(' ')[1]
-            } -zip`,
-            (error, stdout, stderr) => {
-                if (error) {
-                    console.log(`error: ${error.message}`)
-                    return
-                }
-                if (stderr) {
-                    console.log(`stderr: ${stderr}`)
-                    return
-                }
+        exec(command, (error, stdout, stderr) => {
+            if (error) {
+                console.log(`error: ${error.message}`)
+                return
+            }
+            if (stderr) {
+                console.log(`stderr: ${stderr}`)
+                return
+            }
 
-                if (stdout.includes('finished')) {
-                    let re = /generated (.+zip)/gm
-                    let file = re.exec(stdout)[1]
-                    sendFile(file, res)
-                }
-            },
-        )
+            if (stdout.includes('finished')) {
+                let re = /generated (.+zip)/gm
+                let file = re.exec(stdout)[1]
+                sendFile(file, res)
+            }
+        })
     } catch (error) {
         errors.internalError(res)
     }
