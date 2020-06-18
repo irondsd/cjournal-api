@@ -1,6 +1,6 @@
 {
     "name": "incart",
-    "version": "0.9.1",
+    "version": "0.9.3",
     "description": "cjournal backend api for incart",
     "main": "app.js",
     "dependencies": {
