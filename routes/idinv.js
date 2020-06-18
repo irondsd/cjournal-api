@@ -17,7 +17,7 @@ prescriptions on users.id = prescriptions.users_id where users.idinv = '${req.pa
         } else {
             if (rows.length > 0) {
                 objectify.all(rows)
-                res.send(rows[0])
+                res.send(rows)
             } else {
                 errors.notFound(res)
             }
