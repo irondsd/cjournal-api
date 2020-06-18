@@ -111,6 +111,23 @@ router.post('/:idinv/activity', (req, res) => {
     })
 })
 
+
+router.delete('/:idinv/activity/:aid', (req, res) => {
+    let aid = stringSanitizer(req.params.aid)
+    let sql = `update activity set deleted = '1', uploaded = '${timestamp()}' where id = '${aid}'`
+    db.run(sql, function (err, rows) {
+        if (err) {
+            log.error(`delete activity internal error ${err}`)
+            return errors.internalError(res)
+        }
+        if (this.changes) {
+            res.status(200).send()
+        } else {
+            errors.notFound(res)
+        }
+    })
+})
+
 router.get('/:idinv/virtual_activity', (req, res) => {
     query = `select id, users_id, doctor_id, activity_type, time_started, utc_offset, time_ended, tasks_id, idinv, last_updated, comment, data, set_deleted from virtual_activity where idinv = '${req.params.idinv}' and deleted = '0'`
     log.debug(query)
