@@ -11,7 +11,7 @@ const { timestamp } = require('../helpers/timestamp')
 const { saveFiles } = require('../middleware/saveFiles')
 const validateActivity = require('../middleware/validateActivity')
 
-router.get('/:idinv/user', (req, res) => {
+router.get('/:idinv/users', (req, res) => {
     query = `select * from users inner join 
 prescriptions on users.id = prescriptions.users_id where users.idinv = '${req.params.idinv}'`
     log.debug(query)
