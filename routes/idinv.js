@@ -220,4 +220,17 @@ router.get('/:idinv/tasks', (req, res) => {
     })
 })
 
+router.delete('/:idinv/user', (req, res) => {
+    query = `update users set idinv = '' where idinv = '${req.params.idinv}'`
+    log.debug(query)
+    db.all(query, (err, rows) => {
+        if (err) {
+            log.error(`idinv internal error ${err}`)
+            return errors.internalError(res)
+        } else {
+            res.status(204).send()
+        }
+    })
+})
+
 module.exports = router
