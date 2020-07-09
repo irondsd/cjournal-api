@@ -52,8 +52,13 @@ router.get('/:idinv/activity/:aid', (req, res) => {
             log.error(`idinv internal error ${err}`)
             return errors.internalError(res)
         } else {
-            if (rows.length > 0) objectify.dataRows(rows)
-            res.send(rows)
+            if (rows.length > 0) {
+                objectify.dataRows(rows)
+                res.send(rows[0])
+            } else {
+                log.info(`get activity by id not found ${req.params.aid}`)
+                return errors.notFound(res)
+            }
         }
     })
 })
@@ -228,8 +233,13 @@ router.get('/:idinv/virtual_activity/:aid', (req, res) => {
             log.error(`idinv internal error ${err}`)
             return errors.internalError(res)
         } else {
-            if (rows.length > 0) objectify.dataRows(rows)
-            res.send(rows)
+            if (rows.length > 0) {
+                objectify.dataRows(rows)
+                res.send(rows[0])
+            } else {
+                log.info(`get virtual by id not found ${req.params.aid}`)
+                return errors.notFound(res)
+            }
         }
     })
 })
