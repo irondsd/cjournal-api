@@ -44,6 +44,20 @@ router.get('/:idinv/activity', (req, res) => {
     })
 })
 
+router.get('/:idinv/activity/:aid', (req, res) => {
+    query = `select id, users_id, activity_type, time_started, utc_offset, time_ended, tasks_id, idinv, last_updated, comment, data from activity where id = '${req.params.aid}' and idinv = '${req.params.idinv}' and deleted = '0'`
+    log.debug(query)
+    db.all(query, (err, rows) => {
+        if (err) {
+            log.error(`idinv internal error ${err}`)
+            return errors.internalError(res)
+        } else {
+            if (rows.length > 0) objectify.dataRows(rows)
+            res.send(rows)
+        }
+    })
+})
+
 router.post('/:idinv/activity', saveFiles, validateActivity, (req, res, next) => {
     let aid = stringSanitizer(req.body.id)
     let query = `select activity_type from activity where id = '${aid}' limit 1`
