@@ -220,6 +220,20 @@ router.get('/:idinv/virtual_activity', (req, res) => {
     })
 })
 
+router.get('/:idinv/virtual_activity/:aid', (req, res) => {
+    query = `select id, users_id, doctor_id, activity_type, time_started, utc_offset, time_ended, tasks_id, idinv, last_updated, comment, data, set_deleted from virtual_activity where idinv = '${req.params.idinv}' and id = '${req.params.aid}' and deleted = '0'`
+    log.debug(query)
+    db.all(query, (err, rows) => {
+        if (err) {
+            log.error(`idinv internal error ${err}`)
+            return errors.internalError(res)
+        } else {
+            if (rows.length > 0) objectify.dataRows(rows)
+            res.send(rows)
+        }
+    })
+})
+
 router.get('/:idinv/tasks', (req, res) => {
     query = `select * from tasks where idinv = '${req.params.idinv}' and deleted = '0'`
     log.debug(query)
