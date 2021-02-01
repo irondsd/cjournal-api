@@ -25,14 +25,6 @@ const cors = require('cors')
 app.use(cors())
 app.options('*', cors())
 
-// always redirect to https
-// app.use(function(req, res, next) {
-//     if (!req.secure) {
-//         res.redirect(301, 'https://' + req.hostname + `:${port}` + req.originalUrl)
-//     }
-//     next()
-// })
-
 app.use(logger)
 app.use(bodyParser.json())
 app.use('/api/', index)
