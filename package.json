@@ -21,7 +21,8 @@
     "scripts": {
         "start": "node app.js",
         "dev": "nodemon app.js",
-        "db-init": "node db/create_database.js"
+        "db:init": "node db/create_database.js",
+        "db:reset": "rm db/trackers.db && node db/create_database.js"
     },
     "repository": {
         "type": "git",
