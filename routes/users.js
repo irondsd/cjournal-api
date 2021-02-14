@@ -10,9 +10,10 @@ const stringSanitizer = require('../helpers/stringSanitizer')
 const intSanitizer = require('../helpers/intSanitizer')
 const arrayStringify = require('../helpers/arrayStringify')
 const objectify = require('../helpers/objectify')
+const responses = require('../helpers/responses')
 
 // Get all users
-router.get('/', checkAuth, (req, res, next) => {
+router.get('/users/', checkAuth, (req, res, next) => {
     // log.info(`user ${req.decoded.id} requested all users list`)
     let query = `select * from users inner join 
             prescriptions on users.id = prescriptions.users_id`
@@ -30,7 +31,7 @@ router.get('/', checkAuth, (req, res, next) => {
 })
 
 // Get information about the user with specific id
-router.get('/:id', checkAuth, (req, res, next) => {
+router.get('/users/:id', checkAuth, (req, res, next) => {
     let query = `select 
 *
 from users 
@@ -53,7 +54,26 @@ where users.id = '${req.params.id}'`
     })
 })
 
-router.get('/sub/:sub', checkAuth, (req, res, next) => {
+router.get('/idinv/:idinv/users', (req, res) => {
+    query = `select * from users inner join 
+prescriptions on users.id = prescriptions.users_id where users.idinv = '${req.params.idinv}'`
+    log.debug(query)
+    db.all(query, (err, rows) => {
+        if (err) {
+            log.error(`idinv internal error ${err}`)
+            return errors.internalError(res)
+        } else {
+            if (rows.length > 0) {
+                objectify.all(rows)
+                res.send(rows)
+            } else {
+                errors.notFound(res)
+            }
+        }
+    })
+})
+
+router.get('/users/sub/:sub', checkAuth, (req, res, next) => {
     let query = `select * from users where sub = '${req.params.sub}'`
 
     db.all(query, (err, rows) => {
@@ -72,7 +92,7 @@ router.get('/sub/:sub', checkAuth, (req, res, next) => {
 })
 
 // Update user
-router.put('/:uid', checkAuth, (req, res, next) => {
+router.put('/users/:uid', checkAuth, (req, res, next) => {
     let id = intSanitizer(req.params.uid)
     let query = `select * from users inner join
             prescriptions on users.id = prescriptions.users_id where id = '${id}' limit 1`
@@ -107,7 +127,7 @@ router.put('/:uid', checkAuth, (req, res, next) => {
                             log.error(`users internal error ${err}`)
                             return errors.internalError(res)
                         } else {
-                            res.status(201).send(rows)
+                            responses.edited(res)
                         }
                     })
                 }
@@ -117,7 +137,7 @@ router.put('/:uid', checkAuth, (req, res, next) => {
 })
 
 // purge user
-router.post('/:id/purge', checkAuth, (req, res, next) => {
+router.post('/users/:id/purge', checkAuth, (req, res, next) => {
     let query = `delete from activity where users_id = '${req.params.id}'`
     let query2 = `delete from tasks where users_id = '${req.params.id}'`
     log.debug(query, query2)
@@ -132,8 +152,21 @@ router.post('/:id/purge', checkAuth, (req, res, next) => {
                 log.error(`users internal error ${err}`)
                 return errors.internalError(res)
             }
-            return res.status(204).send()
+            return responses.deleted(res)
         })
+    })
+})
+
+router.delete('/idinv/:idinv/user', (req, res) => {
+    query = `update users set idinv = '' where idinv = '${req.params.idinv}'`
+    log.debug(query)
+    db.all(query, (err, rows) => {
+        if (err) {
+            log.error(`idinv internal error ${err}`)
+            return errors.internalError(res)
+        } else {
+            responses.deleted(res)
+        }
     })
 })
 

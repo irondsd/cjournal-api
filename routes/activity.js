@@ -11,8 +11,9 @@ const log = require('../helpers/logger')
 const stringSanitizer = require('../helpers/stringSanitizer')
 const intSanitizer = require('../helpers/intSanitizer')
 const objectify = require('../helpers/objectify')
+const responses = require('../helpers/responses')
 
-router.get('/:uid/activity', (req, res) => {
+router.get('/users/:uid/activity', (req, res) => {
     let timeframe = ``
     if (req.query.from) {
         timeframe += ` and time_started >= ${req.query.from} `
@@ -74,7 +75,7 @@ router.get('/:uid/activity', (req, res) => {
     })
 })
 
-router.get('/:uid/activity/:aid', (req, res) => {
+router.get('/users/:uid/activity/:aid', (req, res) => {
     let uploaded = ``
     if (req.query.uploaded) {
         uploaded = `, uploaded`
@@ -109,13 +110,45 @@ router.get('/:uid/activity/:aid', (req, res) => {
     })
 })
 
-router.post('/:uid/activity', saveFiles, validateActivity, (req, res, next) => {
+router.get('/idinv/:idinv/activity', (req, res) => {
+    query = `select id, users_id, activity_type, time_started, utc_offset, time_ended, tasks_id, idinv, last_updated, comment, data from activity where idinv = '${req.params.idinv}' and deleted = '0'`
+    log.debug(query)
+    db.all(query, (err, rows) => {
+        if (err) {
+            log.error(`idinv internal error ${err}`)
+            return errors.internalError(res)
+        } else {
+            if (rows.length > 0) objectify.dataRows(rows)
+            res.send(rows)
+        }
+    })
+})
+
+router.get('/idinv/:idinv/activity/:aid', (req, res) => {
+    query = `select id, users_id, activity_type, time_started, utc_offset, time_ended, tasks_id, idinv, last_updated, comment, data from activity where id = '${req.params.aid}' and idinv = '${req.params.idinv}' and deleted = '0'`
+    log.debug(query)
+    db.all(query, (err, rows) => {
+        if (err) {
+            log.error(`idinv internal error ${err}`)
+            return errors.internalError(res)
+        } else {
+            if (rows.length > 0) {
+                objectify.dataRows(rows)
+                res.send(rows[0])
+            } else {
+                log.info(`get activity by id not found ${req.params.aid}`)
+                return errors.notFound(res)
+            }
+        }
+    })
+})
+
+router.post('/users/:uid/activity', saveFiles, validateActivity, (req, res, next) => {
     let aid = stringSanitizer(req.body.id)
     let query = `select activity_type from activity where id = '${aid}' limit 1`
 
     db.get(query, function (err, rows) {
         if (rows) {
-            return res.status(208).send()
         }
 
         let users_id = intSanitizer(req.params.uid)
@@ -157,7 +190,7 @@ router.post('/:uid/activity', saveFiles, validateActivity, (req, res, next) => {
                 log.error(`post activity internal error ${err}`)
                 return errors.internalError(res)
             } else {
-                res.status(201).send()
+                responses.created(res)
                 if (tasks_id && tasks_id !== 'NULL') {
                     taskMarkCompleted(tasks_id, aid)
                 }
@@ -166,7 +199,76 @@ router.post('/:uid/activity', saveFiles, validateActivity, (req, res, next) => {
     })
 })
 
-router.put('/:uid/activity/:aid', saveFiles, validateActivity, (req, res, next) => {
+router.post('/idinv/:idinv/activity', saveFiles, validateActivity, (req, res, next) => {
+    let aid = stringSanitizer(req.body.id)
+    let query = `select activity_type from activity where id = '${aid}' limit 1`
+
+    log.debug(query)
+    db.get(query, function (err, rows) {
+        if (err) {
+            log.error(`idinv post internal error ${err}`)
+            return errors.internalError(res)
+        } else {
+            if (rows) {
+                return responses.alreadyExists(res)
+            }
+
+            // check and sanitize values
+            let users_id = intSanitizer(req.body.users_id)
+            let activity_type = stringSanitizer(req.body.activity_type)
+            let idinv = stringSanitizer(req.body.idinv)
+            let time_started = intSanitizer(req.body.time_started)
+            let utc_offset = req.body.utc_offset ? intSanitizer(req.body.utc_offset) : null
+            let time_ended = req.body.time_ended ? intSanitizer(req.body.time_ended) : null
+            let tasks_id = req.body.tasks_id ? intSanitizer(req.body.tasks_id) : null
+            let version = req.body.version ? intSanitizer(req.body.version) : 1
+            let comment = req.body.comment ? stringSanitizer(req.body.comment) : ''
+            let data = req.body.data ? req.body.data : {}
+            let last_updated = req.body.last_updated
+                ? intSanitizer(req.body.last_updated)
+                : timestamp()
+
+            // set to NULL
+            time_ended === null ? (time_ended = 'NULL') : (time_ended = `'${time_ended}'`)
+            utc_offset === null ? (utc_offset = 'NULL') : (utc_offset = `'${utc_offset}'`)
+            tasks_id === null ? (tasks_id = 'NULL') : (tasks_id = `'${tasks_id}'`)
+
+            // in case data is a json string
+            if (typeof req.body.data === 'string')
+                try {
+                    data = JSON.parse(req.body.data)
+                } catch (error) {
+                    data = {}
+                }
+
+            // check for attached files
+            if (req.files) {
+                last_updated = timestamp() // because we changed data just now.
+                if (req.files.audio) data.audio = req.files.audio[0].path.replace('\\', '/')
+                if (req.files.image) data.image = req.files.image[0].path.replace('\\', '/')
+            }
+            data = JSON.stringify(data)
+
+            query = `insert into activity(id, users_id, activity_type, time_started, utc_offset, comment, data, tasks_id, time_ended, version, last_updated, uploaded, idinv) values
+            ('${aid}', '${users_id}', '${activity_type}', '${time_started}', ${utc_offset}, '${comment}', '${data}', ${tasks_id}, ${time_ended}, '${version}', '${last_updated}', '${timestamp()}', '${idinv}')`
+
+            log.debug(query)
+            db.run(query, function (err, rows) {
+                if (err) {
+                    log.error(`post activity internal error ${err}`)
+                    return errors.internalError(res)
+                } else {
+                    responses.created(res)
+                    if (tasks_id && tasks_id !== 'NULL') {
+                        taskMarkCompleted(tasks_id, aid)
+                    }
+                }
+            })
+        }
+    })
+})
+
+router.put('/users/:uid/activity/:aid', saveFiles, validateActivity, (req, res, next) => {
     let aid = stringSanitizer(req.params.aid)
     let activity_type = stringSanitizer(req.body.activity_type)
     let time_started = intSanitizer(req.body.time_started)
@@ -215,9 +317,7 @@ router.put('/:uid/activity/:aid', saveFiles, validateActivity, (req, res, next) 
             log.error(`put activity internal error ${err}`)
             return errors.internalError(res)
         } else {
-            res.status(201).send({
-                id: aid,
-            })
+            responses.edited(res, { id: aid })
             if (tasks_id && tasks_id !== 'NULL') {
                 taskMarkCompleted(tasks_id, aid)
             }
@@ -225,7 +325,68 @@ router.put('/:uid/activity/:aid', saveFiles, validateActivity, (req, res, next) 
     })
 })
 
-router.delete('/:uid/activity/:aid', (req, res) => {
+router.put('/idinv/:idinv/activity/:aid', saveFiles, validateActivity, (req, res, next) => {
+    let aid = stringSanitizer(req.params.aid)
+    let idinv = stringSanitizer(req.params.idinv)
+    let users_id = intSanitizer(req.body.users_id)
+    let activity_type = stringSanitizer(req.body.activity_type)
+    let time_started = intSanitizer(req.body.time_started)
+    let time_ended = req.body.time_ended ? intSanitizer(req.body.time_ended) : null
+    let utc_offset = req.body.utc_offset ? intSanitizer(req.body.utc_offset) : null
+    let tasks_id = req.body.tasks_id ? intSanitizer(req.body.tasks_id) : null
+    let version = req.body.version ? intSanitizer(req.body.version) : 1
+    let comment = req.body.comment ? stringSanitizer(req.body.comment) : ''
+    let data = req.body.data ? req.body.data : {}
+    let last_updated = req.body.last_updated ? intSanitizer(req.body.last_updated) : timestamp()
+
+    time_ended === null ? (time_ended = 'NULL') : (time_ended = `'${time_ended}'`)
+    utc_offset === null ? (utc_offset = 'NULL') : (utc_offset = `'${utc_offset}'`)
+    tasks_id === null ? (tasks_id = 'NULL') : (tasks_id = `'${tasks_id}'`)
+
+    // form-data doesn't allow to send objects
+    if (typeof req.body.data === 'string')
+        try {
+            data = JSON.parse(req.body.data)
+        } catch (error) {
+            data = {}
+        }
+
+    // check for files
+    if (req.files) {
+        last_updated = timestamp() // because we changed data just now.
+        if (req.files.audio) data.audio = req.files.audio[0].path.replace('\\', '/')
+        if (req.files.image) data.image = req.files.image[0].path.replace('\\', '/')
+    }
+    data = JSON.stringify(data)
+
+    let queryPreserve = `insert into activity (id, users_id, activity_type, time_started, time_ended, utc_offset, tasks_id, ref_id, last_updated, comment, data, deleted, version, uploaded, idinv) SELECT id, users_id, activity_type, time_started, time_ended, utc_offset, tasks_id, ref_id, last_updated, comment, data, 1, version, uploaded, idinv FROM activity where id = '${aid}' and deleted = 0`
+    log.debug(queryPreserve)
+    db.run(queryPreserve, (err, rows) => {
+        if (err) {
+            log.error(`put preserve activity internal error ${err}`)
+            return errors.internalError(res)
+        } else {
+            log.debug('preserved row')
+        }
+    })
+    let sql = `update activity set activity_type = '${activity_type}', time_started = '${time_started}', 
+    time_ended = ${time_ended}, utc_offset = ${utc_offset}, comment = '${comment}', data = '${data}', last_updated = '${last_updated}', 
+    ref_id = '${aid}', uploaded = '${timestamp()}', tasks_id = ${tasks_id} where id = '${aid}' and idinv = '${idinv}' and deleted = 0`
+    log.debug(sql)
+    db.run(sql, function (err, rows) {
+        if (err) {
+            log.error(`put activity internal error ${err}`)
+            return errors.internalError(res)
+        } else {
+            responses.edited(res)
+            if (tasks_id && tasks_id !== 'NULL') {
+                taskMarkCompleted(tasks_id, aid)
+            }
+        }
+    })
+})
+
+router.delete('/idinv/:idinv/activity/:aid', (req, res) => {
     let aid = stringSanitizer(req.params.aid)
     let sql = `update activity set deleted = '1', uploaded = '${timestamp()}' where id = '${aid}'`
     db.run(sql, function (err, rows) {
@@ -234,7 +395,23 @@ router.delete('/:uid/activity/:aid', (req, res) => {
             return errors.internalError(res)
         }
         if (this.changes) {
-            res.status(200).send()
+            responses.deleted(res)
+        } else {
+            errors.notFound(res)
+        }
+    })
+})
+
+router.delete('/users/:uid/activity/:aid', (req, res) => {
+    let aid = stringSanitizer(req.params.aid)
+    let sql = `update activity set deleted = '1', uploaded = '${timestamp()}' where id = '${aid}'`
+    db.run(sql, function (err, rows) {
+        if (err) {
+            log.error(`delete activity internal error ${err}`)
+            return errors.internalError(res)
+        }
+        if (this.changes) {
+            responses.deleted(res)
         } else {
             errors.notFound(res)
         }

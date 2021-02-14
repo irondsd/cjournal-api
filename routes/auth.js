@@ -7,8 +7,7 @@ const log = require('../helpers/logger')
 const fetch = require('node-fetch')
 const checkAuth = require('../middleware/checkAuth')
 const objectify = require('../helpers/objectify')
-// const passport = require('passport')
-// const passportSetup = require('../config/oauth')
+const responses = require('../helpers/responses')
 require('dotenv').config()
 
 router.post('/login', checkAuth, (req, res, next) => {

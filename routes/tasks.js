@@ -9,8 +9,9 @@ const validateTask = require('../middleware/validateTask')
 const stringSanitizer = require('../helpers/stringSanitizer')
 const intSanitizer = require('../helpers/intSanitizer')
 const objectify = require('../helpers/objectify')
+const responses = require('../helpers/responses')
 
-router.get('/:uid/tasks', (req, res) => {
+router.get('/users/:uid/tasks', (req, res) => {
     let timeframe = ``
     if (req.query.from) {
         timeframe += ` and time >= ${req.query.from} `
@@ -59,7 +60,21 @@ router.get('/:uid/tasks', (req, res) => {
     })
 })
 
-router.get('/:uid/tasks/:tid', (req, res) => {
+router.get('/idinv/:idinv/tasks', (req, res) => {
+    query = `select * from tasks where idinv = '${req.params.idinv}' and deleted = '0'`
+    log.debug(query)
+    db.all(query, (err, rows) => {
+        if (err) {
+            log.error(`idinv internal error ${err}`)
+            return errors.internalError(res)
+        } else {
+            if (rows.length > 0) objectify.dataRows(rows)
+            res.send(rows)
+        }
+    })
+})
+
+router.get('/users/:uid/tasks/:tid', (req, res) => {
     let id = intSanitizer(req.params.uid)
     let tid = intSanitizer(req.params.tid)
     query = `select id, users_id, activity_type, time, last_updated, ref_id, completed, deleted, data from tasks where 
@@ -81,7 +96,7 @@ router.get('/:uid/tasks/:tid', (req, res) => {
     })
 })
 
-router.post('/:id/tasks', validateTask, (req, res, next) => {
+router.post('/users/:id/tasks', validateTask, (req, res, next) => {
     let users_id = intSanitizer(req.params.id)
     let activity_type = stringSanitizer(req.body.activity_type)
     let time = intSanitizer(req.body.time)
@@ -95,14 +110,12 @@ router.post('/:id/tasks', validateTask, (req, res, next) => {
             log.error(`tasks internal error ${err}`)
             return errors.internalError(res)
         } else {
-            res.status(201).send({
-                id: this.lastID,
-            })
+            responses.created(res)
         }
     })
 })
 
-router.put('/:uid/tasks/:tid', validateTask, (req, res, next) => {
+router.put('/users/:uid/tasks/:tid', validateTask, (req, res, next) => {
     let user_id = intSanitizer(req.params.uid)
     let id = intSanitizer(req.params.tid)
     let activity_type = stringSanitizer(req.body.activity_type)
@@ -141,7 +154,7 @@ router.put('/:uid/tasks/:tid', validateTask, (req, res, next) => {
     })
 })
 
-router.delete('/:uid/tasks/:tid', (req, res) => {
+router.delete('/users/:uid/tasks/:tid', (req, res) => {
     if (!req.params.tid) {
         return errors.incompleteInput(res)
     }
@@ -158,7 +171,7 @@ router.delete('/:uid/tasks/:tid', (req, res) => {
 })
 
 // undelete
-router.patch('/:uid/tasks/:tid', (req, res) => {
+router.patch('/users/:uid/tasks/:tid', (req, res) => {
     if (!req.params.tid) {
         return errors.incompleteInput(res)
     }

@@ -8,8 +8,9 @@ const arrayStringify = require('../helpers/arrayStringify')
 const checkAuth = require('../middleware/checkAuth')
 const objectify = require('../helpers/objectify')
 const intSanitizer = require('../helpers/intSanitizer')
+const responses = require('../helpers/responses')
 
-router.get('/:id/prescriptions', (req, res) => {
+router.get('users/:id/prescriptions', (req, res) => {
     let id = intSanitizer(req.params.id)
     query = 'select * from prescriptions where users_id = ' + id
     log.debug(query)
@@ -23,7 +24,7 @@ router.get('/:id/prescriptions', (req, res) => {
     })
 })
 
-router.post('/:id/prescriptions', checkAuth, (req, res, next) => {
+router.post('users/:id/prescriptions', checkAuth, (req, res, next) => {
     let course_therapy = arrayStringify(req.body.course_therapy)
     let relief_of_attack = arrayStringify(req.body.relief_of_attack)
     let tests = arrayStringify(req.body.tests)
@@ -37,12 +38,12 @@ router.post('/:id/prescriptions', checkAuth, (req, res, next) => {
             errors.internalError(res)
         } else {
             log.info(`user ${req.decoded.id} posted prescriptions for user ${id}`)
-            res.status(201).send()
+            responses.created(res)
         }
     })
 })
 
-router.put('/:id/prescriptions/', checkAuth, (req, res, next) => {
+router.put('users/:id/prescriptions/', checkAuth, (req, res, next) => {
     let course_therapy = arrayStringify(req.body.course_therapy)
     let relief_of_attack = arrayStringify(req.body.relief_of_attack)
     let tests = arrayStringify(req.body.tests)
@@ -56,7 +57,7 @@ router.put('/:id/prescriptions/', checkAuth, (req, res, next) => {
             errors.internalError(res)
         } else {
             log.info(`user ${req.decoded.id} updated prescriptions for user ${id}`)
-            res.status(201).send()
+            responses.created(res)
         }
     })
 })

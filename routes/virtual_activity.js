@@ -9,8 +9,9 @@ const log = require('../helpers/logger')
 const validateVirtual = require('../middleware/validateVirtual')
 const objectify = require('../helpers/objectify')
 const intSanitizer = require('../helpers/intSanitizer')
+const responses = require('../helpers/responses')
 
-router.get('/:uid/virtual_activity', (req, res) => {
+router.get('/users/:uid/virtual_activity', (req, res) => {
     let timeframe = ``
     if (req.query.from) timeframe += ` and time_started > ${req.query.from} `
     if (req.query.to) timeframe += ` and time_started < ${req.query.to} `
@@ -44,7 +45,7 @@ router.get('/:uid/virtual_activity', (req, res) => {
     })
 })
 
-router.get('/:uid/virtual_activity/:aid', (req, res) => {
+router.get('/users/:uid/virtual_activity/:aid', (req, res) => {
     let uploaded = ``
     if (req.query.uploaded) uploaded = `, uploaded`
 
@@ -75,7 +76,40 @@ router.get('/:uid/virtual_activity/:aid', (req, res) => {
     })
 })
 
-router.post('/:uid/virtual_activity', validateVirtual, (req, res, next) => {
+router.get('/idinv/:idinv/virtual_activity', (req, res) => {
+    query = `select id, users_id, doctor_id, activity_type, time_started, utc_offset, time_ended, tasks_id, idinv, last_updated, comment, data, set_deleted from virtual_activity where idinv = '${req.params.idinv}' and deleted = '0'`
+    log.debug(query)
+    db.all(query, (err, rows) => {
+        if (err) {
+            log.error(`idinv internal error ${err}`)
+            return errors.internalError(res)
+        } else {
+            if (rows.length > 0) objectify.dataRows(rows)
+            res.send(rows)
+        }
+    })
+})
+
+router.get('/idinv/:idinv/virtual_activity/:aid', (req, res) => {
+    query = `select id, users_id, doctor_id, activity_type, time_started, utc_offset, time_ended, tasks_id, idinv, last_updated, comment, data, set_deleted from virtual_activity where idinv = '${req.params.idinv}' and id = '${req.params.aid}' and deleted = '0'`
+    log.debug(query)
+    db.all(query, (err, rows) => {
+        if (err) {
+            log.error(`idinv internal error ${err}`)
+            return errors.internalError(res)
+        } else {
+            if (rows.length > 0) {
+                objectify.dataRows(rows)
+                res.send(rows[0])
+            } else {
+                log.info(`get virtual by id not found ${req.params.aid}`)
+                return errors.notFound(res)
+            }
+        }
+    })
+})
+
+router.post('/users/:uid/virtual_activity', validateVirtual, (req, res, next) => {
     let check = `select id from virtual_activity where id = '${req.body.id}' and doctor_id = '${req.body.doctor_id}' and deleted = '0'`
     log.debug(check)
     db.all(check, function (err, rows) {
@@ -91,7 +125,7 @@ router.post('/:uid/virtual_activity', validateVirtual, (req, res, next) => {
     })
 })
 
-router.put('/:uid/virtual_activity/:aid', validateVirtual, (req, res, next) => {
+router.put('/users/:uid/virtual_activity/:aid', validateVirtual, (req, res, next) => {
     updateVirtualActivity(req, res)
 })
 
@@ -121,7 +155,7 @@ function postVirtualActivity(req, res) {
             log.error(`virtual internal error ${err}`)
             return errors.internalError(res)
         } else {
-            res.status(201).send()
+            responses.created(res)
         }
     })
 }
@@ -158,14 +192,14 @@ function updateVirtualActivity(req, res) {
                     log.error(`put virtual internal error ${err}`)
                     return errors.internalError(res)
                 } else {
-                    res.status(201).send()
+                    responses.created(res)
                 }
             })
         }
     })
 }
 
-router.delete('/:uid/virtual_activity/:aid', (req, res) => {
+router.delete('/users/:uid/virtual_activity/:aid', (req, res) => {
     let sql = `update virtual_activity set deleted = '1' where id = '${req.params.aid}'`
     log.debug(sql)
     db.run(sql, function (err, rows) {
@@ -174,7 +208,7 @@ router.delete('/:uid/virtual_activity/:aid', (req, res) => {
             return errors.internalError(res)
         }
         if (this.changes) {
-            res.status(200).send()
+            responses.deleted(res)
         } else {
             log.info(`delete virtual id not found ${req.params.id}`)
             return errors.notFound(res)
