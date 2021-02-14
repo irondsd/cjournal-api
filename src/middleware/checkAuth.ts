@@ -25,6 +25,7 @@ export const checkAuth = (req: Request, res: Response, next: NextFunction) => {
         .then(response => {
             userFindOrCreate(response.sub, response.name)
                 .then((res: any) => {
+                    //todo: extend req type
                     ;(req as any).user = {
                         id: res,
                         sub: response.sub,
