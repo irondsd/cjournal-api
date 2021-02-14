@@ -6,13 +6,13 @@ import * as Errors from '../helpers/errors'
 import { checkAuth } from '../middleware/checkAuth'
 
 // Get all users
-router.get('/', checkAuth, async (req, res) => {
+router.get('/users/', checkAuth, async (req, res) => {
     const users = await User.find()
     res.send(users)
 })
 
 // Get information about the user with specific id
-router.get('/:id', checkAuth, async (req, res) => {
+router.get('/users/:id', checkAuth, async (req, res) => {
     const id = stringSanitizer(req.params.id)
     User.findById(id)
         .populate('prescriptions')
@@ -26,13 +26,13 @@ router.get('/:id', checkAuth, async (req, res) => {
 })
 
 // Update user
-router.put('/:uid', async (req, res) => {
+router.put('/users/:uid', async (req, res) => {
     // TODO:
     res.send('good')
 })
 
 // should not exist
-router.post('/', async (req, res) => {
+router.post('/users/', async (req, res) => {
     const { username, sub } = req.body
 
     if (!username || !sub) return res.status(400).send()
@@ -43,6 +43,19 @@ router.post('/', async (req, res) => {
 })
 
 // purge user
-router.post('/:id/purge', async (req, res) => {})
+router.post('/users/:id/purge', async (req, res) => {})
+
+router.post('/login', checkAuth, (req: any, res) => {
+    const user = req.user
+
+    User.find({ sub: user.sub })
+        .then((user: typeof User) => {
+            if (!user) return Errors.notFound(res)
+            res.send(user)
+        })
+        .catch((err: any) => {
+            Errors.incorrectInput(res, err.reason.message)
+        })
+})
 
 export { router as usersRouter }

@@ -4,7 +4,7 @@ import stringSanitizer from '../helpers/sanitizeString'
 import * as Errors from '../helpers/errors'
 import { Prescription } from '../models/prescription'
 
-router.get('/:uid/prescriptions', (req, res) => {
+router.get('/users/:uid/prescriptions', (req, res) => {
     const uid = stringSanitizer(req.params.uid)
 
     Prescription.findOne({ users_id: uid }).then((presc: any) => {
@@ -13,14 +13,14 @@ router.get('/:uid/prescriptions', (req, res) => {
     })
 })
 
-router.post('/:uid/prescriptions', async (req, res) => {
+router.post('/users/:uid/prescriptions', async (req, res) => {
     const uid = stringSanitizer(req.params.uid)
     const presc = new Prescription({ users_id: uid, ...req.body })
     await presc.save()
     res.send(presc)
 })
 
-router.put('/:uid/prescriptions/', (req, res) => {
+router.put('/users/:uid/prescriptions/', (req, res) => {
     // todo?
 })
 

@@ -13,7 +13,7 @@ const logConfiguration = {
             filename: './logs/combined.log',
             format: format.combine(
                 format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss:ms' }),
-                format.printf(info => `${info.timestamp} ${info.level}: ${info.message}`),
+                format.printf(info => `${info.level}: [${info.timestamp}] ${info.message}`),
             ),
         }),
     ],
@@ -21,4 +21,14 @@ const logConfiguration = {
 
 export default winston.createLogger(logConfiguration)
 
-export const reqLogger = (req: Request, res: Response, next: NextFunction): void => {}
+export const winstonMiddleware = (req: Request, res: Response, next: NextFunction): void => {
+    const Logger = winston.createLogger(logConfiguration)
+    const { authorization, ...headersWithNoToken } = req.headers
+    Logger.log(
+        'http',
+        `${req.ip} ${req.method} ${req.originalUrl} ${JSON.stringify(
+            headersWithNoToken,
+        )} ${JSON.stringify(req.body)}`,
+    )
+    next()
+}

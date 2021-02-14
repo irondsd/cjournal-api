@@ -7,6 +7,7 @@ import { usersRouter } from './routes/users'
 import { activityRouter } from './routes/activity'
 import { tasksRouter } from './routes/tasks'
 import { PrescriptionsRouter } from './routes/prescriptions'
+import { winstonMiddleware } from './helpers/logger'
 
 dotenv.config()
 const app = express()
@@ -34,10 +35,11 @@ mongoose.connect(
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 app.use(cors())
-app.use('/api/users', usersRouter)
+app.use(winstonMiddleware)
+app.use('/api/', usersRouter)
 app.use('/api/', activityRouter)
 app.use('/api/', tasksRouter)
-app.use('/api/users', PrescriptionsRouter)
+app.use('/api/', PrescriptionsRouter)
 
 app.get('/api/', (req, res) => {
     res.status(200).send('alive')
