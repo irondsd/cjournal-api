@@ -4,7 +4,7 @@ import { Task } from '../models/task'
 import stringSanitizer from '../helpers/sanitizeString'
 import * as Errors from '../helpers/errors'
 import { validateTask } from '../middleware/validateTask'
-import * as Log from '../middleware/logger'
+import Logger from '../helpers/logger'
 
 router.get('/user/:uid/tasks', async (req, res) => {
     const uid = stringSanitizer(req.params.uid)
@@ -32,7 +32,7 @@ router.get('/user/:uid/tasks/:aid', async (req, res) => {
             res.send(tasks)
         })
         .catch((err: any) => {
-            Log.error(err)
+            Logger.error(err)
             Errors.incorrectInput(res, err.reason.message)
         })
 })
@@ -45,7 +45,7 @@ router.get('/idinv/:idinv/tasks/:aid', async (req, res) => {
             res.send(tasks)
         })
         .catch((err: any) => {
-            Log.error(err)
+            Logger.error(err)
             Errors.incorrectInput(res, err.reason.message)
         })
 })
@@ -58,7 +58,7 @@ router.post('/users/:uid/tasks', validateTask, async (req, res) => {
         await user.save()
         res.status(201).send(user)
     } catch (err) {
-        Log.error(err)
+        Logger.error(err)
         if (err.code === 11000) return res.status(208).send()
 
         Errors.incorrectInput(res)
@@ -73,7 +73,7 @@ router.post('/idinv/:idinv/tasks', validateTask, async (req, res) => {
         await user.save()
         res.status(201).send(user)
     } catch (err) {
-        Log.error(err)
+        Logger.error(err)
         if (err.code === 11000) return res.status(208).send()
 
         Errors.incorrectInput(res)
@@ -87,7 +87,7 @@ router.put('/users/:uid/tasks/:aid', validateTask, async (req, res) => {
         const user = await Task.findByIdAndUpdate(aid, { ...req.body }, { new: true })
         res.status(201).send(user)
     } catch (err) {
-        Log.error(err)
+        Logger.error(err)
         Errors.incorrectInput(res)
     }
 })
@@ -99,7 +99,7 @@ router.put('/idinv/:idinv/tasks/:aid', validateTask, async (req, res) => {
         const user = await Task.findByIdAndUpdate(aid, { ...req.body }, { new: true })
         res.status(201).send(user)
     } catch (err) {
-        Log.error(err)
+        Logger.error(err)
         Errors.incorrectInput(res)
     }
 })
@@ -111,7 +111,7 @@ router.delete('/users/:uid/tasks/:aid', async (req, res) => {
         await Task.findByIdAndUpdate(aid, { deleted: true })
         res.status(204).send()
     } catch (err) {
-        Log.error(err)
+        Logger.error(err)
         Errors.incorrectInput(res)
     }
 })
@@ -123,7 +123,7 @@ router.delete('/idinv/:idinv/tasks/:aid', async (req, res) => {
         await Task.findByIdAndUpdate(aid, { deleted: true })
         res.status(204).send()
     } catch (err) {
-        Log.error(err)
+        Logger.error(err)
         Errors.incorrectInput(res)
     }
 })

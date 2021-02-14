@@ -1,6 +1,5 @@
 import express from 'express'
 import bodyParser from 'body-parser'
-import { logger } from './middleware/logger'
 import * as dotenv from 'dotenv'
 import mongoose from 'mongoose'
 import cors from 'cors'
@@ -13,13 +12,13 @@ dotenv.config()
 const app = express()
 const port = process.env.PORT || 8626
 
-if (!process.env.DB)
+if (!process.env.MONGO_DB)
     throw new Error(
         'credentials for mongodb are not found. Please provide .env file with correct credentials as DB env var',
     )
 
 mongoose.connect(
-    process.env.DB,
+    process.env.MONGO_DB,
     {
         useNewUrlParser: true,
         useUnifiedTopology: true,
@@ -35,7 +34,6 @@ mongoose.connect(
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 app.use(cors())
-app.use(logger)
 app.use('/api/users', usersRouter)
 app.use('/api/', activityRouter)
 app.use('/api/', tasksRouter)

@@ -1,6 +1,6 @@
 import { updateLastSeen } from '../helpers/updateLastSeen'
 import * as Errors from '../helpers/errors'
-import * as Log from './logger'
+import Logger from '../helpers/logger'
 import fetch from 'node-fetch'
 import { userFindOrCreate } from '../helpers/userFindOrCreate'
 import { Request, Response, NextFunction } from 'express'
@@ -21,8 +21,8 @@ export const checkAuth = (req: Request, res: Response, next: NextFunction) => {
             Authorization: 'Bearer ' + token,
         },
     })
-        .then((response) => response.json())
-        .then((response) => {
+        .then(response => response.json())
+        .then(response => {
             userFindOrCreate(response.sub, response.name)
                 .then((res: any) => {
                     ;(req as any).user = {
@@ -34,11 +34,11 @@ export const checkAuth = (req: Request, res: Response, next: NextFunction) => {
                     next()
                 })
                 .catch((err: any) => {
-                    Log.error(err)
+                    Logger.error(err)
                 })
         })
-        .catch((err) => {
-            console.log(err)
+        .catch(err => {
+            Logger.error(err)
             Errors.unauthorized(res)
         })
 }

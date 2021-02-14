@@ -7,9 +7,12 @@
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
-    "baseUrl": "src"
+    "baseUrl": "./src"
   },
   "include": [
-    "src"
+    "src",
+  ],
+  "exclude": [
+    "node_modules"
   ]
 }

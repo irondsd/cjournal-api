@@ -1,4 +1,4 @@
-import * as Log from '../middleware/logger'
+import Logger from '../helpers/logger'
 import { User } from '../models/user'
 
 export async function userFindOrCreate(sub: string, username: string) {
@@ -10,7 +10,7 @@ export async function userFindOrCreate(sub: string, username: string) {
                     await user.save()
                     resolve(user._id)
                 } catch (error) {
-                    console.log(error)
+                    Logger.error('Error in userFindOrUpdate: ' + error)
                     reject(error)
                 }
             } else {

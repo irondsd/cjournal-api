@@ -1,7 +1,6 @@
 import express from 'express'
 const router = express.Router()
 import stringSanitizer from '../helpers/sanitizeString'
-import numberSanitizer from '../helpers/sanitizeNumber'
 import * as Errors from '../helpers/errors'
 import { Prescription } from '../models/prescription'
 
