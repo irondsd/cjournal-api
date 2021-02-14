@@ -19,7 +19,7 @@ router.get('/users/:uid/activity', async (req, res) => {
             .exec()
         res.send(results)
     } catch (error) {
-        Logger.error(error.message)
+        Logger.error('MongoDB error: ' + error.message)
     }
 })
 
@@ -44,7 +44,7 @@ router.get('/users/:uid/activity/:aid', async (req, res) => {
             res.send(activity)
         })
         .catch((err: any) => {
-            Logger.error(err)
+            Logger.error(err.message)
             Errors.incorrectInput(res, err.reason.message)
         })
 })
@@ -57,7 +57,7 @@ router.get('/idinv/:idinv/activity/:aid', async (req, res) => {
             res.send(activity)
         })
         .catch((err: any) => {
-            Logger.error(err)
+            Logger.error(err.message)
             Errors.incorrectInput(res, err.reason.message)
         })
 })
@@ -79,7 +79,7 @@ router.post('/users/:uid/activity', saveFiles, validateActivity, async (req, res
         await user.save()
         res.status(201).send(user)
     } catch (err) {
-        Logger.error(err)
+        Logger.error('MongoDB error: ' + err.message)
         if (err.code === 11000) return res.status(208).send()
 
         Errors.incorrectInput(res)
@@ -103,8 +103,8 @@ router.post('/idinv/:idinv/activity', saveFiles, validateActivity, async (req, r
         await user.save()
         res.status(201).send(user)
     } catch (err) {
-        Logger.error(err)
         if (err.code === 11000) return res.status(208).send()
+        else Logger.error(err.message)
 
         Errors.incorrectInput(res)
     }
@@ -126,7 +126,7 @@ router.put('/users/:uid/activity/:aid', saveFiles, validateActivity, async (req,
         const user = await Activity.findByIdAndUpdate(aid, { ...req.body }, { new: true })
         res.status(201).send(user)
     } catch (err) {
-        Logger.error(err)
+        Logger.error(err.message)
         Errors.incorrectInput(res)
     }
 })
@@ -147,7 +147,7 @@ router.put('/idinv/:idinv/activity/:aid', saveFiles, validateActivity, async (re
         const user = await Activity.findByIdAndUpdate(aid, { ...req.body }, { new: true })
         res.status(201).send(user)
     } catch (err) {
-        Logger.error(err)
+        Logger.error(err.message)
         Errors.incorrectInput(res)
     }
 })
@@ -159,7 +159,7 @@ router.delete('/users/:uid/activity/:aid', async (req, res) => {
         await Activity.findByIdAndUpdate(aid, { deleted: true })
         res.status(204).send()
     } catch (err) {
-        Logger.error(err)
+        Logger.error(err.message)
         Errors.incorrectInput(res)
     }
 })
@@ -171,7 +171,7 @@ router.delete('/idinv/:idinv/activity/:aid', async (req, res) => {
         await Activity.findByIdAndUpdate(aid, { deleted: true })
         res.status(204).send()
     } catch (err) {
-        Logger.error(err)
+        Logger.error(err.message)
         Errors.incorrectInput(res)
     }
 })

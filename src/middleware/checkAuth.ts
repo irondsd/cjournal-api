@@ -34,11 +34,11 @@ export const checkAuth = (req: Request, res: Response, next: NextFunction) => {
                     next()
                 })
                 .catch((err: any) => {
-                    Logger.error(err)
+                    Logger.error(err.message)
                 })
         })
         .catch(err => {
-            Logger.error(err)
+            Logger.error(err.message)
             Errors.unauthorized(res)
         })
 }
