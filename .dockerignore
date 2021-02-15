@@ -1,0 +1,7 @@
+node_modules
+uploads
+logs
+.prettierrc.js
+README.md
+.DS_Store
+npm-debug.log
