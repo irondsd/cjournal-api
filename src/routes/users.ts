@@ -42,9 +42,6 @@ router.post('/users/', async (req, res) => {
     res.status(201).send(user)
 })
 
-// purge user
-router.post('/users/:id/purge', async (req, res) => {})
-
 router.post('/login', checkAuth, (req: any, res) => {
     const user = req.user
 
