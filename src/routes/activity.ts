@@ -75,9 +75,9 @@ router.post('/users/:uid/activity', saveFiles, validateActivity, async (req, res
     }
 
     try {
-        const user = new Activity({ ...req.body, users_id: uid, data })
-        await user.save()
-        res.status(201).send(user)
+        const activity = new Activity({ ...req.body, users_id: uid, data })
+        await activity.save()
+        res.status(201).send(activity)
     } catch (err) {
         Logger.error('MongoDB error: ' + err.message)
         if (err.code === 11000) return res.status(208).send()
@@ -99,9 +99,9 @@ router.post('/idinv/:idinv/activity', saveFiles, validateActivity, async (req, r
     }
 
     try {
-        const user = new Activity({ ...req.body, users_id: idinv, data })
-        await user.save()
-        res.status(201).send(user)
+        const activity = new Activity({ ...req.body, users_id: idinv, data })
+        await activity.save()
+        res.status(201).send(activity)
     } catch (err) {
         if (err.code === 11000) return res.status(208).send()
         else Logger.error(err.message)
@@ -122,9 +122,11 @@ router.put('/users/:uid/activity/:aid', saveFiles, validateActivity, async (req,
             data.image = (req as any).files.image[0].path.replace('\\', '/')
     }
 
+    req.body.data = data
+
     try {
-        const user = await Activity.findByIdAndUpdate(aid, { ...req.body }, { new: true })
-        res.status(201).send(user)
+        const activity = await Activity.findByIdAndUpdate(aid, { ...req.body }, { new: true })
+        res.status(201).send(activity)
     } catch (err) {
         Logger.error(err.message)
         Errors.incorrectInput(res)
@@ -144,8 +146,8 @@ router.put('/idinv/:idinv/activity/:aid', saveFiles, validateActivity, async (re
     }
 
     try {
-        const user = await Activity.findByIdAndUpdate(aid, { ...req.body }, { new: true })
-        res.status(201).send(user)
+        const activity = await Activity.findByIdAndUpdate(aid, { ...req.body }, { new: true })
+        res.status(201).send(activity)
     } catch (err) {
         Logger.error(err.message)
         Errors.incorrectInput(res)
