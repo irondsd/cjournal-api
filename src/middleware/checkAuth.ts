@@ -5,7 +5,17 @@ import fetch from 'node-fetch'
 import { userFindOrCreate } from '../helpers/userFindOrCreate'
 import { Request, Response, NextFunction } from 'express'
 import * as dotenv from 'dotenv'
+import { ObjectId } from 'mongoose'
+
 dotenv.config()
+
+export interface ReqWithUser extends Request {
+    user?: {
+        id: ObjectId
+        sub: string
+        username: string
+    }
+}
 
 export const checkAuth = (req: Request, res: Response, next: NextFunction) => {
     let token: string = req.query.token as string
@@ -24,9 +34,8 @@ export const checkAuth = (req: Request, res: Response, next: NextFunction) => {
         .then(response => response.json())
         .then(response => {
             userFindOrCreate(response.sub, response.name)
-                .then((res: any) => {
-                    //todo: extend req type
-                    ;(req as any).user = {
+                .then(res => {
+                    ;(req as ReqWithUser).user = {
                         id: res,
                         sub: response.sub,
                         username: response.name,
