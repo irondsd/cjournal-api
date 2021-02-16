@@ -1,8 +1,8 @@
 import { Request, Response } from 'express'
-import { User } from '../models/user'
+import { User, IUser } from '../models/user'
 import stringSanitizer from '../helpers/sanitizeString'
 import * as Errors from '../helpers/errors'
-import Logger from 'helpers/logger'
+import Logger from '../helpers/logger'
 
 export const userGetAll = async (req: Request, res: Response) => {
     const users = await User.find()
@@ -38,7 +38,7 @@ export const userLogin = (req: Request, res: Response) => {
     const user = (req as any).user
 
     User.find({ sub: user.sub })
-        .then((user: typeof User) => {
+        .then((user: IUser) => {
             if (!user) return Errors.notFound(res)
             res.send(user)
         })
