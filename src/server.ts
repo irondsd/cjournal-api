@@ -6,7 +6,7 @@ import cors from 'cors'
 import { usersRouter } from './routes/users'
 import { activityRouter } from './routes/activity'
 import { tasksRouter } from './routes/tasks'
-import { PrescriptionsRouter } from './routes/prescriptions'
+import { PatientsRouter } from './routes/patients'
 import { winstonMiddleware } from './helpers/logger'
 
 dotenv.config()
@@ -39,7 +39,7 @@ app.use(winstonMiddleware)
 app.use('/api/', usersRouter)
 app.use('/api/', activityRouter)
 app.use('/api/', tasksRouter)
-app.use('/api/', PrescriptionsRouter)
+app.use('/api/', PatientsRouter)
 
 app.get('/api/', (req, res) => {
     res.status(200).send('alive')

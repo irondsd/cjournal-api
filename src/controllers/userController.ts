@@ -14,7 +14,7 @@ export const userGetById = async (req: Request, res: Response) => {
     const id = stringSanitizer(req.params.id)
 
     User.findById(id)
-        .populate('prescriptions')
+        .populate('patient')
         .then((user: typeof User) => {
             if (!user) return Errors.notFound(res)
             res.send(user)
