@@ -1,4 +1,4 @@
-import { timestamp } from 'helpers/timestamp'
+import { timestamp } from '../helpers/timestamp'
 import { Schema, model, Document, ObjectId } from 'mongoose'
 
 const userSchema = new Schema({
@@ -19,6 +19,6 @@ export interface IUser extends Document {
     prescriptions: ObjectId
 }
 
-const User = model<IUser>('User', userSchema, 'users')
+const User = model<IUser>('User', userSchema)
 
 export { User }
