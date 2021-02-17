@@ -13,7 +13,9 @@ export interface ReqWithUser extends Request {
     user?: {
         id: ObjectId
         sub: string
-        username: string
+        name: string
+        role?: string | Array<string>
+        display_name?: string
     }
 }
 
@@ -31,14 +33,13 @@ export const checkAuth = (req: Request, res: Response, next: NextFunction) => {
             Authorization: 'Bearer ' + token,
         },
     })
-        .then(response => response.json())
-        .then(response => {
-            userFindOrCreate(response.sub, response.name)
+        .then(identityUser => identityUser.json())
+        .then(identityUser => {
+            userFindOrCreate(identityUser.sub, identityUser.name)
                 .then(res => {
                     ;(req as ReqWithUser).user = {
                         id: res,
-                        sub: response.sub,
-                        username: response.name,
+                        ...identityUser,
                     }
                     updateLastSeen(res)
                     next()
