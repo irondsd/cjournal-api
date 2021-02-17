@@ -1,10 +1,12 @@
 import Logger from '../helpers/logger'
-import { User } from '../models/user'
+import { IUser, User } from '../models/user'
+import { ObjectId } from 'mongoose'
 
-export async function userFindOrCreate(sub: string, username: string) {
+export async function userFindOrCreate(sub: string, username: string): Promise<ObjectId> {
     return new Promise((resolve, reject) => {
-        User.findOne({ sub: sub }).then(async (user: any) => {
+        User.findOne({ sub: sub }).then(async (user: IUser) => {
             if (!user) {
+                //todo: create all instances in all tabled!
                 try {
                     const user = new User({ sub, username })
                     await user.save()

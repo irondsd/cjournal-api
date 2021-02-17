@@ -3,7 +3,7 @@ import { User, IUser } from '../models/user'
 import stringSanitizer from '../helpers/sanitizeString'
 import * as Errors from '../helpers/errors'
 import Logger from '../helpers/logger'
-import { ReqWithUser } from 'middleware/checkAuth'
+import { ReqWithUser } from '../middleware/checkAuth'
 
 export const userGetAll = async (req: Request, res: Response) => {
     const users = await User.find()
@@ -12,6 +12,7 @@ export const userGetAll = async (req: Request, res: Response) => {
 
 export const userGetById = async (req: Request, res: Response) => {
     const id = stringSanitizer(req.params.id)
+
     User.findById(id)
         .populate('prescriptions')
         .then((user: typeof User) => {
