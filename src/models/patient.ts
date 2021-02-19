@@ -2,7 +2,7 @@ import mongoose from 'mongoose'
 import { ObjectId, Document } from 'mongoose'
 
 const patientSchema = new mongoose.Schema({
-    _id: { type: String, required: true, unique: true },
+    _id: { type: String },
     idinv: { type: String, ref: 'Idinv' },
     hide_elements: { type: [String], default: [] },
     course_therapy: { type: [String], default: [] },
