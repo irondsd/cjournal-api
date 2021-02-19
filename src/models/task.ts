@@ -1,5 +1,5 @@
 import { Schema, model, Document, ObjectId, Mixed } from 'mongoose'
-import { timestamp } from 'helpers/timestamp'
+import { timestamp } from '../helpers/timestamp'
 import { Number } from 'mongoose'
 
 const taskSchema = new Schema(
@@ -13,8 +13,16 @@ const taskSchema = new Schema(
         ref_id: { type: String, required: false },
         completed: { type: Boolean, required: false, default: false },
         deleted: { type: Boolean, required: false, default: false },
+        created_at: { type: Number },
+        updated_at: { type: Number },
     },
-    { timestamps: true },
+    {
+        timestamps: {
+            currentTime: () => timestamp(),
+            createdAt: 'created_at',
+            updatedAt: 'updated_at',
+        },
+    },
 )
 
 export interface ITask extends Document {

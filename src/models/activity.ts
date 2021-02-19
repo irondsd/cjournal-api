@@ -1,3 +1,4 @@
+import { timestamp } from '../helpers/timestamp'
 import { Schema, model, Document, ObjectId, Mixed } from 'mongoose'
 
 const ActivityUpdate = new Schema(
@@ -12,8 +13,16 @@ const ActivityUpdate = new Schema(
         data: { type: Schema.Types.Mixed, default: {} },
         tasks_id: { type: Schema.Types.ObjectId, ref: 'Task' },
         deleted: { type: Boolean, default: false },
+        created_at: { type: Number },
+        updated_at: { type: Number },
     },
-    { timestamps: { currentTime: () => Math.floor(Date.now() / 1000) } },
+    {
+        timestamps: {
+            currentTime: () => timestamp(),
+            createdAt: 'created_at',
+            updatedAt: 'updated_at',
+        },
+    },
 )
 
 export interface IActivityUpdate {
@@ -45,8 +54,16 @@ const activitySchema = new Schema(
         tasks_id: { type: Schema.Types.ObjectId, ref: 'Task' },
         deleted: { type: Boolean, default: false },
         updates: ActivityUpdate,
+        created_at: { type: Number },
+        updated_at: { type: Number },
     },
-    { timestamps: { currentTime: () => Math.floor(Date.now() / 1000) } },
+    {
+        timestamps: {
+            currentTime: () => timestamp(),
+            createdAt: 'created_at',
+            updatedAt: 'updated_at',
+        },
+    },
 )
 
 export interface IActivity extends Document {
