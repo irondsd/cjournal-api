@@ -7,6 +7,7 @@ import { usersRouter } from './routes/users'
 import { activityRouter } from './routes/activity'
 import { tasksRouter } from './routes/tasks'
 import { PatientsRouter } from './routes/patients'
+import { IdinvRouter } from './routes/idinv'
 import { winstonMiddleware } from './helpers/logger'
 
 dotenv.config()
@@ -40,6 +41,7 @@ app.use('/api/', usersRouter)
 app.use('/api/', activityRouter)
 app.use('/api/', tasksRouter)
 app.use('/api/', PatientsRouter)
+app.use('/api/', IdinvRouter)
 
 app.get('/api/', (req, res) => {
     res.status(200).send('alive')
