@@ -6,7 +6,6 @@ export async function userFindOrCreate(sub: string, username: string): Promise<O
     return new Promise((resolve, reject) => {
         User.findOne({ sub: sub }).then(async (user: IUser) => {
             if (!user) {
-                //todo: create all instances in all tabled!
                 try {
                     const user = new User({ sub, username })
                     await user.save()
