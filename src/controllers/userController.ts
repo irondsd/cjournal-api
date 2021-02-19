@@ -48,3 +48,19 @@ export const userLogin = (req: ReqWithUser, res: Response) => {
             Errors.incorrectInput(res, err.reason.message)
         })
 }
+
+export const userCreate = (username: string, sub: string): Promise<IUser> => {
+    return new Promise((resolve, reject) => {
+        const user = new User({ sub, username })
+        user.save(function (error, user: IUser) {
+            if (error) {
+                Logger.error('Error in userCreate: ' + error)
+                reject(error)
+            }
+
+            // create patient
+
+            resolve(user)
+        })
+    })
+}
