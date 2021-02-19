@@ -1,8 +1,7 @@
-import { Schema, model, ObjectId, Document } from 'mongoose'
+import { Schema, model, Document } from 'mongoose'
 
 const idinvSchema = new Schema({
-    users_id: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-    idinv: { type: String, required: true },
+    _id: { type: String, required: true, unique: true },
     mon_type: { type: Number, required: true },
     mon_state: { type: Number, required: true },
     mon_number: { type: Number, required: true },
@@ -10,8 +9,7 @@ const idinvSchema = new Schema({
 })
 
 export interface IIdinv extends Document {
-    users_id: ObjectId
-    idinv: string
+    _id: string
     mon_type: number
     mon_state: number
     mon_number: number
