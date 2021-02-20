@@ -1,41 +1,17 @@
 # Incart Cardio Journal backend API
 
-## Users
+## Authoriation
 
-**Definition**
-
--   `GET /api/users/`
--   `POST /api/users/`
--   `GET /api/users/<id>`
--   `PUT /api/users/<id>`
--   `DELETE /api/users/<id>`
-
-**query options**
-
--   `api_key` (Required) An API key
-
-**responses**
-
--   `200` (GET) On success
--   `201` (POST, PUT) Created
--   `404` (GET, PUT, DELETE) Not found
--   `409` (POST, PUT) User exists
--   `500` Internal Error
+headers: { Authorization: "Bearer <Token>" }
 
 **body**
 
 -   `id` integer
--   `name` string
--   `birthday` string of date format DD.MM.YYYY
 -   `username` string
--   `password` string, stored as hash and never displayed
--   `new_password` string, used to change a password
+-   `sub` string
 -   `idinv` string containing id of investigation
 -   `last_seen` integer of unix timestamp format
--   `information` string
 -   `hide_elements` array of strings
--   `language` string of either 'en', 'ru' and 'es'
--   `permissions` integer of either 1 for patient, 2 for doctor, and 3 for admin
 -   `course_therapy` array of strings
 -   `relief_of_attack` array of strings
 -   `tests` array of strings
@@ -46,35 +22,25 @@
 [
     {
         "id": 1,
-        "name": "Alexander Feldman",
-        "birthday": "10.05.1957",
-        "gender": "male",
+        "sub": "b8344dff-9053-4064-9b9d-b91266ec3443",
         "username": "ggn00b",
-        "idinv": "045_000_00107_00096.dat",
-        "last_seen": 1570184394,
-        "information": "info about the user",
-        "hide_elements": ["Walking", "Stairs"],
-        "language": "ru",
-        "permissions": 1,
-        "course_therapy": ["Acebutolol", "Atenolol"],
-        "relief_of_attack": ["Bisoprolol", "Betaxolol"],
-        "tests": ["Nadolol", "Propranolol"]
-    },
-    {
-        "id": 2,
-        "name": "Jane Doe",
-        "birthday": "07.10.2019",
-        "gender": "male",
-        "username": "test",
-        "idinv": "045_000_00107_00096.dat",
-        "last_seen": 1570015787,
-        "information": "",
+        "idinv": "GGG_342_653_234_123",
         "hide_elements": [],
         "language": "ru",
-        "permissions": 3,
-        "course_therapy": ["Acebutolol", "Atenolol"],
-        "relief_of_attack": ["Bisoprolol", "Betaxolol"],
-        "tests": ["Nadolol", "Propranolol"]
+        "last_seen": 1613311440,
+        "users_id": 1,
+        "course_therapy": [
+            "Acetaminophen",
+            "Adderall",
+            "Alprazolam",
+            "Amitriptyline",
+            "Amlodipine",
+            "Amoxicillin",
+            "Ativan",
+            "Atorvastatin"
+        ],
+        "relief_of_attack": ["pill1", "pill2", "pill3"],
+        "tests": ["pill1", "pill2", "pill3"]
     }
 ]
 ```

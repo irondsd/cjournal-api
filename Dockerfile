@@ -1,7 +1,13 @@
 FROM node:12
-WORKDIR /app
-COPY package.json /app
+
+WORKDIR /usr/src/app
+
+COPY package.json ./
+
 RUN npm install
-COPY . /app
-CMD npm start
-EXPOSE 3333
+
+COPY . .
+
+EXPOSE 8626
+
+CMD ["npm", "start"]
