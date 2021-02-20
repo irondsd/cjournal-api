@@ -1,8 +1,8 @@
 import { Request, Response } from 'express'
 import { Activity, IActivity } from '../models/activity'
-import stringSanitizer from '../helpers/sanitizeString'
 import * as Errors from '../helpers/errors'
 import Logger from '../helpers/logger'
+import { ObjectId } from 'mongoose'
 
 interface IActivityFilter {
     _id?: string
@@ -25,6 +25,39 @@ export const activityGetOne = async (filter: IActivityFilter): Promise<IActivity
         Activity.findOne(filter, (err: Error, activity: IActivity) => {
             if (err) reject(err.message)
             resolve(activity)
+        })
+    })
+}
+
+export const activityCreate = async (activity: IActivity): Promise<IActivity> => {
+    return new Promise((resolve, reject) => {
+        const newAct = new Activity({ ...activity })
+        newAct.save((err, act: IActivity) => {
+            if (err) reject(err)
+            resolve(act)
+        })
+    })
+}
+
+export const activityEdit = async (id: string, activity: IActivity): Promise<IActivity> => {
+    return new Promise((resolve, reject) => {
+        Activity.findByIdAndUpdate(
+            id,
+            { ...activity },
+            null,
+            (err: Error, act: IActivity | null) => {
+                if (err || !act) return reject(err || null)
+                resolve(act)
+            },
+        )
+    })
+}
+
+export const activityDelete = async (id: string): Promise<any> => {
+    return new Promise((resolve, reject) => {
+        Activity.findByIdAndDelete(id, null, (err: Error, doc) => {
+            if (err) return reject(err)
+            resolve(doc)
         })
     })
 }
