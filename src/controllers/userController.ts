@@ -15,15 +15,13 @@ export const userGetAll = async (req: Request, res: Response) => {
 export const userGetById = async (req: Request, res: Response) => {
     const id = stringSanitizer(req.params.id)
 
-    User.findById(id)
-        .populate('idinv')
-        .exec(function (err: Error, user: IUser) {
-            if (err) {
-                res.status(400).send(err.message)
-            } else {
-                res.send(user)
-            }
-        })
+    User.findById(id).exec(function (err: Error, user: IUser) {
+        if (err) {
+            res.status(400).send(err.message)
+        } else {
+            res.send(user)
+        }
+    })
 }
 
 export const userEdit = async (req: Request, res: Response) => {
@@ -54,7 +52,7 @@ export const userEdit = async (req: Request, res: Response) => {
 export const userLogin = (req: ReqWithUser, res: Response) => {
     const user = req.user
 
-    User.find({ sub: user!.sub })
+    User.findOne({ sub: user!.sub })
         .then((user: IUser) => {
             if (!user) return Errors.notFound(res)
             res.send(user)

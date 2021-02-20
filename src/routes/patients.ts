@@ -13,17 +13,4 @@ router.get('/patient/', (req, res) => {
     })
 })
 
-// todo: make
-
-// router.post('/patient/', async (req, res) => {
-//     const uid = stringSanitizer(req.params.uid)
-//     const presc = new Patient({ users_id: uid, ...req.body })
-//     await presc.save()
-//     res.send(presc)
-// })
-
-// router.put('/patient/:id', (req, res) => {
-//     // todo?
-// })
-
 export { router as PatientsRouter }
