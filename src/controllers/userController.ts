@@ -1,6 +1,5 @@
 import { Request, Response } from 'express'
 import { User, IUser } from '../models/user'
-import stringSanitizer from '../helpers/sanitizeString'
 import * as Errors from '../helpers/errors'
 import Logger from '../helpers/logger'
 import { ReqWithUser } from '../middleware/checkAuth'
@@ -13,9 +12,7 @@ export const userGetAll = async (req: Request, res: Response) => {
 }
 
 export const userGetById = async (req: Request, res: Response) => {
-    const id = stringSanitizer(req.params.id)
-
-    User.findById(id).exec(function (err: Error, user: IUser) {
+    User.findById(req.params.id).exec(function (err: Error, user: IUser) {
         if (err) {
             res.status(400).send(err.message)
         } else {
@@ -25,23 +22,21 @@ export const userGetById = async (req: Request, res: Response) => {
 }
 
 export const userEdit = async (req: Request, res: Response) => {
-    const id = stringSanitizer(req.params.id)
-
     try {
         if (req.body.idinv) {
             idinvCreate(req.body.idinv)
                 .then((idinv: IIdinv) => {
-                    Logger.info(`idinv '${req.body.idinv}' created for user '${id}'`)
+                    Logger.info(`idinv '${req.body.idinv}' created for user '${req.params.id}'`)
                 })
                 .catch(err => {
                     if (err.code !== 11000)
                         Logger.error(
-                            `Error creating idinv '${req.body.idinv}' for user '${id}: ${err}`,
+                            `Error creating idinv '${req.body.idinv}' for user '${req.params.id}: ${err}`,
                         )
                 })
         }
 
-        const user = await User.findByIdAndUpdate(id, { ...req.body }, { new: true })
+        const user = await User.findByIdAndUpdate(req.params.id, { ...req.body }, { new: true })
         res.status(201).send(user)
     } catch (err) {
         Logger.error(err.message)

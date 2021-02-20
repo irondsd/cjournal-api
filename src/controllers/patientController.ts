@@ -1,6 +1,5 @@
 import { Request, Response } from 'express'
 import { Patient, IPatient } from '../models/patient'
-import stringSanitizer from '../helpers/sanitizeString'
 import * as Errors from '../helpers/errors'
 import Logger from '../helpers/logger'
 
@@ -10,9 +9,7 @@ export const patientGetAll = async (req: Request, res: Response) => {
 }
 
 export const patientGetById = async (req: Request, res: Response) => {
-    const id = stringSanitizer(req.params.id)
-
-    Patient.findById(id)
+    Patient.findById(req.params.idinv.id)
         .then((patient: IPatient) => {
             if (!patient) return Errors.notFound(res)
             res.send(patient)

@@ -1,6 +1,5 @@
 import { Request, Response } from 'express'
 import { Idinv, IIdinv } from '../models/idinv'
-import stringSanitizer from '../helpers/sanitizeString'
 import * as Errors from '../helpers/errors'
 import Logger from '../helpers/logger'
 
@@ -10,9 +9,7 @@ export const idinvGetAll = async (req: Request, res: Response) => {
 }
 
 export const idinvGetById = async (req: Request, res: Response) => {
-    const idinv = stringSanitizer(req.params.idinv)
-
-    Idinv.findById(idinv)
+    Idinv.findById(req.params.idinv)
         .then((idinv: IIdinv) => {
             if (!idinv) return Errors.notFound(res)
             res.send(idinv)

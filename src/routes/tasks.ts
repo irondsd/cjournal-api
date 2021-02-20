@@ -1,32 +1,26 @@
 import express from 'express'
 const router = express.Router()
 import { Task } from '../models/task'
-import stringSanitizer from '../helpers/sanitizeString'
 import * as Errors from '../helpers/errors'
 import { validateTask } from '../middleware/validateTask'
 import Logger from '../helpers/logger'
 
 router.get('/user/:uid/tasks', async (req, res) => {
-    const uid = stringSanitizer(req.params.uid)
-
-    const results = await Task.find({ users_id: uid, deleted: false })
+    const results = await Task.find({ users_id: req.params.uid, deleted: false })
         .select('activity_type time data')
         .exec()
     res.send(results)
 })
 
 router.get('/idinv/:idinv/tasks', async (req, res) => {
-    const idinv = stringSanitizer(req.params.idinv)
-
-    const results = await Task.find({ users_id: idinv, deleted: false })
+    const results = await Task.find({ users_id: req.params.idinv, deleted: false })
         .select('activity_type time data')
         .exec()
     res.send(results)
 })
 
 router.get('/user/:uid/tasks/:aid', async (req, res) => {
-    const aid = stringSanitizer(req.params.aid)
-    Task.findById(aid)
+    Task.findById(req.params.aid)
         .then((tasks: any) => {
             if (!tasks) return Errors.notFound(res)
             res.send(tasks)
@@ -38,8 +32,7 @@ router.get('/user/:uid/tasks/:aid', async (req, res) => {
 })
 
 router.get('/idinv/:idinv/tasks/:aid', async (req, res) => {
-    const aid = stringSanitizer(req.params.aid)
-    Task.findById(aid)
+    Task.findById(req.params.aid)
         .then((tasks: any) => {
             if (!tasks) return Errors.notFound(res)
             res.send(tasks)
@@ -51,10 +44,8 @@ router.get('/idinv/:idinv/tasks/:aid', async (req, res) => {
 })
 
 router.post('/users/:uid/tasks', validateTask, async (req, res) => {
-    const uid = stringSanitizer(req.params.uid)
-
     try {
-        const user = new Task({ ...req.body, users_id: uid })
+        const user = new Task({ ...req.body, users_id: req.params.uid })
         await user.save()
         res.status(201).send(user)
     } catch (err) {
@@ -66,10 +57,8 @@ router.post('/users/:uid/tasks', validateTask, async (req, res) => {
 })
 
 router.post('/idinv/:idinv/tasks', validateTask, async (req, res) => {
-    const idinv = stringSanitizer(req.params.idinv)
-
     try {
-        const user = new Task({ ...req.body, idinv })
+        const user = new Task({ ...req.body, idinv: req.params.idinv })
         await user.save()
         res.status(201).send(user)
     } catch (err) {
@@ -81,10 +70,8 @@ router.post('/idinv/:idinv/tasks', validateTask, async (req, res) => {
 })
 
 router.put('/users/:uid/tasks/:aid', validateTask, async (req, res) => {
-    const aid = stringSanitizer(req.params.aid)
-
     try {
-        const user = await Task.findByIdAndUpdate(aid, { ...req.body }, { new: true })
+        const user = await Task.findByIdAndUpdate(req.params.aid, { ...req.body }, { new: true })
         res.status(201).send(user)
     } catch (err) {
         Logger.error(err.message)
@@ -93,10 +80,8 @@ router.put('/users/:uid/tasks/:aid', validateTask, async (req, res) => {
 })
 
 router.put('/idinv/:idinv/tasks/:aid', validateTask, async (req, res) => {
-    const aid = stringSanitizer(req.params.aid)
-
     try {
-        const user = await Task.findByIdAndUpdate(aid, { ...req.body }, { new: true })
+        const user = await Task.findByIdAndUpdate(req.params.aid, { ...req.body }, { new: true })
         res.status(201).send(user)
     } catch (err) {
         Logger.error(err.message)
@@ -105,10 +90,8 @@ router.put('/idinv/:idinv/tasks/:aid', validateTask, async (req, res) => {
 })
 
 router.delete('/users/:uid/tasks/:aid', async (req, res) => {
-    const aid = stringSanitizer(req.params.aid)
-
     try {
-        await Task.findByIdAndUpdate(aid, { deleted: true })
+        await Task.findByIdAndUpdate(req.params.aid, { deleted: true })
         res.status(204).send()
     } catch (err) {
         Logger.error(err.message)
@@ -117,10 +100,8 @@ router.delete('/users/:uid/tasks/:aid', async (req, res) => {
 })
 
 router.delete('/idinv/:idinv/tasks/:aid', async (req, res) => {
-    const aid = stringSanitizer(req.params.aid)
-
     try {
-        await Task.findByIdAndUpdate(aid, { deleted: true })
+        await Task.findByIdAndUpdate(req.params.aid, { deleted: true })
         res.status(204).send()
     } catch (err) {
         Logger.error(err.message)
