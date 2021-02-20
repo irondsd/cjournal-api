@@ -52,7 +52,7 @@ const activitySchema = new Schema(
         data: { type: Schema.Types.Mixed, default: {} },
         ref_id: { type: Schema.Types.ObjectId, ref: 'Activity' },
         tasks_id: { type: Schema.Types.ObjectId, ref: 'Task' },
-        deleted: { type: Boolean, default: false },
+        deleted: { type: Boolean },
         updates: ActivityUpdate,
         created_at: { type: Number },
         updated_at: { type: Number },

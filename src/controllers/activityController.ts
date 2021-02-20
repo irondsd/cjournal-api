@@ -11,9 +11,9 @@ interface IActivityFilter {
     patient?: string
 }
 
-export const activityGetMany = async (filter: IActivityFilter): Promise<IActivity> => {
+export const activityGetMany = async (filter: IActivityFilter): Promise<[IActivity]> => {
     return new Promise((resolve, reject) => {
-        Activity.findOne(filter, (err: Error, activity: IActivity) => {
+        Activity.find(filter, (err: Error, activity: [IActivity]) => {
             if (err) reject(err.message)
             resolve(activity)
         })

@@ -11,7 +11,6 @@ import {
     activityEdit,
     activityDelete,
 } from '../controllers/activityController'
-import { filesToData } from '../middleware/filesToData'
 
 router.get('/users/:uid/activity', async (req, res) => {
     if (!verifyObjectId(req.params.uid)) return Errors.incorrectInput(res)
@@ -23,7 +22,9 @@ router.get('/users/:uid/activity', async (req, res) => {
 
 router.get('/idinv/:idinv/activity', async (req, res) => {
     activityGetMany({ idinv: req.params.idinv })
-        .then(activity => res.send(activity))
+        .then(activity => {
+            res.send(activity)
+        })
         .catch(err => Errors.internalError(res))
 })
 
@@ -36,10 +37,10 @@ router.get('/users/:uid/activity/:aid', async (req, res) => {
 router.get('/idinv/:idinv/activity/:aid', async (req, res) => {
     activityGetOne({ idinv: req.params.idinv, _id: req.params.aid })
         .then(activity => res.send(activity))
-        .catch(err => Errors.internalError(res))
+        .catch(err => Errors.internalError(err))
 })
 
-router.post('/users/:uid/activity', saveFiles, filesToData, validateActivity, (req, res) => {
+router.post('/users/:uid/activity', saveFiles, validateActivity, (req, res) => {
     activityCreate({ ...req.body, user: req.params.uid })
         .then(activity => res.send(activity))
         .catch(err => {
@@ -48,7 +49,7 @@ router.post('/users/:uid/activity', saveFiles, filesToData, validateActivity, (r
         })
 })
 
-router.post('/idinv/:idinv/activity', saveFiles, filesToData, validateActivity, (req, res) => {
+router.post('/idinv/:idinv/activity', saveFiles, validateActivity, (req, res) => {
     activityCreate({ ...req.body, idinv: req.params.idinv })
         .then(activity => res.send(activity))
         .catch(err => {
@@ -57,7 +58,7 @@ router.post('/idinv/:idinv/activity', saveFiles, filesToData, validateActivity, 
         })
 })
 
-router.put('/users/:uid/activity/:aid', saveFiles, filesToData, validateActivity, (req, res) => {
+router.put('/users/:uid/activity/:aid', saveFiles, validateActivity, (req, res) => {
     activityEdit(req.params.aid, { ...req.body, user: req.params.uid })
         .then(activity => res.send(activity))
         .catch(err => {
