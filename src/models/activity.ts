@@ -3,7 +3,7 @@ import { Schema, model, Document, ObjectId, Mixed } from 'mongoose'
 
 const ActivityUpdate = new Schema(
     {
-        doctor_id: { type: Schema.Types.ObjectId, ref: 'User' },
+        doctor: { type: Schema.Types.ObjectId, ref: 'User' },
         activity_type: { type: String, required: true },
         time_started: { type: Number, required: true },
         time_ended: { type: Number },
@@ -26,7 +26,7 @@ const ActivityUpdate = new Schema(
 )
 
 export interface IActivityUpdate {
-    doctor_id: ObjectId
+    doctor: ObjectId
     activity_type: String
     time_started: Number
     time_ended: Number
@@ -41,13 +41,13 @@ export interface IActivityUpdate {
 
 const activitySchema = new Schema(
     {
-        users_id: { type: Schema.Types.ObjectId, ref: 'User' },
-        patient_id: { type: String },
         activity_type: { type: String, required: true },
         time_started: { type: Number, required: true },
         time_ended: { type: Number },
         utc_offset: { type: Number },
-        idinv: { type: String },
+        user: { type: Schema.Types.ObjectId, ref: 'User' },
+        patient: { type: String, ref: 'Patient' },
+        idinv: { type: String, ref: 'Idinv' },
         comment: { type: String },
         data: { type: Schema.Types.Mixed, default: {} },
         ref_id: { type: Schema.Types.ObjectId, ref: 'Activity' },
@@ -67,11 +67,12 @@ const activitySchema = new Schema(
 )
 
 export interface IActivity extends Document {
-    users_id: ObjectId
     activity_type: String
     time_started: Number
     time_ended: Number
     utc_offset: Number
+    user: ObjectId
+    patient: ObjectId
     idinv: ObjectId
     comment: String
     data: Mixed

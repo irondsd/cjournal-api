@@ -7,59 +7,41 @@ import { saveFiles } from '../middleware/saveFiles'
 import { validateActivity } from '../middleware/validateActivity'
 import Logger from '../helpers/logger'
 import verifyObjectId from '../helpers/verifyObjectId'
+import { activityGetOne, activityGetMany } from '../controllers/activityController'
 
 router.get('/users/:uid/activity', async (req, res) => {
     const uid = stringSanitizer(req.params.uid)
-
     if (!verifyObjectId(uid)) return Errors.incorrectInput(res)
 
-    try {
-        const results = await Activity.find({ users_id: uid, deleted: false })
-            .select('activity_type time_started time_ended data')
-            .exec()
-        res.send(results)
-    } catch (error) {
-        Logger.error('MongoDB error: ' + error.message)
-    }
+    activityGetMany({ user: uid })
+        .then(activity => res.send(activity))
+        .catch(err => Errors.internalError(res))
 })
 
 router.get('/idinv/:idinv/activity', async (req, res) => {
     const idinv = stringSanitizer(req.params.idinv)
 
-    try {
-        const results = await Activity.find({ idinv: idinv, deleted: false })
-            .select('activity_type time_started time_ended data')
-            .exec()
-        res.send(results)
-    } catch (error) {
-        Logger.error(error.message)
-    }
+    activityGetMany({ idinv: idinv })
+        .then(activity => res.send(activity))
+        .catch(err => Errors.internalError(res))
 })
 
 router.get('/users/:uid/activity/:aid', async (req, res) => {
     const aid = stringSanitizer(req.params.aid)
-    Activity.findById(aid)
-        .then((activity: any) => {
-            if (!activity) return Errors.notFound(res)
-            res.send(activity)
-        })
-        .catch((err: any) => {
-            Logger.error(err.message)
-            Errors.incorrectInput(res, err.reason.message)
-        })
+    const uid = stringSanitizer(req.params.uid)
+
+    activityGetOne({ user: uid, _id: aid })
+        .then(activity => res.send(activity))
+        .catch(err => Errors.internalError(res))
 })
 
 router.get('/idinv/:idinv/activity/:aid', async (req, res) => {
     const aid = stringSanitizer(req.params.aid)
-    Activity.findById(aid)
-        .then((activity: any) => {
-            if (!activity) return Errors.notFound(res)
-            res.send(activity)
-        })
-        .catch((err: any) => {
-            Logger.error(err.message)
-            Errors.incorrectInput(res, err.reason.message)
-        })
+    const idinv = stringSanitizer(req.params.idinv)
+
+    activityGetOne({ idinv: idinv, _id: aid })
+        .then(activity => res.send(activity))
+        .catch(err => Errors.internalError(res))
 })
 
 router.post('/users/:uid/activity', saveFiles, validateActivity, async (req, res) => {
