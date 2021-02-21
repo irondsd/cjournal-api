@@ -2,6 +2,7 @@ import path from 'path'
 import multer from 'multer'
 import { NextFunction, Request, Response } from 'express'
 import { Types } from 'mongoose'
+import Logger from '../helpers/logger'
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -38,10 +39,14 @@ export const saveFiles = function (req: Request, res: Response, next: NextFuncti
     const saveNext: NextFunction = () => {
         if (req.files) {
             if (!req.body.data) req.body.data = {}
-            if ((req as any).files.audio)
+            if ((req as any).files.audio) {
                 req.body.data.audio = (req as any).files.audio[0].path.replace('\\', '/')
-            if ((req as any).files.image)
+                Logger.info(`File successfully saved ${req.body.data.audio}`)
+            }
+            if ((req as any).files.image) {
                 req.body.data.image = (req as any).files.image[0].path.replace('\\', '/')
+                Logger.info(`File successfully saved ${req.body.data.image}`)
+            }
         }
 
         next()

@@ -4,10 +4,8 @@ import Logger from '../helpers/logger'
 import fetch from 'node-fetch'
 import { userFindOrCreate } from '../helpers/userFindOrCreate'
 import { Request, Response, NextFunction } from 'express'
-import * as dotenv from 'dotenv'
 import { ObjectId } from 'mongoose'
-
-dotenv.config()
+import config from '../../config.json'
 
 export interface ReqWithUser extends Request {
     user?: {
@@ -26,7 +24,7 @@ export const checkAuth = (req: Request, res: Response, next: NextFunction) => {
         if (req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bearer')
             token = req.headers.authorization.split(' ')[1]
 
-    const url: string = process.env.IDENTITY as string
+    const url: string = config.identity as string
     fetch(url, {
         method: 'POST',
         headers: {

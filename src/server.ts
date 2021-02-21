@@ -9,10 +9,11 @@ import { tasksRouter } from './routes/tasks'
 import { PatientsRouter } from './routes/patients'
 import { IdinvRouter } from './routes/idinv'
 import { winstonMiddleware } from './helpers/logger'
+import config from '../config.json'
 
 dotenv.config()
 const app = express()
-const port = process.env.PORT || 8626
+const port = config.port || 8626
 
 if (!process.env.MONGO_DB)
     throw new Error(
@@ -34,7 +35,7 @@ mongoose.connect(
 )
 
 app.use(bodyParser.urlencoded({ extended: false }))
-app.use(bodyParser.json())
+app.use(bodyParser.json({ limit: '5mb' }))
 app.use(cors())
 app.use(winstonMiddleware)
 app.use('/api/', usersRouter)
