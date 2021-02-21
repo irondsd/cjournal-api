@@ -67,18 +67,18 @@ const activitySchema = new Schema(
 )
 
 export interface IActivity extends Document {
-    activity_type: String
-    time_started: Number
-    time_ended: Number
-    utc_offset: Number
+    activity_type: string
+    time_started: number
+    time_ended: number
+    utc_offset: number
     user: ObjectId
     patient: ObjectId
     idinv: ObjectId
-    comment: String
+    comment: string
     data: Mixed
     ref_id: ObjectId
     tasks_id: ObjectId
-    deleted: Boolean
+    deleted: boolean
     updates: Mixed
 }
 

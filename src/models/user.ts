@@ -6,8 +6,7 @@ const userSchema = new Schema(
         username: { type: String, required: true },
         sub: { type: String, required: true },
         idinv: { type: String, required: false, ref: 'Idinv' },
-        last_seen: { type: Number, default: timestamp() },
-        patient: { type: Schema.Types.ObjectId, ref: 'Patients' },
+        patient: { type: String, ref: 'Patient' },
         created_at: { type: Number },
         updated_at: { type: Number },
     },
@@ -24,9 +23,9 @@ export interface IUser extends Document {
     username: string
     sub: string
     idinv: string
-    hide_elements: [string]
-    last_seen: number
-    patient: ObjectId
+    patient: string
+    created_at: number
+    updated_at: number
 }
 
 const User = model<IUser>('User', userSchema)

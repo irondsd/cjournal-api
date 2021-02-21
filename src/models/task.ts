@@ -27,14 +27,14 @@ const taskSchema = new Schema(
 
 export interface ITask extends Document {
     users_id: ObjectId
-    activity_type: String
+    activity_type: string
     time: Number
     idinv: ObjectId
-    comment: String
+    comment: string
     data: Mixed
     ref_id: ObjectId
-    completed: Boolean
-    deleted: Boolean
+    completed: boolean
+    deleted: boolean
 }
 
 const Task = model<ITask>('Task', taskSchema)

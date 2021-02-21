@@ -1,8 +1,5 @@
 import { Request, Response } from 'express'
 import { Activity, IActivity } from '../models/activity'
-import * as Errors from '../helpers/errors'
-import Logger from '../helpers/logger'
-import { ObjectId } from 'mongoose'
 
 interface IActivityFilter {
     _id?: string

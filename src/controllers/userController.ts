@@ -12,13 +12,15 @@ export const userGetAll = async (req: Request, res: Response) => {
 }
 
 export const userGetById = async (req: Request, res: Response) => {
-    User.findById(req.params.id).exec(function (err: Error, user: IUser) {
-        if (err) {
-            res.status(400).send(err.message)
-        } else {
-            res.send(user)
-        }
-    })
+    User.findById(req.params.id)
+        .populate('patient')
+        .exec(function (err: Error, user: IUser) {
+            if (err) {
+                res.status(400).send(err.message)
+            } else {
+                res.send(user)
+            }
+        })
 }
 
 export const userEdit = async (req: Request, res: Response) => {
