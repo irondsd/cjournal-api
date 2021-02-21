@@ -39,7 +39,7 @@ export const patientDelete = async (id: string): Promise<any> => {
     })
 }
 
-export const patientCreate = async (patient: IPatient): Promise<IPatient> => {
+export const patientCreate = async (patient: any): Promise<IPatient> => {
     return new Promise((resolve, reject) => {
         const newPatient = new Patient({ ...patient })
         newPatient.save((err, act: IPatient) => {

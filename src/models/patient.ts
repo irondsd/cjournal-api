@@ -1,7 +1,6 @@
-import mongoose from 'mongoose'
-import { ObjectId, Document } from 'mongoose'
+import { Schema, model, Document } from 'mongoose'
 
-const patientSchema = new mongoose.Schema({
+const patientSchema = new Schema({
     _id: { type: String },
     idinv: { type: String, ref: 'Idinv' },
     hide_elements: { type: [String], default: [] },
@@ -11,12 +10,14 @@ const patientSchema = new mongoose.Schema({
 })
 
 export interface IPatient extends Document {
-    users: ObjectId
-    course_therapy: [String]
-    relief_of_attack: [String]
-    tests: [String]
+    _id: string
+    idinv?: string
+    hide_elements?: [string]
+    course_therapy?: [string]
+    relief_of_attack?: [string]
+    tests?: [string]
 }
 
-const Patient = mongoose.model<IPatient>('Patient', patientSchema)
+const Patient = model<IPatient>('Patient', patientSchema)
 
 export { Patient }

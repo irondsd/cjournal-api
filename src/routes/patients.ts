@@ -1,13 +1,27 @@
 import express from 'express'
 const router = express.Router()
 import * as Errors from '../helpers/errors'
-import { Patient } from '../models/patient'
+import { patientEdit, patientGetMany, patientGetOne } from '../controllers/patientController'
 
-// router.get('/patient/', (req, res) => {
-//     Patient.findOne({ users_id: req.params.uid }).then((presc: any) => {
-//         if (!presc) return Errors.notFound(res)
-//         res.send(presc)
-//     })
-// })
+router.get('/patients/', (req, res) => {
+    patientGetMany({})
+        .then(patient => res.send(patient))
+        .catch(err => Errors.internalError(res, err))
+})
+
+router.get('/patients/:pid', (req, res) => {
+    patientGetOne({ _id: req.params.pid })
+        .then(patient => {
+            if (!patient) return Errors.notFound(res)
+            res.send(patient)
+        })
+        .catch(err => Errors.internalError(res, err))
+})
+
+router.put('/patients/:pid', (req, res) => {
+    patientEdit(req.params.pid, req.body)
+        .then(patient => res.status(201).send(patient))
+        .catch(err => Errors.internalError(res, err))
+})
 
 export { router as PatientsRouter }
