@@ -1,15 +1,15 @@
 import path from 'path'
 import multer from 'multer'
 import { NextFunction, Request, Response } from 'express'
+import { Types } from 'mongoose'
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, './uploads/')
     },
     filename: (req, file, cb) => {
-        // todo: better error handling
-        if (!req.body._id) return cb(new Error('no _id provided'), '')
-        cb(null, req.body._id + path.extname(file.originalname))
+        const filename = new Types.ObjectId() + path.extname(file.originalname)
+        cb(null, filename)
     },
 })
 
@@ -37,6 +37,7 @@ const saveFilesMiddleware = upload.fields([
 export const saveFiles = function (req: Request, res: Response, next: NextFunction) {
     const saveNext: NextFunction = () => {
         if (req.files) {
+            if (!req.body.data) req.body.data = {}
             if ((req as any).files.audio)
                 req.body.data.audio = (req as any).files.audio[0].path.replace('\\', '/')
             if ((req as any).files.image)
