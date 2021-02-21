@@ -44,7 +44,7 @@ export const activityEdit = async (id: string, activity: IActivity): Promise<IAc
         Activity.findByIdAndUpdate(
             id,
             { ...activity },
-            null,
+            { new: true },
             (err: Error, act: IActivity | null) => {
                 if (err || !act) return reject(err || null)
                 resolve(act)
