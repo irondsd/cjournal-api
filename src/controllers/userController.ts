@@ -50,7 +50,7 @@ export const userLogin = (req: ReqWithUser, res: Response) => {
     const user = req.user
 
     User.findOne({ sub: user!.sub })
-        .then((user: IUser) => {
+        .then((user: IUser | null) => {
             if (!user) return Errors.notFound(res)
             res.send(user)
         })

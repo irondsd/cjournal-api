@@ -1,19 +1,19 @@
 import Logger from '../helpers/logger'
 import { IUser, User } from '../models/user'
-import { ObjectId } from 'mongoose'
+import { ObjectId, CallbackError } from 'mongoose'
 
 export async function userFindOrCreate(sub: string, username: string): Promise<ObjectId> {
     return new Promise((resolve, reject) => {
-        User.findOne({ sub: sub }).then(async (user: IUser) => {
+        User.findOne({ sub: sub }, null, null, (err: CallbackError, user: IUser | null) => {
             if (!user) {
-                try {
-                    const user = new User({ sub, username })
-                    await user.save()
+                const user = new User({ sub, username })
+                user.save((err: CallbackError, user: IUser) => {
+                    if (err) {
+                        Logger.error('Error in userFindOrUpdate: ' + err)
+                        reject(err)
+                    }
                     resolve(user._id)
-                } catch (error) {
-                    Logger.error('Error in userFindOrUpdate: ' + error)
-                    reject(error)
-                }
+                })
             } else {
                 // there's user!
                 resolve(user._id)
