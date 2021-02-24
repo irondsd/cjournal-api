@@ -50,9 +50,7 @@ const activitySchema = new Schema(
         idinv: { type: String, ref: 'Idinv' },
         comment: { type: String },
         data: { type: Schema.Types.Mixed, default: {} },
-        ref_id: { type: Schema.Types.ObjectId, ref: 'Activity' },
-        tasks_id: { type: Schema.Types.ObjectId, ref: 'Task' },
-        deleted: { type: Boolean },
+        task: { type: Schema.Types.ObjectId, ref: 'Task' },
         updates: ActivityUpdate,
         created_at: { type: Number },
         updated_at: { type: Number },
@@ -76,12 +74,41 @@ export interface IActivity extends Document {
     idinv: ObjectId
     comment: string
     data: Mixed
-    ref_id: ObjectId
-    tasks_id: ObjectId
-    deleted: boolean
+    task: ObjectId
     updates: Mixed
 }
 
 const Activity = model<IActivity>('Activity', activitySchema)
 
-export { Activity }
+export interface IActivityHistory extends IActivity {
+    original: ObjectId
+}
+
+const activityHistorySchema = new Schema(
+    {
+        original: { type: Schema.Types.ObjectId, required: true, ref: 'Activity' },
+        action: { type: String, required: true },
+        activity_type: { type: String },
+        time_started: { type: Number },
+        time_ended: { type: Number },
+        utc_offset: { type: Number },
+        user: { type: Schema.Types.ObjectId, ref: 'User' },
+        patient: { type: String, ref: 'Patient' },
+        idinv: { type: String, ref: 'Idinv' },
+        comment: { type: String },
+        data: { type: Schema.Types.Mixed, default: {} },
+        task: { type: Schema.Types.ObjectId, ref: 'Task' },
+        created_at: { type: Number },
+    },
+    {
+        timestamps: {
+            currentTime: () => timestamp(),
+            createdAt: 'created_at',
+            updatedAt: false,
+        },
+    },
+)
+
+const ActivityHistory = model<IActivityHistory>('ActivityHistory', activityHistorySchema)
+
+export { Activity, ActivityHistory }

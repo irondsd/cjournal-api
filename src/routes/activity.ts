@@ -10,6 +10,8 @@ import {
     activityCreate,
     activityEdit,
     activityDelete,
+    activityHistoryGetMany,
+    activityHistoryGetOne,
 } from '../controllers/activityController'
 
 router.get('/users/:uid/activity', async (req, res) => {
@@ -17,7 +19,23 @@ router.get('/users/:uid/activity', async (req, res) => {
 
     activityGetMany({ user: req.params.uid })
         .then(activity => res.send(activity))
-        .catch(err => Errors.internalError(res))
+        .catch(err => Errors.internalError(res, err))
+})
+
+router.get('/users/:uid/activity/history', async (req, res) => {
+    if (!verifyObjectId(req.params.uid)) return Errors.incorrectInput(res)
+
+    activityHistoryGetMany({ user: req.params.uid })
+        .then(activity => res.send(activity))
+        .catch(err => Errors.internalError(res, err))
+})
+
+router.get('/users/:uid/activity/history/:aid', async (req, res) => {
+    if (!verifyObjectId(req.params.uid)) return Errors.incorrectInput(res)
+
+    activityHistoryGetOne({ user: req.params.uid, original: req.params.aid })
+        .then(activity => res.send(activity))
+        .catch(err => Errors.internalError(res, err))
 })
 
 router.get('/idinv/:idinv/activity', async (req, res) => {
@@ -26,6 +44,18 @@ router.get('/idinv/:idinv/activity', async (req, res) => {
             res.send(activity)
         })
         .catch(err => Errors.internalError(res))
+})
+
+router.get('/idinv/:idinv/activity/history', async (req, res) => {
+    activityHistoryGetMany({ idinv: req.params.idinv })
+        .then(activity => res.send(activity))
+        .catch(err => Errors.internalError(res, err))
+})
+
+router.get('/idinv/:idinv/activity/history/:aid', async (req, res) => {
+    activityHistoryGetOne({ idinv: req.params.idinv, original: req.params.aid })
+        .then(activity => res.send(activity))
+        .catch(err => Errors.internalError(res, err))
 })
 
 router.get('/users/:uid/activity/:aid', async (req, res) => {
