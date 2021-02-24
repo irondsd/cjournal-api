@@ -92,6 +92,7 @@ router.put('/users/:uid/activity/:aid', saveFiles, validateActivity, (req, res) 
     activityEdit(req.params.aid, { ...req.body, user: req.params.uid })
         .then(activity => res.send(activity))
         .catch(err => {
+            if (err.code === 404) return Errors.notFound(res)
             Errors.internalError(res, err.message)
         })
 })

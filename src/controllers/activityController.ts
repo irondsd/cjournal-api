@@ -52,18 +52,20 @@ export const activityHistoryGetOne = async (filter: IActivityFilter): Promise<IA
 }
 
 export const activityHistoryCreate = async (
+    id: string,
     activity: any,
     action: historyActions,
 ): Promise<IActivityHistory> => {
     return new Promise((resolve, reject) => {
-        const original = activity._id
-        delete activity._id
-        const history = new ActivityHistory({ ...activity, original, action })
+        if (activity._id) delete activity._id
+
+        const history = new ActivityHistory({ ...activity, original: id, action })
         history.save((err, history: IActivityHistory) => {
             if (err) {
                 reject(err)
                 Logger.error(`Error in activityHistoryCreate: ${err.message}`)
             }
+
             Logger.info(`Activity history record created: ${history._id}`)
             resolve(history)
         })
@@ -76,7 +78,7 @@ export const activityCreate = async (activity: IActivity): Promise<IActivity> =>
         record.save((err, record: IActivity) => {
             if (err) reject(err)
 
-            activityHistoryCreate(activity, 'created')
+            activityHistoryCreate(activity._id, activity, 'created')
 
             resolve(record)
         })
@@ -90,9 +92,9 @@ export const activityEdit = async (id: string, activity: IActivity): Promise<IAc
             { ...activity },
             { new: true },
             (err: Error, act: IActivity | null) => {
-                if (err || !act) return reject(err || null)
+                if (err || !act) return reject(err || { code: 404 })
 
-                activityHistoryCreate(activity, 'edited')
+                activityHistoryCreate(id, activity, 'edited')
                 resolve(act)
             },
         )
@@ -104,8 +106,7 @@ export const activityDelete = async (id: string): Promise<void> => {
         Activity.findByIdAndDelete(id, null, (err: Error, activity) => {
             if (err) return reject(err)
 
-            activityHistoryCreate(activity, 'deleted')
-
+            activityHistoryCreate(id, activity, 'deleted') // not working
             resolve()
         })
     })
