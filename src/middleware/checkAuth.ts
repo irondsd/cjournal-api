@@ -1,4 +1,3 @@
-import { updateLastSeen } from '../helpers/updateLastSeen'
 import * as Errors from '../helpers/errors'
 import Logger from '../helpers/logger'
 import fetch from 'node-fetch'
@@ -39,7 +38,6 @@ export const checkAuth = (req: Request, res: Response, next: NextFunction) => {
                         id: res,
                         ...identityUser,
                     }
-                    updateLastSeen(res)
                     next()
                 })
                 .catch((err: any) => {

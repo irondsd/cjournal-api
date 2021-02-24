@@ -1,18 +1,17 @@
 import { Schema, model, Document, ObjectId, Mixed } from 'mongoose'
 import { timestamp } from '../helpers/timestamp'
-import { Number } from 'mongoose'
 
 const taskSchema = new Schema(
     {
-        users_id: { type: Schema.Types.ObjectId, ref: 'User', required: true },
         activity_type: { type: String, required: true },
         time: { type: Number, required: true },
+        user: { type: Schema.Types.ObjectId, ref: 'User' },
+        patient: { type: String, required: false },
         idinv: { type: String, required: false },
         comment: { type: String, required: false },
         data: { type: Schema.Types.Mixed, required: false },
-        ref_id: { type: String, required: false },
+        activity: { type: Schema.Types.ObjectId, ref: 'Activity' },
         completed: { type: Boolean, required: false, default: false },
-        deleted: { type: Boolean, required: false, default: false },
         created_at: { type: Number },
         updated_at: { type: Number },
     },
@@ -26,15 +25,15 @@ const taskSchema = new Schema(
 )
 
 export interface ITask extends Document {
-    users_id: ObjectId
     activity_type: string
-    time: Number
-    idinv: ObjectId
+    time: number
+    user: ObjectId
+    patient: string
+    idinv: string
     comment: string
     data: Mixed
-    ref_id: ObjectId
+    activity: ObjectId
     completed: boolean
-    deleted: boolean
 }
 
 const Task = model<ITask>('Task', taskSchema)
