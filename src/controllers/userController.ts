@@ -4,7 +4,8 @@ import * as Errors from '../helpers/errors'
 import Logger from '../helpers/logger'
 import { ReqWithUser } from '../middleware/checkAuth'
 import { idinvCreate } from './idinvController'
-import { IIdinv } from 'models/idinv'
+import { IIdinv } from '../models/idinv'
+import { Patient } from '../models/patient'
 
 export const userGetAll = async (req: Request, res: Response) => {
     const users = await User.find()
@@ -24,7 +25,12 @@ export const userGetById = async (req: Request, res: Response) => {
 }
 
 export const userEdit = async (req: Request, res: Response) => {
-    try {
+    User.findByIdAndUpdate(req.params.id, { ...req.body }, { new: true }, (err, user) => {
+        if (err) {
+            Logger.error(err.message)
+            Errors.incorrectInput(res)
+        }
+
         if (req.body.idinv) {
             idinvCreate(req.body.idinv)
                 .then((idinv: IIdinv) => {
@@ -36,14 +42,18 @@ export const userEdit = async (req: Request, res: Response) => {
                             `Error creating idinv '${req.body.idinv}' for user '${req.params.id}: ${err}`,
                         )
                 })
+            Patient.findOneAndUpdate(
+                { _id: user.patient },
+                { idinv: user.idinv },
+                null,
+                (err, patient) => {
+                    if (err || !patient) return Logger.error(`Error linking idinv to patient `, err)
+                    Logger.info(`Idinv ${user.idinv} is linked to patient ${patient._id}`)
+                },
+            )
         }
-
-        const user = await User.findByIdAndUpdate(req.params.id, { ...req.body }, { new: true })
         res.status(201).send(user)
-    } catch (err) {
-        Logger.error(err.message)
-        Errors.incorrectInput(res)
-    }
+    })
 }
 
 export const userLogin = (req: ReqWithUser, res: Response) => {
