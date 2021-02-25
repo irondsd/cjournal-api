@@ -11,7 +11,7 @@ const ActivityUpdate = new Schema(
         idinv: { type: String },
         comment: { type: String },
         data: { type: Schema.Types.Mixed, default: {} },
-        tasks_id: { type: Schema.Types.ObjectId, ref: 'Task' },
+        task: { type: Schema.Types.ObjectId, ref: 'Task' },
         deleted: { type: Boolean, default: false },
         created_at: { type: Number },
         updated_at: { type: Number },
@@ -34,8 +34,7 @@ export interface IActivityUpdate {
     idinv: ObjectId
     comment: String
     data: Mixed
-    ref_id: ObjectId
-    tasks_id: ObjectId
+    task: ObjectId
     deleted: Boolean
 }
 

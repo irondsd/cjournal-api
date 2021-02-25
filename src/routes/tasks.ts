@@ -6,14 +6,14 @@ import { validateTask } from '../middleware/validateTask'
 import Logger from '../helpers/logger'
 
 router.get('/user/:uid/tasks', async (req, res) => {
-    const results = await Task.find({ users_id: req.params.uid, deleted: false })
+    const results = await Task.find({ user: req.params.uid, deleted: false })
         .select('activity_type time data')
         .exec()
     res.send(results)
 })
 
 router.get('/idinv/:idinv/tasks', async (req, res) => {
-    const results = await Task.find({ users_id: req.params.idinv, deleted: false })
+    const results = await Task.find({ idinv: req.params.idinv, deleted: false })
         .select('activity_type time data')
         .exec()
     res.send(results)
@@ -45,7 +45,7 @@ router.get('/idinv/:idinv/tasks/:aid', async (req, res) => {
 
 router.post('/users/:uid/tasks', validateTask, async (req, res) => {
     try {
-        const user = new Task({ ...req.body, users_id: req.params.uid })
+        const user = new Task({ ...req.body, user: req.params.uid })
         await user.save()
         res.status(201).send(user)
     } catch (err) {
