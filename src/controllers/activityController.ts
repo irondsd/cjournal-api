@@ -103,10 +103,10 @@ export const activityEdit = async (id: string, activity: IActivity): Promise<IAc
 
 export const activityDelete = async (id: string): Promise<void> => {
     return new Promise((resolve, reject) => {
-        Activity.findByIdAndDelete(id, null, (err: Error, activity) => {
+        Activity.findOneAndDelete({ _id: id }, null, (err, activity) => {
             if (err) return reject(err)
 
-            activityHistoryCreate(id, activity, 'deleted') // not working
+            activityHistoryCreate(id, (activity as any)._doc, 'deleted')
             resolve()
         })
     })
