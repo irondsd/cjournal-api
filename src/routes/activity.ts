@@ -105,13 +105,13 @@ router.put('/idinv/:idinv/activity/:aid', saveFiles, validateActivity, async (re
         })
 })
 
-router.delete('/users/:uid/activity/:aid', validateActivity, async (req, res) => {
+router.delete('/users/:uid/activity/:aid', async (req, res) => {
     activityDelete(req.params.aid)
         .then(() => res.status(204).send())
         .catch(err => Errors.internalError(res, err))
 })
 
-router.delete('/idinv/:idinv/activity/:aid', validateActivity, async (req, res) => {
+router.delete('/idinv/:idinv/activity/:aid', async (req, res) => {
     activityDelete(req.params.aid)
         .then(() => res.status(204).send())
         .catch(err => Errors.internalError(res, err))
