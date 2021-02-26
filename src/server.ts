@@ -9,19 +9,20 @@ import { tasksRouter } from './routes/tasks'
 import { PatientsRouter } from './routes/patients'
 import { IdinvRouter } from './routes/idinv'
 import { winstonMiddleware } from './helpers/logger'
-import config from '../config.json'
+import config from './config'
 
 dotenv.config()
+
 const app = express()
 const port = config.port || 8626
 
-if (!process.env.MONGO_DB)
+if (!config.db_url)
     throw new Error(
-        'credentials for mongodb are not found. Please provide .env file with correct credentials as DB env var',
+        'credentials for mongodb are not found. Please lookup the config file for more information',
     )
 
 mongoose.connect(
-    process.env.MONGO_DB,
+    config.db_url,
     {
         useNewUrlParser: true,
         useUnifiedTopology: true,

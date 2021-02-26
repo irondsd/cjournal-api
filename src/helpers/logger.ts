@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response } from 'express'
 import winston, { format } from 'winston'
-import * as dotenv from 'dotenv'
-dotenv.config()
+import config from '../config'
 
 const logConfiguration = {
     transports: [
@@ -9,7 +8,7 @@ const logConfiguration = {
             level: 'error',
         }),
         new winston.transports.File({
-            level: process.env.LOG_LEVEL || 'debug',
+            level: config.log_level,
             filename: './logs/combined.log',
             format: format.combine(
                 format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss:ms' }),
