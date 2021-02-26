@@ -4,7 +4,7 @@ import fetch from 'node-fetch'
 import { userFindOrCreate } from '../helpers/userFindOrCreate'
 import { Request, Response, NextFunction } from 'express'
 import { ObjectId } from 'mongoose'
-import config from '../../config.json'
+import config from '../config'
 
 export interface ReqWithUser extends Request {
     user?: {
