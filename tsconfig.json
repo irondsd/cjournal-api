@@ -8,6 +8,7 @@
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
+    "outDir": "./build"
   },
   "exclude": [
     "node_modules"

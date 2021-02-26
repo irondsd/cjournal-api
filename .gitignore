@@ -23,6 +23,9 @@ ignore .env
 #uploads
 uploads/*
 
+#build
+build/*
+
 #converter
 cjconverter/
 output/
