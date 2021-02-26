@@ -76,7 +76,7 @@ export const activityCreate = async (activity: IActivity): Promise<IActivity> =>
     return new Promise((resolve, reject) => {
         const record = new Activity({ ...activity })
         record.save((err, record: IActivity) => {
-            if (err) reject(err)
+            if (err) return reject(err)
 
             activityHistoryCreate(activity._id, activity, 'created')
 
