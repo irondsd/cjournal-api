@@ -31,6 +31,7 @@ mongoose.connect(
         console.log('Connected to database')
     },
 )
+mongoose.connection.setMaxListeners(0) // allow infinite listeners
 
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json({ limit: '5mb' }))
