@@ -1,6 +1,5 @@
 import express from 'express'
 const router = express.Router()
-import { Task } from '../models/task'
 import * as Errors from '../helpers/errors'
 import { validateTask } from '../middleware/validateTask'
 import Logger from '../helpers/logger'
