@@ -1,6 +1,5 @@
 import express from 'express'
 import bodyParser from 'body-parser'
-import * as dotenv from 'dotenv'
 import mongoose from 'mongoose'
 import cors from 'cors'
 import { usersRouter } from './routes/users'
@@ -10,8 +9,6 @@ import { PatientsRouter } from './routes/patients'
 import { IdinvRouter } from './routes/idinv'
 import { winstonMiddleware } from './helpers/logger'
 import config from './config'
-
-dotenv.config()
 
 const app = express()
 const port = config.port || 8626
