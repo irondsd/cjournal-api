@@ -44,7 +44,7 @@ app.use('/api/', PatientsRouter)
 app.use('/api/', IdinvRouter)
 
 app.get('/api/', (req, res) => {
-    res.status(200).send('alive')
+    res.status(200).send({ status: 'alive!' })
 })
 
 // serve static files
