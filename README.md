@@ -1,6 +1,24 @@
-# Incart Cardio Journal backend API
+# CJournal API
+
+## Technology stack
+
+built using `typescript`, `node`, `express`
+`mongodb` for database
+`Microsoft Identity Server` for authorization is required
+
+## Config
+
+Requires .env file in root with:
+
+-   `NODE_ENV` currently 3 options are supported. _development_, _production_ or _docker_
+-   `MONGO_DB` mongoDB connection url
+-   `LOG_LEVEL` winston log level
+-   `TEST_USERNAME` (optional) identity username (only to runtests)
+-   `TEST_PASSWORD` (optional) identity password (only to runtests)
 
 ## Authoriation
+
+Using IdentityServer protocol
 
 headers: { Authorization: "Bearer <Token>" }
 
