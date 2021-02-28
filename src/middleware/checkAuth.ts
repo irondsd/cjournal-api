@@ -30,8 +30,12 @@ export const checkAuth = (req: Request, res: Response, next: NextFunction) => {
             Authorization: 'Bearer ' + token,
         },
     })
-        .then(identityUser => identityUser.json())
+        .then(response => {
+            if (response.status === 401) throw new Error('unauthorized')
+            return response.json()
+        })
         .then(identityUser => {
+            console.log(identityUser)
             userFindOrCreate(identityUser.sub, identityUser.name)
                 .then(res => {
                     ;(req as ReqWithUser).user = {
