@@ -30,35 +30,41 @@ export const userEdit = async (req: Request, res: Response) => {
         patientCreate({ _id: req.body.patient, idinv: req.body.idinv })
     }
 
-    User.findByIdAndUpdate(req.params.id, { ...req.body }, { new: true }, (err, user) => {
-        if (err) {
-            Logger.error(err.message)
-            Errors.incorrectInput(res)
-        }
+    User.findByIdAndUpdate(
+        req.params.id,
+        { idinv: req.body.idinv, patient: req.body.patient },
+        { new: true },
+        (err, user) => {
+            if (err) {
+                Logger.error(err.message)
+                Errors.incorrectInput(res)
+            }
 
-        if (req.body.idinv) {
-            idinvCreate(req.body.idinv)
-                .then((idinv: IIdinv) => {
-                    Logger.info(`idinv '${req.body.idinv}' created for user '${req.params.id}'`)
-                })
-                .catch(err => {
-                    if (err.code !== 11000)
-                        Logger.error(
-                            `Error creating idinv '${req.body.idinv}' for user '${req.params.id}: ${err}`,
-                        )
-                })
-            Patient.findOneAndUpdate(
-                { _id: user.patient },
-                { idinv: user.idinv },
-                null,
-                (err, patient) => {
-                    if (err || !patient) return Logger.error(`Error linking idinv to patient `, err)
-                    Logger.info(`Idinv ${user.idinv} is linked to patient ${patient._id}`)
-                },
-            )
-        }
-        res.status(201).send(user)
-    })
+            if (req.body.idinv) {
+                idinvCreate(req.body.idinv)
+                    .then((idinv: IIdinv) => {
+                        Logger.info(`idinv '${req.body.idinv}' created for user '${req.params.id}'`)
+                    })
+                    .catch(err => {
+                        if (err.code !== 11000)
+                            Logger.error(
+                                `Error creating idinv '${req.body.idinv}' for user '${req.params.id}: ${err}`,
+                            )
+                    })
+                Patient.findOneAndUpdate(
+                    { _id: user.patient },
+                    { idinv: user.idinv },
+                    null,
+                    (err, patient) => {
+                        if (err || !patient)
+                            return Logger.error(`Error linking idinv to patient `, err)
+                        Logger.info(`Idinv ${user.idinv} is linked to patient ${patient._id}`)
+                    },
+                )
+            }
+            res.status(201).send(user)
+        },
+    )
 }
 
 export const userLogin = (req: ReqWithUser, res: Response) => {
