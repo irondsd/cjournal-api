@@ -50,7 +50,6 @@ headers: { Authorization: "Bearer {{token}} }
 
 -   `GET `/api/idinv/
 -   `GET` /api/idinv/:idinv
--   `PUT` /api/idinv/:idinv
 
 **activity**
 
@@ -78,8 +77,6 @@ headers: { Authorization: "Bearer {{token}} }
 -   `GET `/api/users/:id/activity/history/:id
 -   `GET `/api/patients/:id/activity/history/:id
 -   `GET `/api/idinv/:idinv/activity/history/:id
-
----
 
 **task**
 
