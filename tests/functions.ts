@@ -46,7 +46,11 @@ export const Request = (
             body: JSON.stringify(body),
         }
         return fetch(config.test_url + path, init)
-            .then(res => res.json())
+            .then(res => {
+                const contentType = res.headers.get('content-type')
+                if (contentType && contentType.indexOf('application/json') !== -1) return res.json()
+                else return {}
+            })
             .then(res => {
                 resolve(res)
             })
