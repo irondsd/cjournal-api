@@ -20,9 +20,23 @@ test('get all users', async () => {
     expect(users[0].username).toBe(username)
 })
 
+test('get all users unauthorized', async done => {
+    Request('', `users/`, 'GET').then(err => {
+        expect(err.error).toBe('unauthorized')
+        done()
+    })
+})
+
 test('get one user', async () => {
     const users = await Request(token, `users/${_id}`, 'GET')
     expect(users.username).toBe(username)
+})
+
+test('get one user unauthorized', async done => {
+    Request('', `users/${_id}`, 'GET').then(err => {
+        expect(err.error).toBe('unauthorized')
+        done()
+    })
 })
 
 test('change user', async () => {
@@ -35,4 +49,11 @@ test('change user', async () => {
     const user = await Request(token, `users/${_id}`, 'PUT', body)
     expect(user.idinv).toBe(idinv)
     expect(user.patient).toBe(patient)
+})
+
+test('change user unauthorized', async done => {
+    Request('', `users/${_id}`, 'PUT').then(err => {
+        expect(err.error).toBe('unauthorized')
+        done()
+    })
 })
