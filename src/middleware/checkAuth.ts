@@ -35,7 +35,6 @@ export const checkAuth = (req: Request, res: Response, next: NextFunction) => {
             return response.json()
         })
         .then(identityUser => {
-            console.log(identityUser)
             userFindOrCreate(identityUser.sub, identityUser.name)
                 .then(res => {
                     ;(req as ReqWithUser).user = {
