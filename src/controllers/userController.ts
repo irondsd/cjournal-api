@@ -6,6 +6,7 @@ import { ReqWithUser } from '../middleware/checkAuth'
 import { idinvCreate } from './idinvController'
 import { IIdinv } from '../models/idinv'
 import { Patient } from '../models/patient'
+import { patientCreate } from './patientController'
 
 export const userGetAll = async (req: Request, res: Response) => {
     const users = await User.find()
@@ -25,6 +26,10 @@ export const userGetById = async (req: Request, res: Response) => {
 }
 
 export const userEdit = async (req: Request, res: Response) => {
+    if (req.body.patient) {
+        patientCreate({ _id: req.body.patient, idinv: req.body.idinv })
+    }
+
     User.findByIdAndUpdate(req.params.id, { ...req.body }, { new: true }, (err, user) => {
         if (err) {
             Logger.error(err.message)
