@@ -83,10 +83,9 @@ describe('activity by patient', () => {
             'GET',
         )
         expect(Array.isArray(histories)).toBe(true)
-        console.log(histories)
+
         for (const h of histories) {
             expect(h).toHaveProperty('original', act_id)
-            console.log(h.action)
         }
         expect(histories[0].action).toEqual('created')
         expect(histories[1].action).toEqual('edited')
