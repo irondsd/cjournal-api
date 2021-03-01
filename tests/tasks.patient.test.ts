@@ -25,45 +25,45 @@ describe('tasks by user', () => {
         patient = user.patient
     })
 
-    // test('get all activities', async () => {
-    //     const activities = await Request(token, `patients/${patient}/tasks`, 'GET')
-    //     expect(Array.isArray(activities)).toBe(true)
-    //     if (activities.length > 0) {
-    //         expect(activities[0]).toHaveProperty('_id')
-    //     }
-    // })
+    test('get all activities', async () => {
+        const activities = await Request(token, `patients/${patient}/tasks`, 'GET')
+        expect(Array.isArray(activities)).toBe(true)
+        if (activities.length > 0) {
+            expect(activities[0]).toHaveProperty('_id')
+        }
+    })
 
-    // test('create tasks by user', async () => {
-    //     task_id = new Types.ObjectId().toString()
-    //     test_task = {
-    //         _id: task_id,
-    //         activity_type: 'Stairs',
-    //         time: timestamp() - 300,
-    //         patient: patient,
-    //         idinv: idinv,
-    //         user: _id,
-    //         comment: 'tasks created by test',
-    //     }
-    //     const task = await Request(token, `patients/${patient}/tasks/`, 'POST', test_task)
-    //     expect(task).toHaveProperty('_id', task_id)
-    // })
+    test('create tasks by user', async () => {
+        task_id = new Types.ObjectId().toString()
+        test_task = {
+            _id: task_id,
+            activity_type: 'Stairs',
+            time: timestamp() - 300,
+            patient: patient,
+            idinv: idinv,
+            user: _id,
+            comment: 'tasks created by test',
+        }
+        const task = await Request(token, `patients/${patient}/tasks/`, 'POST', test_task)
+        expect(task).toHaveProperty('_id', task_id)
+    })
 
-    // test('get created tasks', async () => {
-    //     const task = await Request(token, `patients/${patient}/tasks/${task_id}`, 'GET')
-    //     expect(task).toHaveProperty('_id', task_id)
-    //     expect(task).toHaveProperty('comment', test_task.comment)
-    // })
+    test('get created tasks', async () => {
+        const task = await Request(token, `patients/${patient}/tasks/${task_id}`, 'GET')
+        expect(task).toHaveProperty('_id', task_id)
+        expect(task).toHaveProperty('comment', test_task.comment)
+    })
 
-    // test('edit created tasks', async () => {
-    //     test_task.comment = 'edited test tasks'
-    //     test_task.activity_type = 'Walking'
-    //     const task = await Request(token, `patients/${patient}/tasks/${task_id}`, 'PUT', test_task)
-    //     expect(task).toHaveProperty('_id', task_id)
-    //     expect(task).toHaveProperty('comment', test_task.comment)
-    // })
+    test('edit created tasks', async () => {
+        test_task.comment = 'edited test tasks'
+        test_task.activity_type = 'Walking'
+        const task = await Request(token, `patients/${patient}/tasks/${task_id}`, 'PUT', test_task)
+        expect(task).toHaveProperty('_id', task_id)
+        expect(task).toHaveProperty('comment', test_task.comment)
+    })
 
-    // test('delete created tasks', async () => {
-    //     const task = await Request(token, `patients/${patient}/tasks/${task_id}`, 'DELETE')
-    //     expect(task).toBeTruthy()
-    // })
+    test('delete created tasks', async () => {
+        const task = await Request(token, `patients/${patient}/tasks/${task_id}`, 'DELETE')
+        expect(task).toBeTruthy()
+    })
 })
