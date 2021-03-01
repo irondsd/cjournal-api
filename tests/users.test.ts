@@ -1,6 +1,8 @@
 import { Authorize, Request, getRandomNumber, getRandomString } from './functions'
 let token = ''
 let username = ''
+let patient = ''
+let idinv = ''
 let _id = ''
 
 test('authorize', async () => {
@@ -40,8 +42,9 @@ test('get one user unauthorized', async done => {
 })
 
 test('change user', async () => {
-    const idinv = '045_000_00089_' + getRandomNumber(5)
-    const patient = getRandomString()
+    idinv = '045_000_00089_' + getRandomNumber(5)
+    patient = getRandomString()
+
     const body = {
         idinv: idinv,
         patient: patient,
@@ -56,4 +59,27 @@ test('change user unauthorized', async done => {
         expect(err.error).toBe('unauthorized')
         done()
     })
+})
+
+test('checkout patient', async () => {
+    const doc = await Request(token, `patients/${patient}`, 'GET')
+    expect(doc).toHaveProperty('_id', patient)
+    expect(doc).toHaveProperty('idinv', idinv)
+})
+
+test('change patient', async () => {
+    const relief_of_attack = [getRandomString(), getRandomString(), getRandomString()]
+    const course_therapy = [getRandomString(), getRandomString(), getRandomString()]
+    const tests = [getRandomString(), getRandomString(), getRandomString()]
+    const doc = await Request(token, `patients/${patient}`, 'PUT', {
+        relief_of_attack,
+        course_therapy,
+        tests,
+    })
+    expect(doc).toHaveProperty('relief_of_attack')
+    expect(doc).toHaveProperty('course_therapy')
+    expect(doc).toHaveProperty('tests')
+    expect(doc.relief_of_attack[0]).toEqual(relief_of_attack[0])
+    expect(doc.course_therapy[0]).toEqual(course_therapy[0])
+    expect(doc.tests[0]).toEqual(tests[0])
 })
