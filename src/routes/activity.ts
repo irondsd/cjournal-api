@@ -48,6 +48,18 @@ router.get('/users/:uid/activity/history/:aid', async (req, res) => {
 
 // get by patient
 
+router.get('/patients/:pid/activity/history', async (req, res) => {
+    activityHistoryGetMany({ patient: req.params.pid })
+        .then(activity => res.send(activity))
+        .catch(err => Errors.internalError(res, err))
+})
+
+router.get('/patients/:pid/activity/history/:aid', async (req, res) => {
+    activityHistoryGetOne({ patient: req.params.pid, original: req.params.aid })
+        .then(activity => res.send(activity))
+        .catch(err => Errors.internalError(res, err))
+})
+
 router.get('/patients/:pid/activity', async (req, res) => {
     activityGetMany({ patient: req.params.pid })
         .then(activity => res.send(activity))
@@ -57,23 +69,7 @@ router.get('/patients/:pid/activity', async (req, res) => {
 router.get('/patients/:pid/activity/:aid', async (req, res) => {
     if (!verifyObjectId(req.params.aid)) return Errors.incorrectInput(res)
 
-    activityGetMany({ patient: req.params.pid, _id: req.params.aid })
-        .then(activity => res.send(activity))
-        .catch(err => Errors.internalError(res, err))
-})
-
-router.get('/patients/:pid/activity/history', async (req, res) => {
-    if (!verifyObjectId(req.params.pid)) return Errors.incorrectInput(res)
-
-    activityHistoryGetMany({ patient: req.params.pid })
-        .then(activity => res.send(activity))
-        .catch(err => Errors.internalError(res, err))
-})
-
-router.get('/patients/:uid/activity/history/:aid', async (req, res) => {
-    if (!verifyObjectId(req.params.pid)) return Errors.incorrectInput(res)
-
-    activityHistoryGetOne({ patient: req.params.pid, original: req.params.aid })
+    activityGetOne({ patient: req.params.pid, _id: req.params.aid })
         .then(activity => res.send(activity))
         .catch(err => Errors.internalError(res, err))
 })
@@ -154,7 +150,7 @@ router.put('/idinv/:idinv/activity/:aid', saveFiles, validateActivity, async (re
         })
 })
 
-router.put('/patient/:pid/activity/:aid', saveFiles, validateActivity, async (req, res) => {
+router.put('/patients/:pid/activity/:aid', saveFiles, validateActivity, async (req, res) => {
     activityEdit(req.params.aid, { ...req.body, patient: req.params.pid })
         .then(activity => res.send(activity))
         .catch(err => {

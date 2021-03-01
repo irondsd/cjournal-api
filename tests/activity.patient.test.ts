@@ -25,70 +25,72 @@ describe('activity by patient', () => {
         patient = user.patient
     })
 
-    // test('idinv get all activities', async () => {
-    //     const activities = await Request(token, `patients/${patient}/activity`, 'GET')
-    //     expect(Array.isArray(activities)).toBe(true)
-    //     if (activities.length > 0) {
-    //         expect(activities[0]).toHaveProperty('_id')
-    //     }
-    // })
+    test('patient get all activities', async () => {
+        const activities = await Request(token, `patients/${patient}/activity`, 'GET')
+        expect(Array.isArray(activities)).toBe(true)
+        if (activities.length > 0) {
+            expect(activities[0]).toHaveProperty('_id')
+        }
+    })
 
-    // test('idinv create activity', async () => {
-    //     act_id = new Types.ObjectId().toString()
-    //     test_activity = {
-    //         _id: act_id,
-    //         activity_type: 'Meal',
-    //         time_started: timestamp() - 300,
-    //         time_ended: timestamp(),
-    //         patient: patient,
-    //         idinv: idinv,
-    //         user: _id,
-    //         comment: 'activity created by test',
-    //     }
-    //     const act = await Request(token, `patients/${patient}/activity/`, 'POST', test_activity)
-    //     expect(act).toHaveProperty('_id', act_id)
-    // })
+    test('patient create activity', async () => {
+        act_id = new Types.ObjectId().toString()
+        test_activity = {
+            _id: act_id,
+            activity_type: 'Meal',
+            time_started: timestamp() - 300,
+            time_ended: timestamp(),
+            patient: patient,
+            idinv: idinv,
+            user: _id,
+            comment: 'activity created by test',
+        }
+        const act = await Request(token, `patients/${patient}/activity/`, 'POST', test_activity)
+        expect(act).toHaveProperty('_id', act_id)
+    })
 
-    // test('idinv get created activity', async () => {
-    //     const act = await Request(token, `patients/${patient}/activity/${act_id}`, 'GET')
-    //     expect(act).toHaveProperty('_id', act_id)
-    //     expect(act).toHaveProperty('comment', test_activity.comment)
-    // })
+    test('patient get created activity', async () => {
+        const act = await Request(token, `patients/${patient}/activity/${act_id}`, 'GET')
+        expect(act).toHaveProperty('_id', act_id)
+        expect(act).toHaveProperty('comment', test_activity.comment)
+    })
 
-    // test('idinv edit created activity', async () => {
-    //     test_activity.comment = 'edited test activity'
-    //     test_activity.activity_type = 'Alcohol'
-    //     const act = await Request(
-    //         token,
-    //         `patients/${patient}/activity/${act_id}`,
-    //         'PUT',
-    //         test_activity,
-    //     )
-    //     expect(act).toHaveProperty('_id', act_id)
-    //     expect(act).toHaveProperty('comment', test_activity.comment)
-    // })
+    test('patient edit created activity', async () => {
+        test_activity.comment = 'edited test activity'
+        test_activity.activity_type = 'Alcohol'
+        const act = await Request(
+            token,
+            `patients/${patient}/activity/${act_id}`,
+            'PUT',
+            test_activity,
+        )
 
-    // test('idinv delete created activity', async () => {
-    //     test_activity.comment = 'edited test activity'
-    //     test_activity.activity_type = 'Alcohol'
-    //     const act = await Request(token, `patients/${patient}/activity/${act_id}`, 'DELETE')
-    //     expect(act).toBeTruthy()
-    // })
+        expect(act).toHaveProperty('_id', act_id)
+        expect(act).toHaveProperty('comment', test_activity.comment)
+    })
 
-    // test('idinv get created activity history', async done => {
-    //     const histories = await Request(
-    //         token,
-    //         `patients/${patient}/activity/history/${act_id}`,
-    //         'GET',
-    //     )
-    //     expect(Array.isArray(histories)).toBe(true)
+    test('patient delete created activity', async () => {
+        test_activity.comment = 'edited test activity'
+        test_activity.activity_type = 'Alcohol'
+        const act = await Request(token, `patients/${patient}/activity/${act_id}`, 'DELETE')
+        expect(act).toBeTruthy()
+    })
 
-    //     for (const h of histories) {
-    //         expect(h).toHaveProperty('original', act_id)
-    //     }
-    //     expect(histories[0].action).toEqual('created')
-    //     expect(histories[1].action).toEqual('edited')
-    //     expect(histories[2].action).toEqual('deleted')
-    //     done()
-    // })
+    test('patient get created activity history', async done => {
+        const histories = await Request(
+            token,
+            `patients/${patient}/activity/history/${act_id}`,
+            'GET',
+        )
+        expect(Array.isArray(histories)).toBe(true)
+        console.log(histories)
+        for (const h of histories) {
+            expect(h).toHaveProperty('original', act_id)
+            console.log(h.action)
+        }
+        expect(histories[0].action).toEqual('created')
+        expect(histories[1].action).toEqual('edited')
+        expect(histories[2].action).toEqual('deleted')
+        done()
+    })
 })
