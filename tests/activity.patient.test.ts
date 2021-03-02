@@ -87,9 +87,11 @@ describe('activity by patient', () => {
         for (const h of histories) {
             expect(h).toHaveProperty('original', act_id)
         }
-        expect(histories[0].action).toEqual('created')
-        expect(histories[1].action).toEqual('edited')
-        expect(histories[2].action).toEqual('deleted')
-        done()
+        setTimeout(async () => {
+            expect(histories[0].action).toEqual('created')
+            expect(histories[1].action).toEqual('edited')
+            expect(histories[2].action).toEqual('deleted')
+            done()
+        }, 500)
     })
 })
