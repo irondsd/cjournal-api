@@ -26,11 +26,17 @@ Requires `.env` file in root directory.
 
 `npm run test` for testing
 
-## Authorization
+## Headers
+
+#### Authorization
 
 Using Identity Server protocol
 
 headers: { Authorization: "Bearer {{token}} }
+
+#### Content type
+
+Content-Type: application/json
 
 ## Endpoints
 
@@ -95,3 +101,49 @@ headers: { Authorization: "Bearer {{token}} }
 -   `DELETE `/api/users/:id/tasks/:id
 -   `DELETE `/api/patients/:id/tasks/:id
 -   `DELETE `/api/idinv/:idinv/tasks/:id
+
+## Request body
+
+#### Activity
+
+Required for `POST` and `PUT` requests:
+
+-   \_id
+-   activity_type
+-   time_started
+-   user || patient || idinv
+
+```
+{
+        "_id": "603bcf6633ca323f18cc0a7d",
+        "activity_type": "Meal",
+        "time_started": 1579167281,
+        "time_ended": 1579167641,
+        "idinv": "045_000_00089_00026",
+        "user": "6038c6126b418c4b34dfb227",
+        "comment": "Test",
+        "created_at": 1614532455,
+}
+```
+
+#### Tasks
+
+Required for `POST` and `PUT` requests:
+
+-   \_id
+-   activity_type
+-   time
+-   user || patient || idinv
+
+```
+{
+        "_id": "603bcf6633ca323f18cc0a5d",
+        "activity_type": "Walking",
+        "time_started": 1579167281,
+        "time_ended": 1579167641,
+        "idinv": "045_000_00089_00026",
+        "user": "6038c6126b418c4b34dfb227",
+        "comment": "Test",
+        "created_at": 1614532455,
+}
+```
