@@ -13,14 +13,17 @@ export const userGetAll = async (req: Request, res: Response) => {
     res.send(users)
 }
 
-export const userGetById = async (req: Request, res: Response) => {
+export const userGetById = async (req: ReqWithUser, res: Response) => {
+    const identityUser = req.user
+
     User.findById(req.params.id)
         .populate('patient')
         .exec(function (err: Error, user: IUser) {
             if (err) {
                 res.status(400).send(err.message)
             } else {
-                res.send(user)
+                const doc = (user as any)._doc
+                res.send({ ...doc, identity: { ...identityUser } })
             }
         })
 }
@@ -68,12 +71,14 @@ export const userEdit = async (req: Request, res: Response) => {
 }
 
 export const userLogin = (req: ReqWithUser, res: Response) => {
-    const user = req.user
+    const identityUser = req.user
 
-    User.findOne({ sub: user!.sub })
+    User.findOne({ sub: identityUser!.sub })
+        .populate('patient')
         .then((user: IUser | null) => {
             if (!user) return Errors.notFound(res)
-            res.send(user)
+            const doc = (user as any)._doc
+            res.send({ ...doc, identity: { ...identityUser } })
         })
         .catch((err: any) => {
             Errors.incorrectInput(res, err.reason.message)
