@@ -36,6 +36,7 @@ const saveFilesMiddleware = upload.fields([
 ])
 
 export const saveFiles = function (req: Request, res: Response, next: NextFunction) {
+    Logger.debug('SAVE FILES: ' + JSON.stringify(req.body))
     const saveNext: NextFunction = () => {
         if (req.files) {
             if (!req.body.data) req.body.data = {}
