@@ -7,6 +7,7 @@ import { idinvCreate } from './idinvController'
 import { IIdinv } from '../models/idinv'
 import { Patient } from '../models/patient'
 import { patientCreate } from './patientController'
+import verifyObjectId from '../helpers/verifyObjectId'
 
 export const userGetAll = async (req: Request, res: Response) => {
     const users = await User.find()
@@ -14,16 +15,16 @@ export const userGetAll = async (req: Request, res: Response) => {
 }
 
 export const userGetById = async (req: ReqWithUser, res: Response) => {
+    if (!verifyObjectId(req.params.id)) return Errors.incorrectInput(res)
     const identityUser = req.user
 
     User.findById(req.params.id)
         .populate('patient')
         .exec(function (err: Error, user: IUser) {
-            if (err) {
-                res.status(400).send(err.message)
-            } else {
-                const doc = (user as any)._doc
-                res.send({ ...doc, identity: { ...identityUser } })
+            if (err) res.status(400).send({ error: err.message })
+            else {
+                if (!user) return Errors.notFound(res)
+                res.send(user)
             }
         })
 }
@@ -101,13 +102,13 @@ export const userCreate = (username: string, sub: string): Promise<IUser> => {
     })
 }
 
-export const userDelete = (req: Request, res: Response) => {
-    User.deleteOne({ _id: req.params.id })
-        .then((user: IUser) => {
-            if (!user) return Errors.notFound(res)
-            res.send(user)
-        })
-        .catch((err: any) => {
-            Errors.incorrectInput(res, err.reason.message)
-        })
-}
+// export const userDelete = (req: Request, res: Response) => {
+//     User.deleteOne({ _id: req.params.id })
+//         .then((user: IUser) => {
+//             if (!user) return Errors.notFound(res)
+//             res.send(user)
+//         })
+//         .catch((err: any) => {
+//             Errors.incorrectInput(res, err.reason.message)
+//         })
+// }
