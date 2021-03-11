@@ -36,10 +36,9 @@ const saveFilesMiddleware = upload.fields([
 ])
 
 export const saveFiles = function (req: Request, res: Response, next: NextFunction) {
-    Logger.debug('SAVE FILES: ' + JSON.stringify(req.body))
     const saveNext: NextFunction = () => {
         if (req.files) {
-            if (!req.body.data) req.body.data = {}
+            if (!req.body.data || typeof req.body.data !== 'object') req.body.data = {}
             if ((req as any).files.audio) {
                 req.body.data.audio = (req as any).files.audio[0].path.replace('\\', '/')
                 Logger.info(`File successfully saved ${req.body.data.audio}`)
