@@ -3,16 +3,31 @@ import multer from 'multer'
 import { NextFunction, Request, Response } from 'express'
 import { Types } from 'mongoose'
 import Logger from '../helpers/logger'
+import fs from 'fs'
+import config from '../config'
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, './uploads/')
+        createUploadsDir().then(() => {
+            cb(null, config.uploads_dir)
+        })
     },
     filename: (req, file, cb) => {
         const filename = new Types.ObjectId() + path.extname(file.originalname)
         cb(null, filename)
     },
 })
+
+const createUploadsDir = async (): Promise<void> => {
+    return new Promise(resolve => {
+        const dir = config.uploads_dir
+        if (!fs.existsSync(dir)) {
+            resolve(fs.mkdirSync(dir))
+        } else {
+            resolve()
+        }
+    })
+}
 
 const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
     if (
