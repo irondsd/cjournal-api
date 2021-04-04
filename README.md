@@ -8,6 +8,10 @@ built using `typescript`, `node`, `express`
 
 `Microsoft Identity Server` for authorization is required
 
+## Database
+[Current database schema](https://www.google.com)
+
+
 ## Config
 
 Requires `.env` file in root directory.
