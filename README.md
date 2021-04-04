@@ -9,8 +9,8 @@ built using `typescript`, `node`, `express`
 `Microsoft Identity Server` for authorization is required
 
 ## Database
-[Current database schema](https://www.google.com)
 
+[Current database schema](https://app.dbdesigner.net/designer/schema/0-cjournal_new)
 
 ## Config
 
