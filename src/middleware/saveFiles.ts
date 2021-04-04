@@ -49,6 +49,7 @@ const saveFilesMiddleware = upload.fields([
 export const saveFiles = function (req: Request, res: Response, next: NextFunction) {
     const saveNext: NextFunction = () => {
         if (req.files) {
+            // todo: improve
             if (!req.body.data || typeof req.body.data !== 'object') req.body.data = {}
             if ((req as any).files.audio) {
                 req.body.data.audio = (req as any).files.audio[0].path.replace('\\', '/')
