@@ -7,4 +7,6 @@ export default {
     test_username: process.env.TEST_USERNAME,
     test_password: process.env.TEST_PASSWORD,
     uploads_dir: './uploads',
+    accepted_mime_types: ['audio/wave', 'image/png', 'image/jpeg', 'text/plain'],
+    accepted_file_size: 1024 * 1024 * 3,
 }

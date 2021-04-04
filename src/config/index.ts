@@ -12,6 +12,8 @@ type ConfigType = {
     test_username: string | undefined
     test_password: string | undefined
     uploads_dir: string
+    accepted_mime_types: string[]
+    accepted_file_size: number
 }
 
 const final: ConfigType = { ...defaults, ...config }
