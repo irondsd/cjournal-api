@@ -30,24 +30,20 @@ const createUploadsDir = async (): Promise<void> => {
 }
 
 const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
-    if (
-        file.mimetype === 'audio/wave' ||
-        file.mimetype === 'image/png' ||
-        file.mimetype === 'image/jpeg'
-    )
-        return cb(null, true)
+    if (config.accepted_mime_types.includes(file.mimetype)) return cb(null, true)
 
     cb(null, false)
 }
 const upload = multer({
     storage: storage,
-    limits: { fileSize: 1024 * 1024 * 3 },
+    limits: { fileSize: config.accepted_file_size },
     fileFilter: fileFilter,
 })
 
 const saveFilesMiddleware = upload.fields([
     { name: 'audio', maxCount: 1 },
     { name: 'image', maxCount: 1 },
+    { name: 'log', maxCount: 1 },
 ])
 
 export const saveFiles = function (req: Request, res: Response, next: NextFunction) {
@@ -60,6 +56,10 @@ export const saveFiles = function (req: Request, res: Response, next: NextFuncti
             }
             if ((req as any).files.image) {
                 req.body.data.image = (req as any).files.image[0].path.replace('\\', '/')
+                Logger.info(`File successfully saved ${req.body.data.image}`)
+            }
+            if ((req as any).files.log) {
+                req.body.data.log = (req as any).files.log[0].path.replace('\\', '/')
                 Logger.info(`File successfully saved ${req.body.data.image}`)
             }
         }
