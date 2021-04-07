@@ -61,7 +61,7 @@ export const saveFiles = function (req: Request, res: Response, next: NextFuncti
             }
             if ((req as any).files.log) {
                 req.body.data.log = (req as any).files.log[0].path.replace('\\', '/')
-                Logger.info(`File successfully saved ${req.body.data.image}`)
+                Logger.info(`File successfully saved ${req.body.data.log}`)
             }
         }
 
