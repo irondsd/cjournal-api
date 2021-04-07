@@ -106,7 +106,7 @@ export const activityDelete = async (id: string): Promise<void> => {
         Activity.findOneAndDelete({ _id: id }, null, (err, activity) => {
             if (err) return reject(err)
 
-            activityHistoryCreate(id, (activity as any)._doc, 'deleted')
+            if (activity) activityHistoryCreate(id, (activity as any)._doc, 'deleted')
             resolve()
         })
     })
