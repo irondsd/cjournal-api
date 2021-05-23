@@ -1,30 +1,6 @@
 import { timestamp } from '../helpers/timestamp'
 import { Schema, model, Document, ObjectId, Mixed } from 'mongoose'
 
-const ActivityUpdate = new Schema(
-    {
-        doctor: { type: Schema.Types.ObjectId, ref: 'User' },
-        activity_type: { type: String, required: true },
-        time_started: { type: Number, required: true },
-        time_ended: { type: Number },
-        utc_offset: { type: Number },
-        idinv: { type: String },
-        comment: { type: String },
-        data: { type: Schema.Types.Mixed, default: {} },
-        task: { type: Schema.Types.ObjectId, ref: 'Task' },
-        deleted: { type: Boolean, default: false },
-        created_at: { type: Number },
-        updated_at: { type: Number },
-    },
-    {
-        timestamps: {
-            currentTime: () => timestamp(),
-            createdAt: 'created_at',
-            updatedAt: 'updated_at',
-        },
-    },
-)
-
 export interface IActivityUpdate {
     doctor: ObjectId
     activity_type: String
@@ -50,7 +26,6 @@ const activitySchema = new Schema(
         comment: { type: String },
         data: { type: Schema.Types.Mixed, default: {} },
         task: { type: Schema.Types.ObjectId, ref: 'Task' },
-        updates: ActivityUpdate,
         created_at: { type: Number },
         updated_at: { type: Number },
     },
@@ -81,6 +56,7 @@ const Activity = model<IActivity>('Activity', activitySchema)
 
 export interface IActivityHistory extends IActivity {
     original: ObjectId
+    action: 'created' | 'updated' | 'deleted'
 }
 
 const activityHistorySchema = new Schema(
@@ -110,4 +86,36 @@ const activityHistorySchema = new Schema(
 
 const ActivityHistory = model<IActivityHistory>('ActivityHistory', activityHistorySchema)
 
-export { Activity, ActivityHistory }
+export interface IActivityUpdates extends IActivity {
+    original: ObjectId
+    updated_by: ObjectId
+}
+
+const activityUpdatesSchema = new Schema(
+    {
+        original: { type: Schema.Types.ObjectId, required: true, ref: 'Activity' },
+        updated_by: { type: Schema.Types.ObjectId, required: true, ref: 'User' },
+        activity_type: { type: String },
+        time_started: { type: Number },
+        time_ended: { type: Number },
+        utc_offset: { type: Number },
+        user: { type: Schema.Types.ObjectId, ref: 'User' },
+        patient: { type: String, ref: 'Patient' },
+        idinv: { type: String, ref: 'Idinv' },
+        comment: { type: String },
+        data: { type: Schema.Types.Mixed, default: {} },
+        task: { type: Schema.Types.ObjectId, ref: 'Task' },
+        created_at: { type: Number },
+    },
+    {
+        timestamps: {
+            currentTime: () => timestamp(),
+            createdAt: 'created_at',
+            updatedAt: 'updated_at',
+        },
+    },
+)
+
+const ActivityUpdates = model<IActivityUpdates>('ActivityUpdates', activityUpdatesSchema)
+
+export { Activity, ActivityHistory, ActivityUpdates }
