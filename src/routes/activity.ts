@@ -2,7 +2,7 @@ import express from 'express'
 const router = express.Router()
 import * as Errors from '../helpers/errors'
 import { saveFiles } from '../middleware/saveFiles'
-import { validateActivity } from '../middleware/validateActivity'
+import { validateActivity, validateActivityUpdate } from '../middleware/validateActivity'
 import verifyObjectId from '../helpers/verifyObjectId'
 import {
     activityGetOne,
@@ -12,6 +12,11 @@ import {
     activityDelete,
     activityHistoryGetMany,
     activityHistoryGetOne,
+    activityUpdatesGetMany,
+    activityUpdatesGetOne,
+    activityUpdatesCreate,
+    activityUpdatesEdit,
+    activityUpdatesDelete,
 } from '../controllers/activityController'
 
 // get by user
@@ -22,12 +27,6 @@ router.get('/users/:uid/activity', async (req, res) => {
     activityGetMany({ user: req.params.uid })
         .then(activity => res.send(activity))
         .catch(err => Errors.internalError(res, err))
-})
-
-router.get('/users/:uid/activity/:aid', async (req, res) => {
-    activityGetOne({ user: req.params.uid, _id: req.params.aid })
-        .then(activity => res.send(activity))
-        .catch(err => Errors.internalError(res))
 })
 
 router.get('/users/:uid/activity/history', async (req, res) => {
@@ -46,6 +45,28 @@ router.get('/users/:uid/activity/history/:aid', async (req, res) => {
         .catch(err => Errors.internalError(res, err))
 })
 
+router.get('/users/:uid/activity/updates', async (req, res) => {
+    if (!verifyObjectId(req.params.uid)) return Errors.incorrectInput(res)
+
+    activityUpdatesGetMany({ user: req.params.uid })
+        .then(activity => res.send(activity))
+        .catch(err => Errors.internalError(res, err))
+})
+
+router.get('/users/:uid/activity/updates/:aid', async (req, res) => {
+    if (!verifyObjectId(req.params.uid)) return Errors.incorrectInput(res)
+
+    activityUpdatesGetOne({ user: req.params.uid, original: req.params.aid })
+        .then(activity => res.send(activity))
+        .catch(err => Errors.internalError(res, err))
+})
+
+router.get('/users/:uid/activity/:aid', async (req, res) => {
+    activityGetOne({ user: req.params.uid, _id: req.params.aid })
+        .then(activity => res.send(activity))
+        .catch(err => Errors.internalError(res))
+})
+
 // get by patient
 
 router.get('/patients/:pid/activity/history', async (req, res) => {
@@ -56,6 +77,18 @@ router.get('/patients/:pid/activity/history', async (req, res) => {
 
 router.get('/patients/:pid/activity/history/:aid', async (req, res) => {
     activityHistoryGetOne({ patient: req.params.pid, original: req.params.aid })
+        .then(activity => res.send(activity))
+        .catch(err => Errors.internalError(res, err))
+})
+
+router.get('/patients/:pid/activity/updates', async (req, res) => {
+    activityUpdatesGetMany({ patient: req.params.pid })
+        .then(activity => res.send(activity))
+        .catch(err => Errors.internalError(res, err))
+})
+
+router.get('/patients/:pid/activity/updates/:aid', async (req, res) => {
+    activityUpdatesGetOne({ patient: req.params.pid, original: req.params.aid })
         .then(activity => res.send(activity))
         .catch(err => Errors.internalError(res, err))
 })
@@ -96,6 +129,18 @@ router.get('/idinv/:idinv/activity/history/:aid', async (req, res) => {
         .catch(err => Errors.internalError(res, err))
 })
 
+router.get('/idinv/:idinv/activity/updates', async (req, res) => {
+    activityUpdatesGetMany({ idinv: req.params.idinv })
+        .then(activity => res.send(activity))
+        .catch(err => Errors.internalError(res, err))
+})
+
+router.get('/idinv/:idinv/activity/updates/:aid', async (req, res) => {
+    activityUpdatesGetOne({ idinv: req.params.idinv, original: req.params.aid })
+        .then(activity => res.send(activity))
+        .catch(err => Errors.internalError(res, err))
+})
+
 router.get('/idinv/:idinv/activity/:aid', async (req, res) => {
     activityGetOne({ idinv: req.params.idinv, _id: req.params.aid })
         .then(activity => res.send(activity))
@@ -131,7 +176,59 @@ router.post('/patients/:pid/activity', saveFiles, validateActivity, (req, res) =
         })
 })
 
+router.post('/users/:uid/activity/updates', validateActivityUpdate, (req, res) => {
+    activityUpdatesCreate(req.body._id, { ...req.body }, req.body.updates_by)
+        .then(activity => res.send(activity))
+        .catch(err => {
+            if (err.code === 11000) return res.status(208).send()
+            Errors.internalError(res, err.message)
+        })
+})
+
+router.post('/idinv/:idinv/activity/updates', validateActivityUpdate, (req, res) => {
+    activityUpdatesCreate(req.body._id, { ...req.body }, req.body.updates_by)
+        .then(activity => res.send(activity))
+        .catch(err => {
+            if (err.code === 11000) return res.status(208).send()
+            Errors.internalError(res, err.message)
+        })
+})
+
+router.post('/patients/:pid/activity/updates', validateActivityUpdate, (req, res) => {
+    activityUpdatesCreate(req.body._id, { ...req.body }, req.body.updates_by)
+        .then(activity => res.send(activity))
+        .catch(err => {
+            if (err.code === 11000) return res.status(208).send()
+            Errors.internalError(res, err.message)
+        })
+})
+
 // put
+
+router.put('/users/:uid/activity/updates/:auid', validateActivityUpdate, (req, res) => {
+    activityUpdatesEdit(req.params.auid, { ...req.body, user: req.params.uid })
+        .then(activity => res.send(activity))
+        .catch(err => {
+            if (err.code === 404) return Errors.notFound(res)
+            Errors.internalError(res, err.message)
+        })
+})
+
+router.put('/idinv/:idinv/activity/updates/:auid', validateActivityUpdate, async (req, res) => {
+    activityUpdatesEdit(req.params.auid, { ...req.body, idinv: req.params.idinv })
+        .then(activity => res.send(activity))
+        .catch(err => {
+            Errors.internalError(res, err.message)
+        })
+})
+
+router.put('/patients/:pid/activity/updates/:auid', validateActivityUpdate, async (req, res) => {
+    activityUpdatesEdit(req.params.auid, { ...req.body, patient: req.params.pid })
+        .then(activity => res.send(activity))
+        .catch(err => {
+            Errors.internalError(res, err.message)
+        })
+})
 
 router.put('/users/:uid/activity/:aid', saveFiles, validateActivity, (req, res) => {
     activityEdit(req.params.aid, { ...req.body, user: req.params.uid })
@@ -159,6 +256,24 @@ router.put('/patients/:pid/activity/:aid', saveFiles, validateActivity, async (r
 })
 
 // delete
+
+router.delete('/users/:uid/activity/updates/:auid', async (req, res) => {
+    activityUpdatesDelete(req.params.auid)
+        .then(() => res.status(204).send())
+        .catch(err => Errors.internalError(res, err))
+})
+
+router.delete('/idinv/:idinv/activity/updates/u:aid', async (req, res) => {
+    activityUpdatesDelete(req.params.auid)
+        .then(() => res.status(204).send())
+        .catch(err => Errors.internalError(res, err))
+})
+
+router.delete('/patients/:pid/activity/updatesu/:aid', async (req, res) => {
+    activityUpdatesDelete(req.params.auid)
+        .then(() => res.status(204).send())
+        .catch(err => Errors.internalError(res, err))
+})
 
 router.delete('/users/:uid/activity/:aid', async (req, res) => {
     activityDelete(req.params.aid)
