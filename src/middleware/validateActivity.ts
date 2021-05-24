@@ -20,7 +20,7 @@ export const validateActivityUpdate = (req: Request, res: Response, next: NextFu
     if (
         (req.body.user || req.body.idinv || req.body.patient) &&
         req.body.updated_by &&
-        req.body._id &&
+        req.body.original &&
         req.body.activity_type &&
         req.body.time_started
     ) {
