@@ -4,6 +4,7 @@ import * as Errors from '../helpers/errors'
 import { validateTask } from '../middleware/validateTask'
 import Logger from '../helpers/logger'
 import {
+    taskComplete,
     taskCreate,
     taskDelete,
     taskEdit,
@@ -100,6 +101,15 @@ router.post('/patients/:pid/tasks', validateTask, async (req, res) => {
             Logger.error(err.message)
             if (err.code === 11000) return res.status(208).send()
 
+            Errors.incorrectInput(res)
+        })
+})
+
+router.post('/users/:uid/tasks/:tid/complete', async (req, res) => {
+    taskComplete(req.params.tid)
+        .then(task => res.status(201).send(task))
+        .catch(err => {
+            Logger.error(err.message)
             Errors.incorrectInput(res)
         })
 })

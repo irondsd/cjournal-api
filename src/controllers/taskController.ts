@@ -46,6 +46,16 @@ export const taskEdit = async (id: string, task: ITask): Promise<ITask> => {
     })
 }
 
+export const taskComplete = async (id: string): Promise<ITask> => {
+    return new Promise((resolve, reject) => {
+        Task.findByIdAndUpdate(id, { completed: true }, (err: Error, task: ITask | null) => {
+            if (err || !task) return reject(err || { code: 404 })
+
+            resolve(task)
+        })
+    })
+}
+
 export const taskDelete = async (id: string): Promise<void> => {
     return new Promise((resolve, reject) => {
         Task.findOneAndDelete({ _id: id }, null, (err, task) => {
